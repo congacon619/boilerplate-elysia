@@ -1,0 +1,29 @@
+{
+  "name": "app",
+  "version": "1.0.50",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun run --watch src/index.ts",
+    "----CHECK": "echo CHECK",
+    "format": "bunx @biomejs/biome format --write .",
+    "lint": "bunx @biomejs/biome lint --write .",
+    "check": "bunx @biomejs/biome check --write .",
+    "----DATABASE": "",
+    "db:generate": "bun prisma generate --schema prisma/schema.prisma",
+    "db:deploy": "prisma migrate deploy",
+    "db:migrate": "prisma migrate dev --create-only --name init"
+  },
+  "dependencies": {
+    "@elysiajs/cors": "^1.2.0",
+    "@elysiajs/swagger": "^1.2.2",
+    "@prisma/client": "^6.4.1",
+    "@sinclair/typebox": "^0.34.30",
+    "elysia": "latest"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "bun-types": "latest",
+    "prisma": "^6.4.1"
+  },
+  "module": "src/index.js"
+}

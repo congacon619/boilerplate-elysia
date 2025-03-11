@@ -1,0 +1,220 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["metrics"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRESQL_URI")
+}
+
+enum USER_SIGN_UP_FROM {
+  GOOGLE
+  FACEBOOK
+  LOCAL
+  ADMIN
+}
+
+enum API_KEY_TYPE {
+  PUBLIC
+  PRIVATE
+}
+
+enum SETTING_DATA_TYPE {
+  STRING
+  NUMBER
+  BOOLEAN
+  DATE
+}
+
+model User {
+  id                 String            @id
+  username           String            @unique
+  email              String?           @unique
+  password           String
+  avatar             String?
+  mobileNumber       String?           @unique @map("mobile_number")
+  passwordExpired    DateTime          @map("password_expired")
+  passwordCreated    DateTime          @map("password_created")
+  passwordAttempt    Int               @default(0) @map("password_attempt")
+  signUpFrom         USER_SIGN_UP_FROM @default(LOCAL) @map("sign_up_from")
+  created            DateTime          @default(now())
+  modified           DateTime          @updatedAt
+  protected          Boolean           @default(false)
+  mfaTelegramEnabled Boolean           @default(false) @map("mfa_telegram_enabled")
+  mfaTotpEnabled     Boolean           @default(false) @map("mfa_totp_enabled")
+  telegramUsername   String?           @map("telegram_username")
+  totpSecret         String?           @map("totp_secret")
+  enabled            Boolean           @default(true)
+
+  roleUsers  RoleUser[]
+  sessions   Session[]
+  activities Activity[]
+  apiKeys    ApiKey[]
+
+  @@map("users")
+}
+
+model Role {
+  id          String   @id
+  name        String   @unique
+  description String?
+  enabled     Boolean  @default(true)
+  permissions String[]
+  protected   Boolean  @default(false)
+
+  roleUsers RoleUser[]
+
+  @@map("roles")
+}
+
+model RoleUser {
+  id     String @id
+  roleId String @map("role_id")
+  userId String @map("user_id")
+
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, userId])
+  @@map("roles_users")
+}
+
+model Setting {
+  id          String            @id
+  key         String            @unique @map("key")
+  description String?           @map("description")
+  type        SETTING_DATA_TYPE @default(STRING)
+  value       String            @map("value")
+
+  @@index([key])
+  @@map("settings")
+}
+
+model I18n {
+  id  String  @id
+  key String  @unique()
+  en  String?
+  zh  String?
+  vi  String?
+  ko  String?
+
+  @@map("i18n")
+}
+
+model ApiKey {
+  id        String       @id
+  type      API_KEY_TYPE @default(PUBLIC)
+  name      String
+  key       String       @unique
+  hash      String
+  enabled   Boolean      @default(true)
+  startDate DateTime     @default(now()) @map("start_date")
+  endDate   DateTime?    @map("end_date")
+  created   DateTime     @default(now())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id])
+
+  @@map("api_keys")
+}
+
+model Session {
+  id          String   @id
+  identifier  String?
+  language    String?
+  timezone    Int?
+  device      String?
+  location    Json?    @map("last_location")
+  ip          String
+  createdById String   @map("created_by_id")
+  expired     DateTime
+  revoked     Boolean  @default(false)
+  modified    DateTime @updatedAt()
+  created     DateTime @default(now())
+  userAgent   Json     @map("user_agent")
+  token       String   @unique()
+
+  createdBy  User       @relation(fields: [createdById], references: [id])
+  activities Activity[]
+
+  @@index([createdById])
+  @@map("sessions")
+}
+
+model Activity {
+  id          String   @id
+  type        String
+  description String?
+  device      String?
+  ip          String?
+  sessionId   String?  @map("session_id")
+  reference   Json?
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdById String   @map("created_by_id")
+  modified    DateTime @updatedAt()
+  created     DateTime @default(now())
+
+  session Session? @relation(fields: [sessionId], references: [id])
+
+  @@index([type])
+  @@index([ip])
+  @@map("activities")
+}
+
+model IPWhitelist {
+  id   String  @id
+  ip   String  @unique
+  note String?
+
+  @@map("ip_whitelist")
+}
+
+model TelegramTemplate {
+  id          String   @id
+  name        String
+  description String?
+  message     String?
+  photos      String[]
+  videos      String[]
+  buttons     Json?
+  created     DateTime @default(now())
+  modified    DateTime @updatedAt
+
+  @@map("telegram_templates")
+}
+
+enum TELEGRAM_CHAT_TYPE {
+  CHAT
+  GROUP
+  CHANEL
+}
+
+model TelegramChat {
+  id          String             @id
+  name        String
+  type        TELEGRAM_CHAT_TYPE @default(CHAT)
+  description String?
+  chatId      String
+  created     DateTime           @default(now())
+  modified    DateTime           @updatedAt
+
+  @@map("telegram_chats")
+}
+
+model TelegramBot {
+  id          String   @id
+  name        String
+  description String?
+  enabled     Boolean  @default(true)
+  token       String
+  created     DateTime @default(now())
+  modified    DateTime @updatedAt
+
+  @@map("telegram_bots")
+}

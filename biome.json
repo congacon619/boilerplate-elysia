@@ -1,0 +1,35 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.7.0/schema.json",
+	"organizeImports": {
+		"enabled": true
+	},
+	"files": {
+		"ignore": [
+			"dist/**",
+			"src/db/migrations",
+			"package.json"
+		]
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"correctness": {
+				"noUnusedImports": {
+					"level": "error"
+				}
+			},
+			"suspicious": {
+				"noExplicitAny": {
+					"level": "off"
+				}
+			},
+			"style": {
+				"useImportType": "off"
+			},
+			"performance": {
+				"noAccumulatingSpread": "off"
+			}
+		}
+	}
+}
