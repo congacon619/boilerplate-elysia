@@ -5,7 +5,6 @@ import { Elysia } from 'elysia'
 import { compact, uniq } from 'lodash'
 import {
 	ACTIVITY_TYPE,
-	AppException,
 	BadRequestException,
 	NotFoundException,
 	PREFIX,
@@ -25,6 +24,7 @@ import { LOGIN_RES_TYPE, LOGIN_WITH, MFA_METHOD } from '../constant'
 import {
 	IAccessTokenRes,
 	ILogin,
+	ILoginConfirmReq,
 	ILoginMFARes,
 	ILoginMFASetupRes,
 	ILoginRes,
@@ -88,18 +88,18 @@ export const authService = new Elysia({ name: 'AuthService' })
 				| (Record<string, string> & JWTPayloadSpec)
 				| false
 			if (!res) {
-				throw new AppException('exception.invalid-token')
+				throw new BadRequestException('exception.invalid-token')
 			}
 			if (
 				!res.exp ||
 				isExpired(res.exp * 1000, seconds(env.EXPIRED_TOLERANCE))
 			) {
-				throw new AppException('exception.expired-token')
+				throw new BadRequestException('exception.expired-token')
 			}
 			const data = await aes256Decrypt<ITokenPayload>(res.data)
 			const cachedToken = await tokenCache.get(data.sessionId)
 			if (!cachedToken) {
-				throw new AppException('exception.expired-token')
+				throw new BadRequestException('exception.expired-token')
 			}
 			return { ...res, data }
 		}
@@ -245,6 +245,35 @@ export const authService = new Elysia({ name: 'AuthService' })
 							totpSecret,
 							mfaToken,
 						}
+					}
+
+					return completeLogin(user, meta)
+				},
+
+				async loginConfirm(
+					{ mfaToken, token, otp }: ILoginConfirmReq,
+					meta: IReqMeta,
+				): Promise<ILoginRes> {
+					const login = await loginCache.get(token)
+					if (!token || !login) {
+						throw new BadRequestException('exception.session-expired')
+					}
+
+					const user = await db.user.findUnique({
+						where: { id: login.userId },
+					})
+					if (!user || !user.enabled) {
+						throw new BadRequestException('exception.user-not-active')
+					}
+					if (
+						!(await mfaUtilService.verifySession({
+							mfaToken,
+							otp,
+							user,
+							referenceToken: token,
+						}))
+					) {
+						throw new BadRequestException('exception.invalid-otp')
 					}
 
 					return completeLogin(user, meta)

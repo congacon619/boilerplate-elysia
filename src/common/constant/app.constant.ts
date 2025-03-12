@@ -333,6 +333,124 @@ export const ROUTER = {
 	},
 }
 
+export const DOC_DETAIL = {
+	// auth APIs
+	LOGIN: {
+		description: 'Login with email and password',
+		summary: 'Login',
+	},
+	LOGIN_CONFIRM: {
+		description: 'Confirm login with OTP',
+		summary: 'Confirm Login',
+	},
+	// REGISTER: {
+	// 	description: 'Register new user with role user',
+	// 	summary: 'Register',
+	// },
+	// LOGOUT: {
+	// 	description: 'Logout from this device',
+	// 	summary: 'Logout',
+	// },
+	// LOGOUT_ALL: {
+	// 	description: 'Logout from all devices',
+	// 	summary: 'Logout all',
+	// },
+	// CONFIRM_DEVICE: {
+	// 	description: 'Confirm new device',
+	// 	summary: 'Confirm device',
+	// },
+	// LOGOUT_DEVICE: {
+	// 	description: 'Logout from a device',
+	// 	summary: 'Logout device',
+	// },
+	// SEND_EMAIL_MAGIC_LOGIN: {
+	// 	description: 'Send email magic login',
+	// 	summary: 'Send email magic login',
+	// },
+	// MAGIC_LOGIN: {
+	// 	description: 'Magic login',
+	// 	summary: 'Magic login',
+	// },
+	//
+	// // user APIs
+	// USER_INFO: {
+	// 	description: 'Get user information',
+	// 	summary: 'User info',
+	// },
+	// SEND_EMAIL_VERIFY: {
+	// 	description: 'Send email verify account',
+	// 	summary: 'Send email verify',
+	// },
+	// VERIFY_ACCOUNT: {
+	// 	description: 'Verify account',
+	// 	summary: 'Verify account',
+	// },
+	// USER_BY_ID: {
+	// 	description: 'Get user information by id',
+	// 	summary: 'Get user',
+	// },
+	//
+	// // setting APIs
+	// CREATE_SETTING: {
+	// 	description: 'Create setting',
+	// 	summary: 'Create setting',
+	// },
+	// GET_SETTING: {
+	// 	description: 'Get setting detail',
+	// 	summary: 'Get setting',
+	// },
+	// LIST_SETTING: {
+	// 	description: 'Get list settings',
+	// 	summary: 'Get list settings',
+	// },
+	// DELETE_SETTING: {
+	// 	description: 'Delete setting with id',
+	// 	summary: 'Delete setting',
+	// },
+	// UPDATE_SETTING: {
+	// 	description: 'Update setting with id',
+	// 	summary: 'Update setting',
+	// },
+	//
+	// // device APIs
+	// LIST_DEVICES: {
+	// 	description: 'Get list devices',
+	// 	summary: 'List devices',
+	// },
+	//
+	// // permission APIs
+	// LIST_PERMISSION: {
+	// 	description: 'Get list permissions',
+	// 	summary: 'List permissions',
+	// },
+	// UPDATE_PERMISSION: {
+	// 	description: 'Update permission with id',
+	// 	summary: 'Update permission',
+	// },
+	//
+	// // role APIs
+	// LIST_ROLE: {
+	// 	description: 'Get list roles',
+	// 	summary: 'List roles',
+	// },
+	// GET_ROLE: {
+	// 	description: 'Get role detail',
+	// 	summary: 'Get role',
+	// },
+	// CREATE_ROLE: {
+	// 	description: 'Create role',
+	// 	summary: 'Create role',
+	// },
+	// UPDATE_ROLE: {
+	// 	description: 'Update role with id',
+	// 	summary: 'Update role',
+	// },
+	// DELETE_ROLE: {
+	// 	description: 'Delete role with id',
+	// 	summary: 'Delete role',
+	// },
+}
+
 export enum RES_CODE {
 	SUCCESS = 'success',
 	ISE = 'ise',

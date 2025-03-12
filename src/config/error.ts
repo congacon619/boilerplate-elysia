@@ -1,5 +1,4 @@
 import Elysia from 'elysia'
-import { logger } from './logger'
 import {
 	AppException,
 	DEFAULT_LANGUAGE,
@@ -8,6 +7,7 @@ import {
 } from '../common'
 import { I18nPath, IErrorRes } from '../common/type'
 import { i18n } from './i18n'
+import { logger } from './logger'
 
 export const httpError = () => (app: Elysia) =>
 	app
@@ -44,7 +44,7 @@ export const httpError = () => (app: Elysia) =>
 						HTTP_STATUS.HTTP_400_BAD_REQUEST,
 						RES_CODE.VALIDATION_ERROR,
 						{
-							errors: error.message,
+							errors: error.all.map(x => x.summary),
 						},
 					)
 				case 'NOT_FOUND':

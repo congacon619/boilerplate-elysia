@@ -1,7 +1,15 @@
-import { authenticator } from 'otplib'
+import { authenticator, totp } from 'otplib'
 import { AppException, token16 } from '../../../common'
 import { mfaCache, mfaSetupCache } from '../../../config'
 import { MFA_METHOD } from '../constant'
+
+interface IUserMFA {
+	mfaTotpEnabled: boolean
+	totpSecret?: string | null
+	id: string
+	mfaTelegramEnabled: boolean
+	telegramUsername?: string | null
+}
 
 export const mfaUtilService = {
 	async createSession({
@@ -11,13 +19,7 @@ export const mfaUtilService = {
 	}: {
 		method: MFA_METHOD
 		referenceToken: string
-		user: {
-			mfaTotpEnabled: boolean
-			totpSecret?: string | null
-			id: string
-			mfaTelegramEnabled: boolean
-			telegramUsername?: string | null
-		}
+		user: IUserMFA
 	}): Promise<string> {
 		try {
 			const sessionId = token16()
@@ -51,7 +53,7 @@ export const mfaUtilService = {
 				})
 
 				// todo: send message
-				// await this.telegramService.jobSendMessage({
+				// await telegramService.jobSendMessage({
 				// 	chatIds: [user.telegramUsername],
 				// 	message: `Your OTP is: ${otp}`,
 				// })
@@ -77,5 +79,55 @@ export const mfaUtilService = {
 			mfaToken,
 			totpSecret,
 		}
+	},
+
+	async verifySession({
+		mfaToken,
+		otp,
+		referenceToken,
+		user,
+	}: {
+		mfaToken: string
+		otp: string
+		referenceToken: string
+		user: IUserMFA
+	}): Promise<boolean> {
+		const cacheData = await mfaCache.get(mfaToken)
+
+		if (
+			!cacheData ||
+			cacheData.userId !== user.id ||
+			cacheData.referenceToken !== referenceToken
+		) {
+			return false
+		}
+
+		if (cacheData.type === MFA_METHOD.TOTP) {
+			if (!user.mfaTotpEnabled || !user.totpSecret) {
+				return false
+			}
+
+			if (authenticator.verify({ secret: user.totpSecret, token: otp })) {
+				return true
+			}
+		}
+
+		if (cacheData.type === MFA_METHOD.TELEGRAM) {
+			if (!user.mfaTelegramEnabled || !user.telegramUsername) {
+				return false
+			}
+
+			const telegramTotp = totp.create({
+				...totp.options,
+				step: 300,
+				window: 0,
+			})
+
+			if (telegramTotp.verify({ secret: cacheData.secret, token: otp })) {
+				return true
+			}
+		}
+
+		return false
 	},
 }

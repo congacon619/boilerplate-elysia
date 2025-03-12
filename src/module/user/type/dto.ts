@@ -51,3 +51,11 @@ export const LoginResponseDto = t.Union([
 	LoginMFASetupResDto,
 	LoginMFAResDto,
 ])
+
+export const LoginConfirmReqDto = t.Object({
+	mfaToken: t.String(),
+	otp: t.String(),
+	token: t.String(),
+})
+
+export type ILoginConfirmReq = typeof LoginConfirmReqDto.static
