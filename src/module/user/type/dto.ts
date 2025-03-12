@@ -21,6 +21,12 @@ export const UserResDto = t.Object({
 })
 export type IUserRes = typeof UserResDto.static
 
+export interface IUserMeta extends IUserRes {
+	sessionId: string
+	password: string
+	totpSecret?: string
+}
+
 export const LoginResDto = t.Object({
 	type: t.Literal(LOGIN_RES_TYPE.COMPLETED),
 	accessToken: t.String(),

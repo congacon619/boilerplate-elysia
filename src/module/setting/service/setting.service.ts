@@ -3,52 +3,54 @@ import { isNil } from 'lodash'
 import { SETTING, aes256Decrypt } from '../../../common'
 import { db, settingCache } from '../../../config'
 
-const getValue = async <T>(setting: Setting, raw = false): Promise<T> => {
-	let value: string = setting.value
-	if (setting.encrypted) {
-		value = await aes256Decrypt(value)
-	}
-	if (raw) {
-		return value as T
-	}
-	switch (setting.type) {
-		case SETTING_DATA_TYPE.BOOLEAN:
-			return (value === 'true') as T
-		case SETTING_DATA_TYPE.NUMBER: {
-			const numValue = Number(value)
-			return (Number.isNaN(numValue) ? 0 : numValue) as T
-		}
-		case SETTING_DATA_TYPE.DATE: {
-			const dateValue = new Date(value)
-			return (Number.isNaN(dateValue.getTime()) ? new Date(0) : dateValue) as T
-		}
-		default:
-			return value as T
-	}
-}
-
-const getSetting = async <T>(key: string): Promise<T> => {
-	const cachedValue = await settingCache.get<T>(key)
-	if (!isNil(cachedValue)) {
-		return cachedValue
-	}
-	const setting = await db.setting.findUnique({ where: { key } })
-	if (!setting) {
-		throw new Error(`Missing setting key ${key}`)
-	}
-	const value = await getValue<T>(setting)
-	await settingCache.set(key, value)
-	return value
-}
-
 export const settingService = {
-	password: async (): Promise<{
+	async getValue<T>(setting: Setting, raw = false): Promise<T> {
+		let value: string = setting.value
+		if (setting.encrypted) {
+			value = await aes256Decrypt(value)
+		}
+		if (raw) {
+			return value as T
+		}
+		switch (setting.type) {
+			case SETTING_DATA_TYPE.BOOLEAN:
+				return (value === 'true') as T
+			case SETTING_DATA_TYPE.NUMBER: {
+				const numValue = Number(value)
+				return (Number.isNaN(numValue) ? 0 : numValue) as T
+			}
+			case SETTING_DATA_TYPE.DATE: {
+				const dateValue = new Date(value)
+				return (
+					Number.isNaN(dateValue.getTime()) ? new Date(0) : dateValue
+				) as T
+			}
+			default:
+				return value as T
+		}
+	},
+
+	async getSetting<T>(key: string): Promise<T> {
+		const cachedValue = await settingCache.get<T>(key)
+		if (!isNil(cachedValue)) {
+			return cachedValue
+		}
+		const setting = await db.setting.findUnique({ where: { key } })
+		if (!setting) {
+			throw new Error(`Missing setting key ${key}`)
+		}
+		const value = await settingService.getValue<T>(setting)
+		await settingCache.set(key, value)
+		return value
+	},
+
+	async password(): Promise<{
 		enbAttempt: boolean
 		enbExpired: boolean
-	}> => {
+	}> {
 		const [enbAttempt, enbExpired] = await Promise.all([
-			getSetting<boolean>(SETTING.ENB_PASSWORD_ATTEMPT),
-			getSetting<boolean>(SETTING.ENB_PASSWORD_EXPIRED),
+			settingService.getSetting<boolean>(SETTING.ENB_PASSWORD_ATTEMPT),
+			settingService.getSetting<boolean>(SETTING.ENB_PASSWORD_EXPIRED),
 		])
 		return {
 			enbAttempt,
@@ -56,11 +58,11 @@ export const settingService = {
 		}
 	},
 
-	enbMFARequired: async (): Promise<boolean> => {
-		return getSetting<boolean>(SETTING.ENB_MFA_REQUIRED)
+	async enbMFARequired(): Promise<boolean> {
+		return settingService.getSetting<boolean>(SETTING.ENB_MFA_REQUIRED)
 	},
 
 	async enbOnlyOneSession(): Promise<boolean> {
-		return getSetting<boolean>(SETTING.ENB_ONLY_ONE_SESSION)
+		return settingService.getSetting<boolean>(SETTING.ENB_ONLY_ONE_SESSION)
 	},
 }

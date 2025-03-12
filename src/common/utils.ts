@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import { JWTPayload, SignJWT, jwtVerify } from 'jose'
 import ms, { StringValue } from 'ms'
 import { customAlphabet } from 'nanoid'
 import { env } from '../config'
@@ -89,5 +90,30 @@ export const aes256Decrypt = async <T>(encrypted: string): Promise<T> => {
 		return JSON.parse(decryptedText) as T
 	} catch {
 		return decryptedText as T
+	}
+}
+
+// region jwt
+export const signJwt = async (payload: Record<string, any>) => {
+	return await new SignJWT(payload)
+		.setProtectedHeader({ alg: 'HS256' })
+		.setIssuedAt()
+		.setNotBefore(env.JWT_ACCESS_TOKEN_NOT_BEFORE_EXPIRATION)
+		.setExpirationTime(env.JWT_ACCESS_TOKEN_EXPIRED)
+		.setAudience(env.JWT_AUDIENCE)
+		.setIssuer(env.JWT_ISSUER)
+		.setSubject(env.JWT_SUBJECT)
+		.sign(new TextEncoder().encode(env.JWT_ACCESS_TOKEN_SECRET_KEY))
+}
+
+export const verifyJwt = async (token: string): Promise<JWTPayload | null> => {
+	try {
+		const { payload } = await jwtVerify(
+			token,
+			new TextEncoder().encode(env.JWT_ACCESS_TOKEN_SECRET_KEY),
+		)
+		return payload
+	} catch (error) {
+		return null
 	}
 }

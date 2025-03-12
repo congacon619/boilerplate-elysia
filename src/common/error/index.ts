@@ -29,3 +29,9 @@ export class NotFoundException extends AppException {
 		super(code, HTTP_STATUS.HTTP_404_NOT_FOUND, detail)
 	}
 }
+
+export class UnauthorizedException extends AppException {
+	constructor(code: I18nPath, detail?: { errors?: unknown; args?: unknown }) {
+		super(code, HTTP_STATUS.HTTP_401_UNAUTHORIZED, detail)
+	}
+}

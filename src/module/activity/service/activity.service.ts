@@ -1,17 +1,18 @@
 import { Prisma, PrismaClient } from '@prisma/client'
 import { ACTIVITY_TYPE, PREFIX, token12 } from '../../../common'
+import { IReqMeta } from '../../../common/type'
 import { db } from '../../../config'
 
 export const activityService = {
 	create(
 		{
 			type,
-			clientInfo,
+			meta,
 			user,
 			reference,
 		}: {
 			type: ACTIVITY_TYPE
-			clientInfo?: { ip: string; ua: string }
+			meta?: IReqMeta
 			user: { id: string; sessionId?: string }
 			reference?: object
 		},
@@ -32,8 +33,8 @@ export const activityService = {
 			data: {
 				id: token12(PREFIX.ACTIVITY),
 				type,
-				ip: clientInfo?.ip,
-				device: clientInfo?.ua,
+				ip: meta?.ip,
+				device: meta?.ua?.ua,
 				sessionId: user.sessionId,
 				createdById: user.id,
 				reference,

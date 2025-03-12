@@ -1,7 +1,16 @@
+import { JWTPayloadSpec } from '@elysiajs/jwt'
 import dayjs from 'dayjs'
-import { aes256Encrypt, seconds } from '../../../common'
-import { db, env } from '../../../config'
-import { IAuthPassword, ITokenPayload } from '../type'
+import {
+	BadRequestException,
+	aes256Decrypt,
+	aes256Encrypt,
+	isExpired,
+	seconds,
+	signJwt,
+	verifyJwt,
+} from '../../../common'
+import { db, env, tokenCache } from '../../../config'
+import { IAccessTokenRes, IAuthPassword, ITokenPayload } from '../type'
 
 export const passwordService = {
 	async createPassword(password: string): Promise<IAuthPassword> {
@@ -51,5 +60,58 @@ export const tokenService = {
 			}),
 			expirationTime: expiredAt,
 		}
+	},
+
+	async generateAndCacheToken(
+		payload: ITokenPayload,
+	): Promise<IAccessTokenRes> {
+		const data = await aes256Encrypt(payload)
+		const accessToken = await signJwt({ data })
+		await tokenCache.set(payload.sessionId, accessToken)
+		return {
+			accessToken,
+			expirationTime: dayjs()
+				.add(seconds(env.JWT_ACCESS_TOKEN_EXPIRED), 's')
+				.toDate(),
+		}
+	},
+
+	async createAccessToken(payload: ITokenPayload): Promise<IAccessTokenRes> {
+		const cachedToken = await tokenCache.get(payload.sessionId)
+		if (cachedToken) {
+			const res = await verifyJwt(cachedToken)
+			if (
+				!res ||
+				!res.exp ||
+				isExpired(res.exp * 1000, seconds(env.EXPIRED_TOLERANCE))
+			) {
+				return await tokenService.generateAndCacheToken(payload)
+			}
+			return {
+				accessToken: cachedToken,
+				expirationTime: new Date(res.exp * 1000),
+			}
+		}
+		return await tokenService.generateAndCacheToken(payload)
+	},
+
+	async verifyAccessToken(
+		token: string,
+	): Promise<JWTPayloadSpec & { data: ITokenPayload }> {
+		const res = (await verifyJwt(token)) as
+			| (Record<string, string> & JWTPayloadSpec)
+			| false
+		if (!res) {
+			throw new BadRequestException('exception.invalid-token')
+		}
+		if (!res.exp || isExpired(res.exp * 1000, seconds(env.EXPIRED_TOLERANCE))) {
+			throw new BadRequestException('exception.expired-token')
+		}
+		const data = await aes256Decrypt<ITokenPayload>(res.data)
+		const cachedToken = await tokenCache.get(data.sessionId)
+		if (!cachedToken) {
+			throw new BadRequestException('exception.expired-token')
+		}
+		return { ...res, data }
 	},
 }

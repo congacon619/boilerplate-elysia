@@ -38,9 +38,6 @@ try {
 		.use(swaggerConfig())
 		.use(httpError())
 		.use(authController)
-
-	process.on('SIGINT', app.stop)
-	process.on('SIGTERM', app.stop)
 	app.listen(env.PORT)
 
 	logger.info(
