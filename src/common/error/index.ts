@@ -1,5 +1,5 @@
 import { HTTP_STATUS } from '../constant'
-import { I18nPath } from '../../types/i18next'
+import { I18nPath } from '../type'
 
 export class AppException extends Error {
 	public readonly detail?: { errors?: unknown; args?: unknown }
@@ -15,5 +15,17 @@ export class AppException extends Error {
 		this.status = status
 		this.detail = detail
 		this.code = code
+	}
+}
+
+export class BadRequestException extends AppException {
+	constructor(code: I18nPath, detail?: { errors?: unknown; args?: unknown }) {
+		super(code, HTTP_STATUS.HTTP_400_BAD_REQUEST, detail)
+	}
+}
+
+export class NotFoundException extends AppException {
+	constructor(code: I18nPath, detail?: { errors?: unknown; args?: unknown }) {
+		super(code, HTTP_STATUS.HTTP_404_NOT_FOUND, detail)
 	}
 }

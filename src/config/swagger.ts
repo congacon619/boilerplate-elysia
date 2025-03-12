@@ -1,8 +1,8 @@
 import { swagger } from '@elysiajs/swagger'
 import type { Elysia } from 'elysia'
-import { env } from './env'
 import packageJson from '../../package.json'
 import { DOC_OPTIONS } from '../common'
+import { env } from './env'
 
 export const swaggerConfig = () => (app: Elysia) => {
 	if (env.ENB_SWAGGER_UI) {

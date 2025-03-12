@@ -14,6 +14,15 @@ export enum APP_ENV {
 	PROD = 'prod',
 }
 
+export enum LOG_LEVEL {
+	FATAL = 'fatal',
+	ERROR = 'error',
+	WARN = 'warn',
+	INFO = 'info',
+	DEBUG = 'debug',
+	TRACE = 'trace',
+}
+
 export enum SETTING {
 	MAINTENANCE_END_DATE = 'MAINTENANCE_END_DATE',
 
@@ -32,6 +41,8 @@ export const REGEX_SIZE = /^[0-9]+(kb|MB|GB|TB)$/i
 export const REGEX_TIME = /^\d+(s|m|h|d|w|mo|y)$/i
 export const SENTRY_DSN_REGEX =
 	/https:\/\/[\da-f]{32}@o\d+\.ingest\.sentry\.io\/\d+/
+export const PASSWORD_REGEX =
+	/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/
 
 // region request
 export enum HTTP_METHOD {
@@ -44,17 +55,6 @@ export enum HTTP_METHOD {
 	HEAD = 'HEAD',
 }
 export const REGEX_HTTP_METHOD = `^(${Object.values(HTTP_METHOD).join('|')})(,(${Object.values(HTTP_METHOD).join('|')}))*$`
-
-export enum HEADER {
-	DEVICE_ID = 'device-id',
-	AUTHORIZATION = 'authorization',
-	X_TIMEZONE = 'x-timezone',
-	X_CUSTOM_LANGUAGE = 'x-custom-lang',
-	X_TIMESTAMP = 'x-timestamp',
-	X_REQUEST_ID = 'x-request-id',
-	X_VERSION = 'x-version',
-	X_REPO_VERSION = 'x-repo-version',
-}
 
 // region file
 export enum FILE_MIME {
@@ -142,12 +142,6 @@ export enum PERMISSION {
 	API_KEY_DELETE = 'API_KEY.DELETE',
 }
 
-export enum RES_CODE {
-	SUCCESS = 'success',
-	ISE = 'ise',
-	VALIDATION_ERROR = 'validation-error',
-}
-
 // region queue
 export enum QUEUE {
 	TELEGRAM_QUEUE = 'TELEGRAM_QUEUE',
@@ -214,14 +208,15 @@ export const DOC_OPTIONS = {
 	},
 }
 
-export enum LOG_LEVEL {
-	FATAL = 'fatal',
-	ERROR = 'error',
-	WARN = 'warn',
-	INFO = 'info',
-	DEBUG = 'debug',
-	TRACE = 'trace',
+// region cache
+export enum CACHE_NS {
+	ACCESS_TOKEN = 'access-token',
+	LOGIN = 'login',
+	SETTING = 'setting',
+	MFA_SETUP = 'mfa-setup',
 }
+
+// region http
 
 export const CORS_ALLOW_HEADERS = [
 	'Accept',
@@ -253,8 +248,94 @@ export const CORS_ALLOW_HEADERS = [
 	'User-Agent',
 ]
 
-export enum CACHE_NS {
-	ACCESS_TOKEN = 'access-token',
+export const ROUTER = {
+	ROOT: '/',
+	AUTH: {
+		LOGIN: '/login',
+		LOGIN_CONFIRM: '/login/confirm',
+		LOGOUT: '/logout',
+		REGISTER: '/register',
+		REFRESH_TOKEN: '/refresh-token',
+		CURRENT_USER: '/current-user',
+		CHANGE_PASSWORD: '/change-password/request',
+		CHANGE_PASSWORD_CONFIRM: '/change-password/confirm',
+	},
+	MISC: {
+		ROOT: '/misc',
+		PREFLIGHT: '/preflight',
+		HEALTH_CHECK: '/health-check',
+		TIME: '/time',
+		IP: '/ip',
+		VERSION: '/version',
+	},
+	SETTING: {
+		ROOT: '/settings',
+		UPDATE: '/:id',
+	},
+	I18N: {
+		ROOT: '/i18n',
+		DEL: '/del',
+		IMPORT: '/import',
+		EXPORT: '/export',
+	},
+	USER: {
+		ROOT: '/users',
+	},
+	ROLE: {
+		ROOT: '/roles',
+		DEL: '/del',
+	},
+	PERMISSION: {
+		ROOT: '/permissions',
+	},
+	IP_WHITELIST: {
+		ROOT: '/ipwhitelist',
+		DEL: '/del',
+	},
+	SESSION: {
+		ROOT: '/sessions',
+		REVOKE: '/:id/revoke',
+	},
+	ACTIVITY: {
+		ROOT: '/activities',
+	},
+	MFA: {
+		ROOT: '/mfa',
+		REQUEST: '/setup/request',
+		CONFIRM: '/setup/confirm',
+		RESET_REQUEST: '/reset-mfa/request',
+		RESET_CONFIRM: '/reset-mfa/confirm',
+	},
+	FILE: {
+		ROOT: '/files',
+		UPLOAD: '/image-upload',
+		DOWNLOAD: '/:filename',
+	},
+	TELEGRAM_BOT: {
+		ROOT: '/telegram-bot',
+		DEL: '/del',
+	},
+	TELEGRAM_CHAT: {
+		ROOT: '/telegram-chat',
+		DEL: '/del',
+	},
+	TELEGRAM_TEMPLATE: {
+		ROOT: '/telegram-template',
+		DEL: '/del',
+		SEND: '/send',
+		MANUAL_SEND: '/manual-send',
+	},
+	API_KEY: {
+		ROOT: '/api-keys',
+		RESET: '/reset/:id',
+		DEL: '/del',
+	},
+}
+
+export enum RES_CODE {
+	SUCCESS = 'success',
+	ISE = 'ise',
+	VALIDATION_ERROR = 'validation-error',
 }
 
 export enum HTTP_STATUS {
@@ -331,4 +412,42 @@ export enum HTTP_STATUS {
 	HTTP_509_BANDWIDTH_LIMIT_EXCEEDED = 509,
 	HTTP_510_NOT_EXTENDED = 510,
 	HTTP_511_NETWORK_AUTHENTICATION_REQUIRED = 511,
+}
+
+// region activity
+export enum ACTIVITY_TYPE {
+	LOGIN = 'login',
+	LOGOUT = 'logout',
+	CHANGE_PASSWORD = 'change-password',
+	SETUP_MFA = 'setup-mfa',
+
+	CREATE_USER = 'create-user',
+	UPDATE_USER = 'update-user',
+
+	CREATE_ROLE = 'create-role',
+	UPDATE_ROLE = 'update-role',
+	DEL_ROLE = 'del-role',
+
+	REVOKE_SESSION = 'revoke-session',
+	RESET_MFA = 'reset-mfa',
+
+	CREATE_IP_WHITELIST = 'create-ipwhitelist',
+	DEL_IP_WHITELIST = 'del-ipwhitelist',
+
+	UPDATE_SETTING = 'update-setting',
+
+	CREATE_TELEGRAM_BOT = 'create-telegram-bot',
+	UPDATE_TELEGRAM_BOT = 'update-telegram-bot',
+	DEL_TELEGRAM_BOT = 'del-telegram-bot',
+
+	CREATE_PROXY = 'create-proxy',
+	UPDATE_PROXY = 'update-proxy',
+	DEL_PROXY = 'del-proxy',
+
+	CREATE_GATE = 'create-gate',
+	UPDATE_GATE = 'update-gate',
+	DEL_GATE = 'del-gate',
+
+	CREATE_API_KEY = 'create-api-key',
+	UPDATE_API_KEY = 'update-api-key',
 }

@@ -1,7 +1,7 @@
-import { customAlphabet } from 'nanoid'
-import ms, { StringValue } from 'ms'
-import { env } from '../config'
 import dayjs from 'dayjs'
+import ms, { StringValue } from 'ms'
+import { customAlphabet } from 'nanoid'
+import { env } from '../config'
 
 const NANO_ID_ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789'
 export const token12 = (prefix = ''): string => {

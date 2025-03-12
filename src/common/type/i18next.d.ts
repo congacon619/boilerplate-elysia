@@ -1,5 +1,5 @@
 import 'i18next'
-import { resources } from '../config'
+import { resources } from '../../config'
 
 export type I18nPath = GenerateI18nPath<(typeof resources)['en']['translation']>
 

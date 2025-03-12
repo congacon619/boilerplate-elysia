@@ -13,3 +13,9 @@ export interface IAccessTokenRes {
 	accessToken: string
 	expirationTime: Date
 }
+
+export interface IAuthPassword {
+	passwordHash: string
+	passwordExpired: Date
+	passwordCreated: Date
+}

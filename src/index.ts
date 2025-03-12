@@ -1,6 +1,7 @@
-import { Elysia } from 'elysia'
 import cors from '@elysiajs/cors'
-import { env, i18n, logger, swaggerConfig } from './config'
+import { Elysia } from 'elysia'
+import { env, logger, swaggerConfig } from './config'
+import { authController } from './module/user/controller'
 
 const app = new Elysia()
 	.use(
@@ -28,6 +29,7 @@ const app = new Elysia()
 		}),
 	)
 	.use(swaggerConfig())
+	.use(authController)
 	.get('/env', () => env)
 	.get('/', ctx => {
 		ctx.log.error(ctx, 'Context')
@@ -39,5 +41,3 @@ const app = new Elysia()
 logger.info(
 	`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
 )
-logger.info(i18n('exception.key', { lng: 'en' }))
-logger.info(i18n('exception.key', { lng: 'vi' }))

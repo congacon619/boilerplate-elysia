@@ -1,3 +1,6 @@
+import { Static, Type as t } from '@sinclair/typebox'
+import { TypeCompiler } from '@sinclair/typebox/compiler'
+import { Value } from '@sinclair/typebox/value'
 import {
 	APP_ENV,
 	CORS_ALLOW_HEADERS,
@@ -7,9 +10,6 @@ import {
 	REGEX_TIME,
 	SENTRY_DSN_REGEX,
 } from '../common'
-import { Static, Type as t } from '@sinclair/typebox'
-import { TypeCompiler } from '@sinclair/typebox/compiler'
-import { Value } from '@sinclair/typebox/value'
 
 export const envSchema = t.Object({
 	APP_ENV: t.Enum(APP_ENV, { default: APP_ENV.DEV }),
