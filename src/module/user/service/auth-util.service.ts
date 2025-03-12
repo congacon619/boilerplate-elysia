@@ -1,5 +1,5 @@
-import { JWTPayloadSpec } from '@elysiajs/jwt'
 import dayjs from 'dayjs'
+import { JWTPayload } from 'jose'
 import {
 	BadRequestException,
 	aes256Decrypt,
@@ -97,10 +97,8 @@ export const tokenService = {
 
 	async verifyAccessToken(
 		token: string,
-	): Promise<JWTPayloadSpec & { data: ITokenPayload }> {
-		const res = (await verifyJwt(token)) as
-			| (Record<string, string> & JWTPayloadSpec)
-			| false
+	): Promise<JWTPayload & { data: ITokenPayload }> {
+		const res = await verifyJwt(token)
 		if (!res) {
 			throw new BadRequestException('exception.invalid-token')
 		}

@@ -1,5 +1,5 @@
 import { swagger } from '@elysiajs/swagger'
-import type { Elysia } from 'elysia'
+import { Elysia } from 'elysia'
 import packageJson from '../../package.json'
 import { DOC_OPTIONS } from '../common'
 import { env } from './env'

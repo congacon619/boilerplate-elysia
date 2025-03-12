@@ -1,8 +1,9 @@
 import dayjs from 'dayjs'
-import { JWTPayload, SignJWT, jwtVerify } from 'jose'
+import { SignJWT, jwtVerify } from 'jose'
 import ms, { StringValue } from 'ms'
 import { customAlphabet } from 'nanoid'
 import { env } from '../config'
+import { IJwtVerified } from './type'
 
 const NANO_ID_ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789'
 export const token12 = (prefix = ''): string => {
@@ -106,13 +107,15 @@ export const signJwt = async (payload: Record<string, any>) => {
 		.sign(new TextEncoder().encode(env.JWT_ACCESS_TOKEN_SECRET_KEY))
 }
 
-export const verifyJwt = async (token: string): Promise<JWTPayload | null> => {
+export const verifyJwt = async (
+	token: string,
+): Promise<IJwtVerified | null> => {
 	try {
 		const { payload } = await jwtVerify(
 			token,
 			new TextEncoder().encode(env.JWT_ACCESS_TOKEN_SECRET_KEY),
 		)
-		return payload
+		return payload as IJwtVerified
 	} catch (error) {
 		return null
 	}

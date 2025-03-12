@@ -65,4 +65,8 @@ export const settingService = {
 	async enbOnlyOneSession(): Promise<boolean> {
 		return settingService.getSetting<boolean>(SETTING.ENB_ONLY_ONE_SESSION)
 	},
+
+	async enbIpWhitelist(): Promise<boolean> {
+		return settingService.getSetting<boolean>(SETTING.ENB_IP_WHITELIST)
+	},
 }

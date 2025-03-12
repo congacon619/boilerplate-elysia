@@ -7,7 +7,7 @@ export const ResDto = <T extends TSchema>(dataType?: T) =>
 	t.Object({
 		code: t.Enum(RES_CODE),
 		t: t.String({ format: 'date-time' }),
-		data: dataType ?? t.Null(),
+		data: dataType ?? t.Unknown(),
 	})
 
 export const ErrorResDto = t.Object({

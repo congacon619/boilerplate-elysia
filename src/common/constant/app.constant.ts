@@ -215,6 +215,8 @@ export enum CACHE_NS {
 	SETTING = 'setting',
 	MFA_SETUP = 'mfa-setup',
 	MFA = 'mfa',
+	IP_WHITELIST = 'ip-whitelist',
+	CURRENT_USER = 'currency-user',
 }
 
 // region http
@@ -347,10 +349,10 @@ export const DOC_DETAIL = {
 	// 	description: 'Register new user with role user',
 	// 	summary: 'Register',
 	// },
-	// LOGOUT: {
-	// 	description: 'Logout from this device',
-	// 	summary: 'Logout',
-	// },
+	LOGOUT: {
+		description: 'Logout from this device',
+		summary: 'Logout',
+	},
 	// LOGOUT_ALL: {
 	// 	description: 'Logout from all devices',
 	// 	summary: 'Logout all',

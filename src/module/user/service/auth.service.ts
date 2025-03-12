@@ -87,7 +87,7 @@ export const authService = {
 			id: user.id,
 			mfaTelegramEnabled: user.mfaTelegramEnabled,
 			mfaTotpEnabled: user.mfaTotpEnabled,
-			telegramUsername: user.telegramUsername || undefined,
+			telegramUsername: user.telegramUsername,
 			enabled: user.enabled,
 			created: user.created,
 			username: user.username,

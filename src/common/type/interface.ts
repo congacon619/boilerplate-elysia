@@ -1,3 +1,4 @@
+import { JWTPayload } from 'jose'
 import { IResult } from 'ua-parser-js'
 
 export interface IReqMeta extends Record<string, unknown> {
@@ -22,3 +23,5 @@ export type IPHeaders =
 	| 'true-client-ip'
 	| 'cf-pseudo-ipv4'
 	| (string & {})
+
+export type IJwtVerified = JWTPayload & { data: string }

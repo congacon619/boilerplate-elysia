@@ -21,7 +21,7 @@ export const headersToCheck: IPHeaders[] = [
 export const getIP = (
 	headers: Headers,
 	checkHeaders: IPHeaders[] = headersToCheck,
-): string => {
+): string | null => {
 	// check for x-forwaded-for only when user did not provide headers
 	const xForwardedFor = headers.get('x-forwarded-for')
 	if (xForwardedFor && checkHeaders === headersToCheck) {
@@ -34,11 +34,11 @@ export const getIP = (
 			return clientIP.trim()
 		}
 	}
-	return ''
+	return null
 }
 
 export const reqMeta = (app: Elysia) =>
-	app.derive({ as: 'local' }, ({ request, set }) => {
+	app.derive({ as: 'local' }, ({ request, set, server }) => {
 		const headers = request.headers
 
 		const requestId = headers.get('x-request-id') ?? token12()
@@ -61,7 +61,7 @@ export const reqMeta = (app: Elysia) =>
 			set.headers['x-timestamp'] = timestamp.toString()
 		if (!headers.has('accept-language'))
 			set.headers['accept-language'] = language
-
+		const ip = getIP(headers)
 		return {
 			metadata: {
 				id: requestId,
@@ -69,7 +69,7 @@ export const reqMeta = (app: Elysia) =>
 				timestamp,
 				language,
 				ua,
-				ip: getIP(headers),
+				ip: ip ?? server?.requestIP(request)?.address ?? '',
 			} satisfies IReqMeta,
 		}
 	})

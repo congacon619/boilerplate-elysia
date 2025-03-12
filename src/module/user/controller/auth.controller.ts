@@ -2,6 +2,7 @@ import { Elysia } from 'elysia'
 import { DOC_DETAIL, DOC_OPTIONS, ROUTER } from '../../../common'
 import { ErrorResDto, ResDto } from '../../../common/type'
 import { castToRes, env, reqMeta } from '../../../config'
+import { authCheck } from '../auth.middleware'
 import { authService } from '../service'
 import {
 	LoginConfirmReqDto,
@@ -46,11 +47,16 @@ export const authController = new Elysia({
 			},
 		},
 	)
+	.use(authCheck)
 	.post(
 		ROUTER.AUTH.LOGOUT,
-		async ({ metadata }) => castToRes(await authService.logout(metadata, user)),
+		async ({ metadata, user }) =>
+			castToRes(await authService.logout(metadata, user)),
 		{
-			detail: DOC_DETAIL.LOGIN_CONFIRM,
+			detail: {
+				...DOC_DETAIL.LOGOUT,
+				security: [{ accessToken: [] }],
+			},
 			response: {
 				200: ResDto(),
 				401: ErrorResDto,

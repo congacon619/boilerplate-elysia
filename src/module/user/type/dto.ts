@@ -13,7 +13,7 @@ export const UserResDto = t.Object({
 	username: t.String(),
 	mfaTotpEnabled: t.Boolean(),
 	mfaTelegramEnabled: t.Boolean(),
-	telegramUsername: t.Optional(t.String()),
+	telegramUsername: t.Nullable(t.Optional(t.String())),
 	enabled: t.Boolean(),
 	created: t.Date({ format: 'date-time' }),
 	modified: t.Date({ format: 'date-time' }),
@@ -24,7 +24,7 @@ export type IUserRes = typeof UserResDto.static
 export interface IUserMeta extends IUserRes {
 	sessionId: string
 	password: string
-	totpSecret?: string
+	totpSecret?: string | null
 }
 
 export const LoginResDto = t.Object({
