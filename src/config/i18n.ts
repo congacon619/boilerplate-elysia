@@ -1,6 +1,6 @@
 import i18next from 'i18next'
-import {AVAILABLE_LANGUAGES, DEFAULT_LANGUAGE} from '../common'
-import {logger} from './logger'
+import { AVAILABLE_LANGUAGES, DEFAULT_LANGUAGE } from '../common'
+import { logger } from './logger'
 
 export const resources = {
 	en: {

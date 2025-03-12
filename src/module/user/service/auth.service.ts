@@ -1,9 +1,15 @@
-import jwt from '@elysiajs/jwt'
-import {Elysia} from 'elysia'
-import {env, tokenCache} from '../../../config'
-import {aes256Encrypt, AppException, isExpired, seconds} from '../../../common'
+import jwt, { JWTPayloadSpec } from '@elysiajs/jwt'
+import { Elysia } from 'elysia'
+import { env, tokenCache } from '../../../config'
+import {
+	aes256Decrypt,
+	aes256Encrypt,
+	AppException,
+	isExpired,
+	seconds,
+} from '../../../common'
 import dayjs from 'dayjs'
-import {IAccessTokenRes, ITokenPayload} from '../interface'
+import { IAccessTokenRes, ITokenPayload } from '../interface'
 
 export const AuthService = new Elysia({ name: 'AuthService' })
 	.use(
@@ -56,38 +62,25 @@ export const AuthService = new Elysia({ name: 'AuthService' })
 
 				async verifyAccessToken(
 					token: string,
-				): Promise<JwtPayload & { data: ITokenPayload }> {
-					let decodedToken: JwtPayload & { data: ITokenPayload | string }
-					try {
-						decodedToken = jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET_KEY, {
-							ignoreExpiration: true,
-						}) as JwtPayload & { data: ITokenPayload | string }
-					} catch {
+				): Promise<JWTPayloadSpec & { data: ITokenPayload }> {
+					const res = (await jwtAccess.verify(token)) as
+						| (Record<string, string> & JWTPayloadSpec)
+						| false
+					if (!res) {
 						throw new AppException('exception.invalid-token')
 					}
-
 					if (
-						isExpired(decodedToken.exp * 1000, seconds(env.EXPIRED_TOLERANCE))
+						!res.exp ||
+						isExpired(res.exp * 1000, seconds(env.EXPIRED_TOLERANCE))
 					) {
 						throw new AppException('exception.expired-token')
 					}
-
-					let data: ITokenPayload
-					if (typeof decodedToken.data === 'string') {
-						if (!this.memCache.enbTokenPayloadEncrypt) {
-							throw new AppException('exception.expired-token')
-						}
-						data = aes256DecryptAndParse<ITokenPayload>(decodedToken.data)
-					} else {
-						data = decodedToken.data
-					}
-
+					const data = await aes256Decrypt<ITokenPayload>(res.data)
 					const cachedToken = await tokenCache.get(data.sessionId)
 					if (!cachedToken) {
 						throw new AppException('exception.expired-token')
 					}
-
-					return { ...decodedToken, data }
+					return { ...res, data }
 				},
 			},
 		}
