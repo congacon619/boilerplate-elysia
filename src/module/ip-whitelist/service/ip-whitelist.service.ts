@@ -5,57 +5,46 @@ import { settingService } from '../../setting/service'
 
 export const ipWhitelistService = {
 	canIPAccess(ip: string, whitelist: string[]): boolean {
-		if (isPrivateIP(ip)) {
-			return true
+		if (isPrivateIP(ip)) return true
+
+		return whitelist.some(entry =>
+			isRange(entry) ? inRange(ip, entry) : isIP(entry) && ip === entry,
+		)
+	},
+
+	async createDefaultWhitelistIP(ip: string): Promise<string> {
+		await db.iPWhitelist.create({
+			data: { id: token12(PREFIX.IP_WHITELIST), ip },
+			select: { id: true },
+		})
+		return ip
+	},
+
+	async getWhitelistIPs(ip: string): Promise<string[]> {
+		let whitelistIPs = await ipWhitelistCache.get('IPS')
+
+		if (!whitelistIPs?.length) {
+			const dbWhitelist = await db.iPWhitelist.findMany()
+			whitelistIPs = dbWhitelist.map(entry => entry.ip)
+			if (!whitelistIPs.length) {
+				const defaultIP = await ipWhitelistService.createDefaultWhitelistIP(ip)
+				whitelistIPs = [defaultIP]
+			}
+			await ipWhitelistCache.set('IPS', whitelistIPs)
 		}
 
-		return whitelist.some(entry => {
-			if (isRange(entry)) {
-				return inRange(ip, entry)
-			}
-			if (isIP(entry)) {
-				return ip === entry
-			}
-			return false
-		})
+		return whitelistIPs
 	},
 
 	async preflight(ip: string): Promise<void> {
-		const enbIpWhitelist = await settingService.enbIpWhitelist()
-		if (!isPrivateIP(ip) && enbIpWhitelist) {
-			if (!ip) {
-				throw new AppException('exception.permission-denied')
-			}
-			let whitelistIPs = await ipWhitelistCache.get('IPS')
-
-			if (!whitelistIPs || whitelistIPs.length === 0) {
-				const dbWhitelist = await db.iPWhitelist.findMany()
-
-				if (dbWhitelist.length === 0) {
-					await db.iPWhitelist.create({
-						data: {
-							id: token12(PREFIX.IP_WHITELIST),
-							ip,
-						},
-						select: { id: true },
-					})
-					whitelistIPs = [ip]
-				} else {
-					whitelistIPs = dbWhitelist.map(entry => entry.ip)
-				}
-				await ipWhitelistCache.set('IPS', whitelistIPs)
-			}
-
-			if (
-				!whitelistIPs ||
-				whitelistIPs.length === 0 ||
-				!ipWhitelistService.canIPAccess(ip, whitelistIPs)
-			) {
-				logger.info(
-					`IP ${ip} preflight failed, whitelist IPs are: ${whitelistIPs.join(', ')}`,
-				)
-				throw new AppException('exception.permission-denied')
-			}
+		if (isPrivateIP(ip) || !(await settingService.enbIpWhitelist())) return
+		if (!ip) throw new AppException('exception.permission-denied')
+		const whitelistIPs = await this.getWhitelistIPs(ip)
+		if (!this.canIPAccess(ip, whitelistIPs)) {
+			logger.info(
+				`IP ${ip} preflight failed, whitelist IPs: ${whitelistIPs.join(', ')}`,
+			)
+			throw new AppException('exception.permission-denied')
 		}
 	},
 }
