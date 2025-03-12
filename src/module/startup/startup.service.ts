@@ -1,12 +1,14 @@
-import { PERMISSION, PREFIX, ROLE_NAME, token12 } from '../../common'
+import { SETTING_DATA_TYPE } from '@prisma/client'
+import dayjs from 'dayjs'
+import { PERMISSION, PREFIX, ROLE_NAME, SETTING, token12 } from '../../common'
 import { db, env, logger } from '../../config'
-import { authUtilService } from '../user/service'
+import { passwordService } from '../user/service'
 
 export const startupService = {
 	async initRoleAndUser(): Promise<void> {
 		try {
 			const { passwordCreated, passwordExpired, passwordHash } =
-				await authUtilService.createPassword(env.SYSTEM_PASSWORD)
+				await passwordService.createPassword(env.SYSTEM_PASSWORD)
 
 			await db.$transaction(async tx => {
 				const { id: roleId } = await tx.role.upsert({
@@ -71,6 +73,66 @@ export const startupService = {
 			logger.info('Init default user and role successfully!')
 		} catch (e) {
 			logger.error('Init default user and role failed!')
+			logger.error(e)
+		}
+	},
+
+	async initSettings(): Promise<void> {
+		try {
+			await db.setting.deleteMany({
+				where: { key: { notIn: Object.values(SETTING) } },
+			})
+
+			await db.setting.createMany({
+				data: [
+					{
+						id: token12(PREFIX.SETTING),
+						key: SETTING.MAINTENANCE_END_DATE,
+						value: dayjs().subtract(1, 'years').toISOString(),
+						type: SETTING_DATA_TYPE.DATE,
+					},
+					{
+						id: token12(PREFIX.SETTING),
+						key: SETTING.ENB_PASSWORD_ATTEMPT,
+						value: 'false',
+						type: SETTING_DATA_TYPE.BOOLEAN,
+					},
+					{
+						id: token12(PREFIX.SETTING),
+						key: SETTING.ENB_PASSWORD_EXPIRED,
+						value: 'false',
+						type: SETTING_DATA_TYPE.BOOLEAN,
+					},
+					{
+						id: token12(PREFIX.SETTING),
+						key: SETTING.ENB_JWT_PAYLOAD_ENCRYPT,
+						value: 'false',
+						type: SETTING_DATA_TYPE.BOOLEAN,
+					},
+					{
+						id: token12(PREFIX.SETTING),
+						key: SETTING.ENB_MFA_REQUIRED,
+						value: 'false',
+						type: SETTING_DATA_TYPE.BOOLEAN,
+					},
+					{
+						id: token12(PREFIX.SETTING),
+						key: SETTING.ENB_IP_WHITELIST,
+						value: 'true',
+						type: SETTING_DATA_TYPE.BOOLEAN,
+					},
+					{
+						id: token12(PREFIX.SETTING),
+						key: SETTING.ENB_ONLY_ONE_SESSION,
+						value: 'false',
+						type: SETTING_DATA_TYPE.BOOLEAN,
+					},
+				],
+				skipDuplicates: true,
+			})
+			logger.info('Init default settings successfully!')
+		} catch (e) {
+			logger.error('Init settings failed!')
 			logger.error(e)
 		}
 	},

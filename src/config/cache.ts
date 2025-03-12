@@ -1,7 +1,6 @@
 import KeyvRedis from '@keyv/redis'
 import Keyv from 'keyv'
-import { isNil } from 'lodash'
-import { CACHE_NS, SETTING, milliseconds } from '../common'
+import { CACHE_NS, milliseconds } from '../common'
 import { MFA_METHOD } from '../module/user/constant'
 import { env } from './env'
 
@@ -64,36 +63,4 @@ export const resetMfaCache = new Keyv<{
 	ttl: milliseconds('15m'),
 })
 
-const settingCache = new Keyv({ namespace: CACHE_NS.SETTING })
-
-const getSetting = async <T>(key: string): Promise<T> => {
-	const data = await settingCache.get<T>(key)
-	if (isNil(data)) {
-		throw new Error(`Missing cache setting ${key}`)
-	}
-	return data
-}
-
-export const setting = {
-	password: async (): Promise<{
-		enbAttempt: boolean
-		enbExpired: boolean
-	}> => {
-		const [enbAttempt, enbExpired] = await Promise.all([
-			getSetting<boolean>(SETTING.ENB_PASSWORD_ATTEMPT),
-			getSetting<boolean>(SETTING.ENB_PASSWORD_EXPIRED),
-		])
-		return {
-			enbAttempt,
-			enbExpired,
-		}
-	},
-
-	enbMFARequired: async (): Promise<boolean> => {
-		return getSetting<boolean>(SETTING.ENB_MFA_REQUIRED)
-	},
-
-	async enbOnlyOneSession(): Promise<boolean> {
-		return getSetting<boolean>(SETTING.ENB_ONLY_ONE_SESSION)
-	},
-}
+export const settingCache = new Keyv({ namespace: CACHE_NS.SETTING })

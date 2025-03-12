@@ -88,10 +88,11 @@ model RoleUser {
 
 model Setting {
   id          String            @id
-  key         String            @unique @map("key")
-  description String?           @map("description")
+  key         String            @unique
+  description String?
   type        SETTING_DATA_TYPE @default(STRING)
-  value       String            @map("value")
+  value       String
+  encrypted   Boolean           @default(false)
 
   @@index([key])
   @@map("settings")

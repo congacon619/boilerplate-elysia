@@ -3,7 +3,6 @@ import { User } from '@prisma/client'
 import dayjs from 'dayjs'
 import { Elysia } from 'elysia'
 import { compact, uniq } from 'lodash'
-import { authenticator } from 'otplib'
 import {
 	ACTIVITY_TYPE,
 	AppException,
@@ -18,17 +17,10 @@ import {
 	token16,
 } from '../../../common'
 import { IReqMeta } from '../../../common/type'
-import {
-	db,
-	env,
-	loginCache,
-	mfaCache,
-	mfaSetupCache,
-	setting,
-	tokenCache,
-} from '../../../config'
+import { db, env, loginCache, tokenCache } from '../../../config'
 import { activityService } from '../../activity/service'
 import { sessionService } from '../../session/service'
+import { settingService } from '../../setting/service'
 import { LOGIN_RES_TYPE, LOGIN_WITH, MFA_METHOD } from '../constant'
 import {
 	IAccessTokenRes,
@@ -38,6 +30,8 @@ import {
 	ILoginRes,
 	ITokenPayload,
 } from '../type'
+import { passwordService, tokenService } from './auth-util.service'
+import { mfaUtilService } from './mfa-util.service'
 
 export const authService = new Elysia({ name: 'AuthService' })
 	.use(
@@ -64,22 +58,6 @@ export const authService = new Elysia({ name: 'AuthService' })
 					.add(seconds(env.JWT_ACCESS_TOKEN_EXPIRED), 's')
 					.toDate(),
 			}
-		}
-
-		const increasePasswordAttempt = async (id: string): Promise<void> => {
-			await db.user.update({
-				where: { id },
-				data: { passwordAttempt: { increment: 1 } },
-				select: { id: true },
-			})
-		}
-
-		const comparePassword = async (
-			password: string,
-			passwordHash: string,
-		): Promise<boolean> => {
-			const passwordWithPepper = password + env.PASSWORD_PEPPER
-			return await Bun.password.verify(passwordHash, passwordWithPepper)
 		}
 
 		const createAccessToken = async (
@@ -126,104 +104,11 @@ export const authService = new Elysia({ name: 'AuthService' })
 			return { ...res, data }
 		}
 
-		const createRefreshToken = async (
-			payload: ITokenPayload,
-		): Promise<{
-			refreshToken: string
-			expirationTime: Date
-		}> => {
-			const expiredAt = dayjs()
-				.add(seconds(env.JWT_REFRESH_TOKEN_EXPIRED), 's')
-				.toDate()
-			return {
-				refreshToken: await aes256Encrypt({
-					...payload,
-					expired: expiredAt.getTime(),
-				}),
-				expirationTime: expiredAt,
-			}
-		}
-
-		const createSession = async ({
-			method,
-			referenceToken,
-			user,
-		}: {
-			method: MFA_METHOD
-			referenceToken: string
-			user: {
-				mfaTotpEnabled: boolean
-				totpSecret?: string | null
-				id: string
-				mfaTelegramEnabled: boolean
-				telegramUsername?: string | null
-			}
-		}): Promise<string> => {
-			try {
-				const sessionId = token16()
-
-				if (
-					method === MFA_METHOD.TOTP &&
-					user.mfaTotpEnabled &&
-					user.totpSecret
-				) {
-					await mfaCache.set(sessionId, {
-						userId: user.id,
-						type: MFA_METHOD.TOTP,
-						referenceToken,
-					})
-					return sessionId
-				}
-
-				if (
-					method === MFA_METHOD.TELEGRAM &&
-					user.mfaTelegramEnabled &&
-					user.telegramUsername
-				) {
-					authenticator.options = { digits: 6, step: 300 } // 300 seconds
-					const secret = authenticator.generateSecret()
-					const otp = authenticator.generate(secret)
-					await mfaCache.set(sessionId, {
-						userId: user.id,
-						type: MFA_METHOD.TELEGRAM,
-						secret,
-						referenceToken,
-					})
-
-					// todo: send message
-					// await this.telegramService.jobSendMessage({
-					// 	chatIds: [user.telegramUsername],
-					// 	message: `Your OTP is: ${otp}`,
-					// })
-					return sessionId
-				}
-				throw new AppException('exception.mfa-broken')
-			} catch {
-				throw new AppException('exception.mfa-broken')
-			}
-		}
-
-		const setupMfa = async (
-			userId: string,
-		): Promise<{ mfaToken: string; totpSecret: string }> => {
-			const mfaToken = token16()
-			const totpSecret = authenticator.generateSecret().toUpperCase()
-			await mfaSetupCache.set(mfaToken, {
-				method: MFA_METHOD.TOTP,
-				totpSecret,
-				userId,
-			})
-			return {
-				mfaToken,
-				totpSecret,
-			}
-		}
-
 		const completeLogin = async (
 			user: User,
 			{ ip, ua }: IReqMeta,
 		): Promise<ILoginRes> => {
-			if (await setting.enbOnlyOneSession()) {
+			if (await settingService.enbOnlyOneSession()) {
 				await sessionService.revoke(user.id)
 			}
 
@@ -242,7 +127,7 @@ export const authService = new Elysia({ name: 'AuthService' })
 				{ refreshToken, expirationTime: refreshTokenExpirationTime },
 			] = await Promise.all([
 				createAccessToken(payload),
-				createRefreshToken(payload),
+				tokenService.createRefreshToken(payload),
 			])
 
 			await db.$transaction(async tx => {
@@ -310,13 +195,17 @@ export const authService = new Elysia({ name: 'AuthService' })
 						throw new NotFoundException('exception.user-not-found')
 					}
 
-					const { enbAttempt, enbExpired } = await setting.password()
+					const { enbAttempt, enbExpired } = await settingService.password()
 					if (enbAttempt && user.passwordAttempt >= env.PASSWORD_MAX_ATTEMPT) {
 						throw new BadRequestException('exception.password-max-attempt')
 					}
 
-					if (!(await comparePassword(password, user.password))) {
-						await increasePasswordAttempt(user.id)
+					const match = await passwordService.comparePassword(
+						password,
+						user.password,
+					)
+					if (!match) {
+						await passwordService.increasePasswordAttempt(user.id)
 						throw new BadRequestException('exception.password-not-match')
 					}
 
@@ -331,7 +220,7 @@ export const authService = new Elysia({ name: 'AuthService' })
 					if (user.mfaTelegramEnabled || user.mfaTotpEnabled) {
 						const loginToken = token16()
 						await loginCache.set(loginToken, { userId: user.id })
-						const mfaToken = await createSession({
+						const mfaToken = await mfaUtilService.createSession({
 							method: MFA_METHOD.TOTP,
 							user,
 							referenceToken: loginToken,
@@ -347,8 +236,10 @@ export const authService = new Elysia({ name: 'AuthService' })
 						}
 					}
 
-					if (await setting.enbMFARequired()) {
-						const { totpSecret, mfaToken } = await setupMfa(user.id)
+					if (await settingService.enbMFARequired()) {
+						const { totpSecret, mfaToken } = await mfaUtilService.setupMfa(
+							user.id,
+						)
 						return {
 							type: LOGIN_RES_TYPE.MFA_SETUP,
 							totpSecret,

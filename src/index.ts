@@ -8,6 +8,7 @@ try {
 	await db.$connect()
 	logger.info('DB Connected successfully!')
 	await startupService.initRoleAndUser()
+	await startupService.initSettings()
 
 	const app = new Elysia()
 		.use(
