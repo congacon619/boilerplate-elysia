@@ -345,10 +345,18 @@ export const DOC_DETAIL = {
 		description: 'Confirm login with OTP',
 		summary: 'Confirm Login',
 	},
-	// REGISTER: {
-	// 	description: 'Register new user with role user',
-	// 	summary: 'Register',
-	// },
+	CURRENT_USER: {
+		description: 'Get current user information',
+		summary: 'Current user info',
+	},
+	REFRESH_TOKEN: {
+		description: 'Refresh token',
+		summary: 'Refresh token',
+	},
+	REGISTER: {
+		description: 'Register new user with role user',
+		summary: 'Register',
+	},
 	LOGOUT: {
 		description: 'Logout from this device',
 		summary: 'Logout',
@@ -375,10 +383,7 @@ export const DOC_DETAIL = {
 	// },
 	//
 	// // user APIs
-	// USER_INFO: {
-	// 	description: 'Get user information',
-	// 	summary: 'User info',
-	// },
+
 	// SEND_EMAIL_VERIFY: {
 	// 	description: 'Send email verify account',
 	// 	summary: 'Send email verify',
@@ -540,6 +545,7 @@ export enum HTTP_STATUS {
 export enum ACTIVITY_TYPE {
 	LOGIN = 'login',
 	LOGOUT = 'logout',
+	REGISTER = 'register',
 	CHANGE_PASSWORD = 'change-password',
 	SETUP_MFA = 'setup-mfa',
 

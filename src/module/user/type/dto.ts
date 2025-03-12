@@ -5,7 +5,6 @@ export const LoginDto = t.Object({
 	username: t.String({ minLength: 1 }),
 	password: t.String({ minLength: 1 }),
 })
-
 export type ILogin = typeof LoginDto.static
 
 export const UserResDto = t.Object({
@@ -63,5 +62,6 @@ export const LoginConfirmReqDto = t.Object({
 	otp: t.String(),
 	token: t.String(),
 })
-
 export type ILoginConfirmReq = typeof LoginConfirmReqDto.static
+
+export const RefreshTokenDto = t.Object({ token: t.String({ minLength: 1 }) })

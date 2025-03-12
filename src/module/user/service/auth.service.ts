@@ -6,6 +6,10 @@ import {
 	BadRequestException,
 	NotFoundException,
 	PREFIX,
+	ROLE_NAME,
+	UnauthorizedException,
+	isExpired,
+	seconds,
 	token12,
 	token16,
 } from '../../../common'
@@ -202,5 +206,143 @@ export const authService = {
 			}),
 			sessionService.revoke(user.id, [user.sessionId]),
 		])
+	},
+
+	async register(
+		{ username, password }: ILogin,
+		meta: IReqMeta,
+	): Promise<void> {
+		const existingUser = await db.user.findFirst({
+			where: { username },
+			select: { id: true },
+		})
+
+		if (existingUser) {
+			throw new BadRequestException('exception.user-existed')
+		}
+		const userRole = await db.role.findFirst({
+			where: { name: ROLE_NAME.USER },
+			select: { id: true },
+		})
+		if (!userRole) {
+			throw new NotFoundException('exception.user-role-not-found')
+		}
+		const { passwordCreated, passwordExpired, passwordHash } =
+			await passwordService.createPassword(password)
+
+		await db.$transaction(async tx => {
+			const user = await tx.user.create({
+				data: {
+					id: token12(PREFIX.USER),
+					username,
+					password: passwordHash,
+					passwordCreated,
+					passwordExpired,
+					enabled: true,
+					roleUsers: {
+						create: { roleId: userRole.id, id: token12(PREFIX.ROLE_USER) },
+					},
+				},
+				select: { id: true },
+			})
+			await activityService.create(
+				{
+					type: ACTIVITY_TYPE.REGISTER,
+					meta,
+					user,
+					reference: { id: user.id },
+				},
+				tx,
+			)
+		})
+	},
+
+	async refreshToken(
+		{ token }: { token: string },
+		meta: IReqMeta,
+	): Promise<ILoginRes | ILoginMFASetupRes> {
+		const session = await db.session.findFirst({
+			where: { token },
+			select: {
+				revoked: true,
+				id: true,
+				expired: true,
+				createdBy: {
+					select: {
+						mfaTelegramEnabled: true,
+						enabled: true,
+						id: true,
+						mfaTotpEnabled: true,
+						telegramUsername: true,
+						created: true,
+						username: true,
+						modified: true,
+					},
+				},
+			},
+		})
+
+		if (
+			!session ||
+			session.revoked ||
+			isExpired(session.expired, seconds(env.EXPIRED_TOLERANCE)) ||
+			!session.createdBy.enabled
+		) {
+			throw new UnauthorizedException('exception.expired-token')
+		}
+
+		if (
+			!session.createdBy.mfaTelegramEnabled &&
+			!session.createdBy.mfaTotpEnabled
+		) {
+			if (await settingService.enbMFARequired()) {
+				const { totpSecret, mfaToken } = await mfaUtilService.setupMfa(
+					session.createdBy.id,
+				)
+				return {
+					type: LOGIN_RES_TYPE.MFA_SETUP,
+					totpSecret,
+					mfaToken,
+				}
+			}
+		}
+
+		const payload: ITokenPayload = {
+			userId: session.createdBy.id,
+			loginDate: new Date(),
+			loginWith: LOGIN_WITH.LOCAL,
+			sessionId: session.id,
+			ip: meta.ip,
+			ua: meta.ua.ua,
+		}
+
+		const { accessToken, expirationTime } =
+			await tokenService.createAccessToken(payload)
+
+		const roleUsers = await db.roleUser.findMany({
+			where: { userId: session.createdBy.id },
+			select: { role: { select: { permissions: true } } },
+		})
+
+		const user = {
+			id: session.createdBy.id,
+			mfaTelegramEnabled: session.createdBy.mfaTelegramEnabled,
+			mfaTotpEnabled: session.createdBy.mfaTotpEnabled,
+			telegramUsername: session.createdBy.telegramUsername,
+			enabled: session.createdBy.enabled,
+			created: session.createdBy.created,
+			username: session.createdBy.username,
+			modified: session.createdBy.modified,
+			permissions: uniq(roleUsers.flatMap(e => e.role.permissions)),
+		}
+
+		return {
+			type: LOGIN_RES_TYPE.COMPLETED,
+			accessToken,
+			refreshToken: token,
+			exp: expirationTime.getTime(),
+			expired: dayjs(expirationTime).format(),
+			user,
+		}
 	},
 }

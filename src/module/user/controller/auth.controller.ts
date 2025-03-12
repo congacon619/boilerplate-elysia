@@ -1,4 +1,4 @@
-import { Elysia } from 'elysia'
+import { Elysia, t } from 'elysia'
 import { DOC_DETAIL, DOC_OPTIONS, ROUTER } from '../../../common'
 import { ErrorResDto, ResDto } from '../../../common/type'
 import { castToRes, env, reqMeta } from '../../../config'
@@ -7,8 +7,10 @@ import { authService } from '../service'
 import {
 	LoginConfirmReqDto,
 	LoginDto,
+	LoginMFASetupResDto,
 	LoginResDto,
 	LoginResponseDto,
+	RefreshTokenDto,
 } from '../type'
 
 export const authController = new Elysia({
@@ -47,6 +49,21 @@ export const authController = new Elysia({
 			},
 		},
 	)
+	.post(
+		ROUTER.AUTH.REGISTER,
+		async ({ body, metadata }) =>
+			castToRes(await authService.register(body, metadata)),
+		{
+			body: LoginDto,
+			detail: DOC_DETAIL.REGISTER,
+			response: {
+				200: ResDto(),
+				400: ErrorResDto,
+				404: ErrorResDto,
+				500: ErrorResDto,
+			},
+		},
+	)
 	.use(authCheck)
 	.post(
 		ROUTER.AUTH.LOGOUT,
@@ -55,6 +72,52 @@ export const authController = new Elysia({
 		{
 			detail: {
 				...DOC_DETAIL.LOGOUT,
+				security: [{ accessToken: [] }],
+			},
+			response: {
+				200: ResDto(),
+				401: ErrorResDto,
+				403: ErrorResDto,
+				500: ErrorResDto,
+			},
+		},
+	)
+	.post(
+		ROUTER.AUTH.REFRESH_TOKEN,
+		async ({ metadata, body }) =>
+			castToRes(await authService.refreshToken(body, metadata)),
+		{
+			body: RefreshTokenDto,
+			detail: {
+				...DOC_DETAIL.REFRESH_TOKEN,
+				security: [{ accessToken: [] }],
+			},
+			response: {
+				200: ResDto(t.Union([LoginResDto, LoginMFASetupResDto])),
+				400: ErrorResDto,
+				401: ErrorResDto,
+				403: ErrorResDto,
+				500: ErrorResDto,
+			},
+		},
+	)
+	.get(
+		ROUTER.AUTH.CURRENT_USER,
+		({ user }) =>
+			castToRes({
+				id: user.id,
+				mfaTelegramEnabled: user.mfaTelegramEnabled,
+				mfaTotpEnabled: user.mfaTotpEnabled,
+				telegramUsername: user.telegramUsername || undefined,
+				enabled: user.enabled,
+				created: user.created,
+				username: user.username,
+				modified: user.modified,
+				permissions: user.permissions,
+			}),
+		{
+			detail: {
+				...DOC_DETAIL.CURRENT_USER,
 				security: [{ accessToken: [] }],
 			},
 			response: {

@@ -39,8 +39,8 @@ export const ipWhitelistService = {
 	async preflight(ip: string): Promise<void> {
 		if (isPrivateIP(ip) || !(await settingService.enbIpWhitelist())) return
 		if (!ip) throw new UnauthorizedException('exception.permission-denied')
-		const whitelistIPs = await this.getWhitelistIPs(ip)
-		if (!this.canIPAccess(ip, whitelistIPs)) {
+		const whitelistIPs = await ipWhitelistService.getWhitelistIPs(ip)
+		if (!ipWhitelistService.canIPAccess(ip, whitelistIPs)) {
 			logger.info(
 				`IP ${ip} preflight failed, whitelist IPs: ${whitelistIPs.join(', ')}`,
 			)
