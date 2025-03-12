@@ -45,3 +45,9 @@ export const LoginMFAResDto = t.Object({
 	availableMethods: t.Array(t.Enum(MFA_METHOD)),
 })
 export type ILoginMFARes = typeof LoginMFAResDto.static
+
+export const LoginResponseDto = t.Union([
+	LoginResDto,
+	LoginMFASetupResDto,
+	LoginMFAResDto,
+])

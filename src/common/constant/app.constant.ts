@@ -214,6 +214,7 @@ export enum CACHE_NS {
 	LOGIN = 'login',
 	SETTING = 'setting',
 	MFA_SETUP = 'mfa-setup',
+	MFA = 'mfa',
 }
 
 // region http

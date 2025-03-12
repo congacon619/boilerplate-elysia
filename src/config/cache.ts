@@ -40,6 +40,30 @@ export const mfaSetupCache = new Keyv<
 	ttl: milliseconds('15m'),
 })
 
+export const mfaCache = new Keyv<
+	| {
+			userId: string
+			referenceToken: string
+			type: MFA_METHOD.TOTP
+	  }
+	| {
+			userId: string
+			referenceToken: string
+			type: MFA_METHOD.TELEGRAM
+			secret: string
+	  }
+>(redis, {
+	namespace: CACHE_NS.MFA,
+	ttl: milliseconds('5m'),
+})
+
+export const resetMfaCache = new Keyv<{
+	userIds: string[]
+}>(redis, {
+	namespace: CACHE_NS.MFA,
+	ttl: milliseconds('15m'),
+})
+
 const settingCache = new Keyv({ namespace: CACHE_NS.SETTING })
 
 const getSetting = async <T>(key: string): Promise<T> => {
@@ -67,5 +91,9 @@ export const setting = {
 
 	enbMFARequired: async (): Promise<boolean> => {
 		return getSetting<boolean>(SETTING.ENB_MFA_REQUIRED)
+	},
+
+	async enbOnlyOneSession(): Promise<boolean> {
+		return getSetting<boolean>(SETTING.ENB_ONLY_ONE_SESSION)
 	},
 }

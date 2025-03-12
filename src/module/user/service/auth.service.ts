@@ -22,15 +22,16 @@ import {
 	db,
 	env,
 	loginCache,
+	mfaCache,
 	mfaSetupCache,
 	setting,
 	tokenCache,
 } from '../../../config'
 import { activityService } from '../../activity/service'
+import { sessionService } from '../../session/service'
 import { LOGIN_RES_TYPE, LOGIN_WITH, MFA_METHOD } from '../constant'
 import {
 	IAccessTokenRes,
-	IAuthPassword,
 	ILogin,
 	ILoginMFARes,
 	ILoginMFASetupRes,
@@ -143,21 +144,6 @@ export const authService = new Elysia({ name: 'AuthService' })
 			}
 		}
 
-		const createPassword = async (password: string): Promise<IAuthPassword> => {
-			const passwordWithPepper = password + env.PASSWORD_PEPPER
-			const passwordHash = await Bun.password.hash(passwordWithPepper)
-			const passwordExpired = dayjs()
-				.add(seconds(env.PASSWORD_EXPIRED), 's')
-				.toDate()
-			const passwordCreated = new Date()
-
-			return {
-				passwordHash,
-				passwordExpired,
-				passwordCreated,
-			}
-		}
-
 		const createSession = async ({
 			method,
 			referenceToken,
@@ -181,11 +167,11 @@ export const authService = new Elysia({ name: 'AuthService' })
 					user.mfaTotpEnabled &&
 					user.totpSecret
 				) {
-					// await this.mfaCache.setCache(sessionId, {
-					// 	userId: user.id,
-					// 	type: MFA_METHOD.TOTP,
-					// 	referenceToken,
-					// })
+					await mfaCache.set(sessionId, {
+						userId: user.id,
+						type: MFA_METHOD.TOTP,
+						referenceToken,
+					})
 					return sessionId
 				}
 
@@ -197,12 +183,12 @@ export const authService = new Elysia({ name: 'AuthService' })
 					authenticator.options = { digits: 6, step: 300 } // 300 seconds
 					const secret = authenticator.generateSecret()
 					const otp = authenticator.generate(secret)
-					// await this.mfaCache.setCache(sessionId, {
-					// 	userId: user.id,
-					// 	type: MFA_METHOD.TELEGRAM,
-					// 	secret,
-					// 	referenceToken,
-					// })
+					await mfaCache.set(sessionId, {
+						userId: user.id,
+						type: MFA_METHOD.TELEGRAM,
+						secret,
+						referenceToken,
+					})
 
 					// todo: send message
 					// await this.telegramService.jobSendMessage({
@@ -237,9 +223,9 @@ export const authService = new Elysia({ name: 'AuthService' })
 			user: User,
 			{ ip, ua }: IReqMeta,
 		): Promise<ILoginRes> => {
-			// if (memCache.enbOnlyOneSession) {
-			// 	await sessionService.revoke(user.id)
-			// }
+			if (await setting.enbOnlyOneSession()) {
+				await sessionService.revoke(user.id)
+			}
 
 			const sessionId = token12(PREFIX.SESSION)
 			const payload: ITokenPayload = {
