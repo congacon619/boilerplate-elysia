@@ -1,3 +1,4 @@
+import { PERMISSION } from '../../../common'
 import { LOGIN_WITH } from '../constant'
 
 export interface ITokenPayload {
@@ -19,3 +20,9 @@ export interface IAuthPassword {
 	passwordExpired: Date
 	passwordCreated: Date
 }
+
+export type PermissionType =
+	| PERMISSION
+	| { and: PERMISSION[] }
+	| { or: PERMISSION[] }
+	| { not: PERMISSION }

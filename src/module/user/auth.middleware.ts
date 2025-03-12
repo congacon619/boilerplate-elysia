@@ -1,13 +1,23 @@
 import { Elysia } from 'elysia'
 import { UnauthorizedException } from '../../common'
-import { currentUserCache, db, reqMeta } from '../../config'
+import { IReqMeta } from '../../common/type'
+import { currentUserCache, db, logger } from '../../config'
 import { ipWhitelistService } from '../ip-whitelist/service'
 import { tokenService } from './service'
-import { IUserMeta } from './type'
+import { IUserMeta, PermissionType } from './type'
 
-export const authCheck = (app: Elysia) =>
+export const authCheck = (
+	app: Elysia<
+		'',
+		{
+			derive: { metadata: IReqMeta }
+			decorator: Record<string, unknown>
+			store: Record<string, unknown>
+			resolve: Record<string, unknown>
+		}
+	>,
+) =>
 	app
-		.use(reqMeta)
 		.guard({ as: 'scoped' })
 		.resolve({ as: 'local' }, async ({ request: { headers }, metadata }) => {
 			await ipWhitelistService.preflight(metadata.ip)
@@ -74,28 +84,50 @@ export const authCheck = (app: Elysia) =>
 			return { user: userPayload }
 		})
 
-// export const permissionCheck = (
-// 	policyRule: IPolicyRule[],
-// ): (({ user }: { user: UserWithRoles }) => void) => {
-// 	return ({ user }) => {
-// 		let check = false
-// 		for (const role of user.roles) {
-// 			const ability: IPolicyAbility = policyService.defineAbilityFromRole({
-// 				name: role.name as ROLE_NAME,
-// 				permissions: role.permissions as IPolicyRule[],
-// 			})
-// 			const policyHandler: PolicyHandler[] =
-// 				policyService.handlerRules(policyRule)
-// 			if (
-// 				policyHandler.every((handler: PolicyHandler) => {
-// 					return policyService.execPolicyHandler(handler, ability)
-// 				})
-// 			) {
-// 				check = true
-// 			}
-// 		}
-// 		if (!check) {
-// 			throw HttpError.Forbidden(...Object.values(RES_KEY.ABILITY_FORBIDDEN))
-// 		}
-// 	}
-// }
+const validPermission = (
+	userPermissions: string[],
+	requiredPermissions: PermissionType,
+): boolean => {
+	if (!requiredPermissions) {
+		return true
+	}
+	if (!userPermissions?.length) {
+		return false
+	}
+	if (typeof requiredPermissions === 'string') {
+		return userPermissions.includes(requiredPermissions)
+	}
+
+	if ('and' in requiredPermissions) {
+		return requiredPermissions.and.every(permission =>
+			validPermission(userPermissions, permission),
+		)
+	}
+
+	if ('or' in requiredPermissions) {
+		return requiredPermissions.or.some(permission =>
+			validPermission(userPermissions, permission),
+		)
+	}
+
+	if ('not' in requiredPermissions) {
+		return !validPermission(userPermissions, requiredPermissions.not)
+	}
+
+	return false
+}
+
+export const permissionCheck =
+	(
+		permission: PermissionType,
+	): ((data: { metadata: IReqMeta; user: IUserMeta; path: string }) => void) =>
+	({ metadata, user, path }) => {
+		console.log(permission)
+		const check = validPermission(user.permissions, permission)
+		if (!check) {
+			logger.info(
+				`User ${user?.username}@${metadata.ip} trying to access resource ${path} but doesn't have enough permissions`,
+			)
+			throw new UnauthorizedException('exception.permission-denied')
+		}
+	}
