@@ -53,6 +53,7 @@ export const resources = {
 				'invalid-api-key': 'Invalid apiKey',
 				'api-key-not-activated': 'API key not activated',
 			},
+			'validation-error': 'Validation error',
 		},
 	},
 	vi: {
@@ -106,6 +107,7 @@ export const resources = {
 				'invalid-api-key': 'apiKey không hợp lệ',
 				'api-key-not-activated': 'API key chưa được kích hoạt',
 			},
+			'validation-error': 'Dữ liệu đầu vào sai định dạng',
 		},
 	},
 }

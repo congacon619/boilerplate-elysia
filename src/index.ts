@@ -1,6 +1,6 @@
 import cors from '@elysiajs/cors'
 import { Elysia } from 'elysia'
-import { db, env, logger, swaggerConfig } from './config'
+import { db, env, httpError, logger, swaggerConfig } from './config'
 import { startupService } from './module/startup'
 import { authController } from './module/user/controller'
 
@@ -36,6 +36,7 @@ try {
 			}),
 		)
 		.use(swaggerConfig())
+		.use(httpError())
 		.use(authController)
 
 	process.on('SIGINT', app.stop)

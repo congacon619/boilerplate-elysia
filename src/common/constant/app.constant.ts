@@ -337,6 +337,7 @@ export enum RES_CODE {
 	SUCCESS = 'success',
 	ISE = 'ise',
 	VALIDATION_ERROR = 'validation-error',
+	NOT_FOUND = 'not-found',
 }
 
 export enum HTTP_STATUS {

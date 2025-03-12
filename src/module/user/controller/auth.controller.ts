@@ -1,6 +1,6 @@
 import { Elysia } from 'elysia'
 import { DOC_OPTIONS, ROUTER } from '../../../common'
-import { ResDto } from '../../../common/type'
+import { ErrorResDto, ResDto } from '../../../common/type'
 import { castToRes, env, reqMeta } from '../../../config'
 import { authService } from '../service'
 import { LoginDto, LoginResponseDto } from '../type'
@@ -16,5 +16,13 @@ export const authController = new Elysia({
 		ROUTER.AUTH.LOGIN,
 		async ({ Auth, body, metadata }) =>
 			castToRes(await Auth.login(body, metadata)),
-		{ body: LoginDto, response: { 200: ResDto(LoginResponseDto) } },
+		{
+			body: LoginDto,
+			response: {
+				200: ResDto(LoginResponseDto),
+				400: ErrorResDto,
+				404: ErrorResDto,
+				500: ErrorResDto,
+			},
+		},
 	)
