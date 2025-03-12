@@ -1,0 +1,5 @@
+export enum LOGIN_WITH {
+	LOCAL = 'LOCAL',
+	GOOGLE = 'GOOGLE',
+	FACEBOOK = 'FACEBOOK',
+}
