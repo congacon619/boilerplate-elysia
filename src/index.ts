@@ -2,6 +2,7 @@ import cors from '@elysiajs/cors'
 import { Elysia } from 'elysia'
 import { db, env, httpError, logger, swaggerConfig } from './config'
 import { activityController } from './module/activity/controller'
+import { apiKeyController } from './module/api-key/controller'
 import { miscController } from './module/misc/controller'
 import { startupService } from './module/startup'
 import {
@@ -49,7 +50,8 @@ try {
 				.use(activityController)
 				.use(userController)
 				.use(miscController)
-				.use(mfaController),
+				.use(mfaController)
+				.use(apiKeyController),
 		)
 	app.listen(env.PORT)
 

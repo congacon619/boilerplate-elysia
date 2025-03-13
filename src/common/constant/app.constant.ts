@@ -139,7 +139,6 @@ export enum PERMISSION {
 	API_KEY_VIEW = 'API_KEY.VIEW',
 	API_KEY_VIEW_ALL = 'API_KEY.VIEW_ALL',
 	API_KEY_UPDATE = 'API_KEY.UPDATE',
-	API_KEY_DELETE = 'API_KEY.DELETE',
 }
 
 // region queue
@@ -190,6 +189,7 @@ export const DOC_OPTIONS = {
 		user: { name: 'User', description: 'User endpoints' },
 		misc: { name: 'MISC', description: 'MISC endpoints' },
 		mfa: { name: 'MFA', description: 'MFA endpoints' },
+		apiKey: { name: 'ApiKey', description: 'ApiKey endpoints' },
 	},
 }
 
@@ -317,7 +317,6 @@ export const ROUTER = {
 	API_KEY: {
 		ROOT: '/api-keys',
 		RESET: '/reset/:id',
-		DEL: '/del',
 	},
 }
 
@@ -402,6 +401,19 @@ export const DOC_DETAIL = {
 	MFA_RESET_CONFIRM: {
 		description: 'Confirm reset MFA',
 		summary: 'Confirm reset MFA',
+	},
+
+	API_KEY_PAGINATE: {
+		description: 'ApiKey paging',
+		summary: 'ApiKey paging',
+	},
+	API_KEY_UPSERT: {
+		description: 'ApiKey upsert',
+		summary: 'ApiKey upsert',
+	},
+	API_KEY_RESET: {
+		description: 'ApiKey reset',
+		summary: 'ApiKey reset',
 	},
 }
 

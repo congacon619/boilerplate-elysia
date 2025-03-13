@@ -1,8 +1,8 @@
 import { Elysia, t } from 'elysia'
-import { DOC_DETAIL, DOC_OPTIONS, ROUTER } from '../../../common'
+import { DOC_DETAIL, DOC_OPTIONS, PERMISSION, ROUTER } from '../../../common'
 import { ErrorResDto, ResWrapper, authErrors } from '../../../common/type'
 import { castToRes, reqMeta } from '../../../config'
-import { authCheck } from '../auth.middleware'
+import { authCheck, permissionCheck } from '../auth.middleware'
 import { mfaService } from '../service'
 import {
 	MfaConfirmDto,
@@ -56,6 +56,7 @@ export const mfaController = new Elysia({
 		async ({ body, user }) =>
 			castToRes(await mfaService.createResetMFARequest(body, user)),
 		{
+			beforeHandle: permissionCheck(PERMISSION.USER_RESET_MFA),
 			body: MfaResetDto,
 			detail: {
 				...DOC_DETAIL.MFA_RESET_REQUEST,
@@ -73,6 +74,7 @@ export const mfaController = new Elysia({
 		async ({ body, user, metadata }) =>
 			castToRes(await mfaService.confirmResetMFA(body, user, metadata)),
 		{
+			beforeHandle: permissionCheck(PERMISSION.USER_RESET_MFA),
 			body: MfaResetConfirmDto,
 			detail: {
 				...DOC_DETAIL.MFA_RESET_CONFIRM,

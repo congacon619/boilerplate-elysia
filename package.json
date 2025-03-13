@@ -18,7 +18,7 @@
     "@elysiajs/cors": "^1.2.0",
     "@elysiajs/swagger": "^1.2.2",
     "@keyv/redis": "^4.3.1",
-    "@prisma/client": "^6.4.1",
+    "@prisma/client": "^6.5.0",
     "@sinclair/typebox": "^0.34.30",
     "dayjs": "^1.11.13",
     "elysia": "latest",
@@ -41,7 +41,7 @@
     "@types/lodash": "^4.17.16",
     "@types/ms": "^2.1.0",
     "bun-types": "latest",
-    "prisma": "^6.4.1"
+    "prisma": "^6.5.0"
   },
   "module": "src/index.js"
 }
