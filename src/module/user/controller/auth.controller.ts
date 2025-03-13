@@ -1,7 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { DOC_DETAIL, DOC_OPTIONS, ROUTER } from '../../../common'
 import { ErrorResDto, ResWrapper, authErrors } from '../../../common/type'
-import { castToRes, env, reqMeta } from '../../../config'
+import { castToRes, reqMeta } from '../../../config'
 import { authCheck } from '../auth.middleware'
 import { authService } from '../service'
 import {
@@ -20,7 +20,6 @@ import {
 export const authController = new Elysia({
 	name: 'AuthController',
 	detail: { tags: [DOC_OPTIONS.tags.auth.name] },
-	prefix: env.API_PREFIX,
 })
 	.use(reqMeta)
 	.post(

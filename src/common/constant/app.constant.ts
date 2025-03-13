@@ -188,6 +188,7 @@ export const DOC_OPTIONS = {
 		auth: { name: 'Auth', description: 'Authentication endpoints' },
 		activity: { name: 'Activity', description: 'Activity endpoints' },
 		user: { name: 'User', description: 'User endpoints' },
+		misc: { name: 'MISC', description: 'MISC endpoints' },
 	},
 }
 
@@ -367,10 +368,23 @@ export const DOC_DETAIL = {
 		description: 'User upsert',
 		summary: 'User upsert',
 	},
-	// SEND_EMAIL_MAGIC_LOGIN: {
-	// 	description: 'Send email magic login',
-	// 	summary: 'Send email magic login',
-	// },
+
+	HEALTH_CHECK: {
+		description: 'Health check',
+		summary: 'Health check',
+	},
+	PREFLIGHT: {
+		description: 'Preflight',
+		summary: 'Preflight',
+	},
+	GET_TIME: {
+		description: 'Get server time',
+		summary: 'Get server time',
+	},
+	GET_VERSION: {
+		description: 'Get server version',
+		summary: 'Get server version',
+	},
 	// MAGIC_LOGIN: {
 	// 	description: 'Magic login',
 	// 	summary: 'Magic login',
@@ -572,4 +586,9 @@ export enum ACTIVITY_TYPE {
 
 	CREATE_API_KEY = 'create-api-key',
 	UPDATE_API_KEY = 'update-api-key',
+}
+
+export enum HEALTH_STATE {
+	ERROR = 'error',
+	OK = 'ok',
 }

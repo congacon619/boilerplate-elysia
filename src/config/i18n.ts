@@ -54,6 +54,7 @@ export const resources = {
 				'api-key-not-activated': 'API key not activated',
 			},
 			'validation-error': 'Validation error',
+			'not-found': 'Router Not found',
 		},
 	},
 	vi: {
@@ -108,6 +109,7 @@ export const resources = {
 				'api-key-not-activated': 'API key chưa được kích hoạt',
 			},
 			'validation-error': 'Dữ liệu đầu vào sai định dạng',
+			'not-found': 'Không tìm thấy trang',
 		},
 	},
 }
