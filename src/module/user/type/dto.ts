@@ -76,3 +76,11 @@ export const ChangePasswordResDto = t.Object({
 	mfaToken: t.Optional(t.String()),
 })
 export type IChangePasswordRes = typeof ChangePasswordResDto.static
+
+export const ChangePasswordConfirm = t.Object({
+	newPassword: t.String(),
+	token: t.String(),
+	mfaToken: t.Optional(t.String()),
+	otp: t.Optional(t.String()),
+})
+export type IChangePasswordConfirm = typeof ChangePasswordConfirm.static

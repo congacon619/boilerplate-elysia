@@ -20,6 +20,7 @@ import { settingService } from '../../setting/service'
 import { LOGIN_RES_TYPE, LOGIN_WITH, MFA_METHOD } from '../constant'
 import {
 	IChangePassword,
+	IChangePasswordConfirm,
 	IChangePasswordRes,
 	ILogin,
 	ILoginConfirmReq,
@@ -321,5 +322,71 @@ export const authService = {
 		}
 
 		return { token }
+	},
+
+	async changePasswordConfirm(
+		{ newPassword, token, mfaToken, otp }: IChangePasswordConfirm,
+		reqUser: IUserMeta,
+		meta: IReqMeta,
+	): Promise<void> {
+		const cache = await changePasswordCache.get(token)
+		if (!cache) {
+			throw new UnauthorizedException('exception.session-expired')
+		}
+		if (cache.userId !== reqUser.id) {
+			throw new UnauthorizedException('exception.session-expired')
+		}
+
+		const user = await db.user.findUnique({
+			where: { id: reqUser.id },
+			select: {
+				id: true,
+				password: true,
+				username: true,
+				mfaTelegramEnabled: true,
+				mfaTotpEnabled: true,
+				totpSecret: true,
+				telegramUsername: true,
+			},
+		})
+
+		if (!user) {
+			throw new NotFoundException('exception.user-not-found')
+		}
+
+		if (mfaToken && otp) {
+			const isOtpValid = await mfaUtilService.verifySession({
+				mfaToken,
+				otp,
+				user,
+				referenceToken: token,
+			})
+			if (!isOtpValid) {
+				throw new BadRequestException('exception.invalid-otp')
+			}
+		} else if (user.mfaTelegramEnabled || user.mfaTotpEnabled) {
+			throw new BadRequestException('exception.mfa-required')
+		}
+
+		const { passwordHash, passwordExpired, passwordCreated } =
+			await passwordService.createPassword(newPassword)
+		await db.$transaction([
+			db.user.update({
+				where: { id: reqUser.id },
+				data: {
+					password: passwordHash,
+					passwordExpired,
+					passwordCreated,
+				},
+				select: { id: true },
+			}),
+			activityService.create({
+				type: ACTIVITY_TYPE.CHANGE_PASSWORD,
+				meta,
+				user: reqUser,
+			}),
+		])
+
+		await sessionService.revoke(reqUser.id)
 	},
 }

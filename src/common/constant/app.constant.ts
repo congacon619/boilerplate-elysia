@@ -362,14 +362,14 @@ export const DOC_DETAIL = {
 		description: 'Logout from this device',
 		summary: 'Logout',
 	},
-	// LOGOUT_ALL: {
-	// 	description: 'Logout from all devices',
-	// 	summary: 'Logout all',
-	// },
-	// CONFIRM_DEVICE: {
-	// 	description: 'Confirm new device',
-	// 	summary: 'Confirm device',
-	// },
+	CHANGE_PASSWORD: {
+		description: 'Change password',
+		summary: 'Change password',
+	},
+	CHANGE_PASSWORD_CONFIRM: {
+		description: 'Confirm change password',
+		summary: 'Confirm change password',
+	},
 	// LOGOUT_DEVICE: {
 	// 	description: 'Logout from a device',
 	// 	summary: 'Logout device',

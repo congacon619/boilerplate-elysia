@@ -5,6 +5,9 @@ import { env, reqMeta } from '../../../config'
 import { authCheck } from '../auth.middleware'
 import { authService } from '../service'
 import {
+	ChangePasswordConfirm,
+	ChangePasswordDto,
+	ChangePasswordResDto,
 	LoginConfirmReqDto,
 	LoginDto,
 	LoginMFASetupResDto,
@@ -22,7 +25,7 @@ export const authController = new Elysia({
 	.use(reqMeta)
 	.post(
 		ROUTER.AUTH.LOGIN,
-		async ({ body, metadata }) => await authService.login(body, metadata),
+		({ body, metadata }) => authService.login(body, metadata),
 		{
 			body: LoginDto,
 			detail: DOC_DETAIL.LOGIN,
@@ -36,8 +39,7 @@ export const authController = new Elysia({
 	)
 	.post(
 		ROUTER.AUTH.LOGIN_CONFIRM,
-		async ({ body, metadata }) =>
-			await authService.loginConfirm(body, metadata),
+		({ body, metadata }) => authService.loginConfirm(body, metadata),
 		{
 			body: LoginConfirmReqDto,
 			detail: DOC_DETAIL.LOGIN_CONFIRM,
@@ -51,7 +53,7 @@ export const authController = new Elysia({
 	)
 	.post(
 		ROUTER.AUTH.REGISTER,
-		async ({ body, metadata }) => await authService.register(body, metadata),
+		({ body, metadata }) => authService.register(body, metadata),
 		{
 			body: LoginDto,
 			detail: DOC_DETAIL.REGISTER,
@@ -66,7 +68,7 @@ export const authController = new Elysia({
 	.use(authCheck)
 	.post(
 		ROUTER.AUTH.LOGOUT,
-		async ({ metadata, user }) => await authService.logout(metadata, user),
+		({ metadata, user }) => authService.logout(metadata, user),
 		{
 			detail: {
 				...DOC_DETAIL.LOGOUT,
@@ -82,8 +84,7 @@ export const authController = new Elysia({
 	)
 	.post(
 		ROUTER.AUTH.REFRESH_TOKEN,
-		async ({ metadata, body }) =>
-			await authService.refreshToken(body, metadata),
+		({ metadata, body }) => authService.refreshToken(body, metadata),
 		{
 			body: RefreshTokenDto,
 			detail: {
@@ -119,6 +120,43 @@ export const authController = new Elysia({
 			},
 			response: {
 				200: UserResDto,
+				401: ErrorResDto,
+				403: ErrorResDto,
+				500: ErrorResDto,
+			},
+		},
+	)
+	.post(
+		ROUTER.AUTH.CHANGE_PASSWORD,
+		({ body, user }) => authService.changePassword(body, user),
+		{
+			body: ChangePasswordDto,
+			detail: {
+				...DOC_DETAIL.CHANGE_PASSWORD,
+				security: [{ accessToken: [] }],
+			},
+			response: {
+				200: ChangePasswordResDto,
+				400: ErrorResDto,
+				401: ErrorResDto,
+				403: ErrorResDto,
+				500: ErrorResDto,
+			},
+		},
+	)
+	.post(
+		ROUTER.AUTH.CHANGE_PASSWORD_CONFIRM,
+		({ metadata, body, user }) =>
+			authService.changePasswordConfirm(body, user, metadata),
+		{
+			body: ChangePasswordConfirm,
+			detail: {
+				...DOC_DETAIL.CHANGE_PASSWORD_CONFIRM,
+				security: [{ accessToken: [] }],
+			},
+			response: {
+				200: t.Void(),
+				400: ErrorResDto,
 				401: ErrorResDto,
 				403: ErrorResDto,
 				500: ErrorResDto,
