@@ -191,7 +191,8 @@ export const DOC_OPTIONS = {
 		misc: { name: 'MISC', description: 'MISC endpoints' },
 		mfa: { name: 'MFA', description: 'MFA endpoints' },
 		apiKey: { name: 'ApiKey', description: 'ApiKey endpoints' },
-		setting: { name: 'Setting', description: 'ApiKey endpoints' },
+		setting: { name: 'Setting', description: 'Setting endpoints' },
+		permission: { name: 'Permission', description: 'Permission endpoints' },
 	},
 }
 
@@ -425,6 +426,11 @@ export const DOC_DETAIL = {
 	SETTING_UPDATE: {
 		description: 'Setting update',
 		summary: 'Setting update',
+	},
+
+	PERMISSION_GET_ALL: {
+		description: 'Permissions get all',
+		summary: 'Permissions get all',
 	},
 }
 

@@ -11,6 +11,7 @@ import {
 	mfaController,
 	userController,
 } from './module/user/controller'
+import { permissionController } from './module/role/controller'
 
 try {
 	await db.$connect()
@@ -53,7 +54,8 @@ try {
 				.use(miscController)
 				.use(mfaController)
 				.use(apiKeyController)
-				.use(settingController),
+				.use(settingController)
+				.use(permissionController),
 		)
 	app.listen(env.PORT)
 
