@@ -199,12 +199,7 @@ export const DOC_OPTIONS = {
 	},
 	tags: {
 		auth: { name: 'Auth', description: 'Authentication endpoints' },
-		app: { name: 'App', description: 'General endpoints' },
-		user: { name: 'User', description: 'User endpoints' },
-		setting: { name: 'Setting', description: 'Setting endpoints' },
-		device: { name: 'Device', description: 'Device management endpoints' },
-		permission: { name: 'Permission', description: 'Permission endpoints' },
-		role: { name: 'Role', description: 'Role endpoints' },
+		activity: { name: 'Activity', description: 'Activity endpoints' },
 	},
 }
 
@@ -370,10 +365,11 @@ export const DOC_DETAIL = {
 		description: 'Confirm change password',
 		summary: 'Confirm change password',
 	},
-	// LOGOUT_DEVICE: {
-	// 	description: 'Logout from a device',
-	// 	summary: 'Logout device',
-	// },
+
+	ACTIVITY_PAGINATE: {
+		description: 'Activity paging',
+		summary: 'Activity paging',
+	},
 	// SEND_EMAIL_MAGIC_LOGIN: {
 	// 	description: 'Send email magic login',
 	// 	summary: 'Send email magic login',

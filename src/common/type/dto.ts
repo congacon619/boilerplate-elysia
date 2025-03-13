@@ -12,3 +12,9 @@ export const ErrorResDto = t.Object({
 })
 
 export type IErrorRes = typeof ErrorResDto.static
+
+export const authErrors = {
+	401: ErrorResDto,
+	403: ErrorResDto,
+	500: ErrorResDto,
+}

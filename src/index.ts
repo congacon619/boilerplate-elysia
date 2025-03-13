@@ -8,6 +8,7 @@ import {
 	logger,
 	swaggerConfig,
 } from './config'
+import { activityController } from './module/activity/controller'
 import { startupService } from './module/startup'
 import { authController } from './module/user/controller'
 
@@ -46,6 +47,7 @@ try {
 		.use(httpError())
 		.use(httpResponse())
 		.use(authController)
+		.use(activityController)
 	app.listen(env.PORT)
 
 	logger.info(

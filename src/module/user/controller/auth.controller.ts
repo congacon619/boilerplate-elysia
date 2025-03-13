@@ -1,6 +1,6 @@
 import { Elysia, t } from 'elysia'
 import { DOC_DETAIL, DOC_OPTIONS, ROUTER } from '../../../common'
-import { ErrorResDto } from '../../../common/type'
+import { ErrorResDto, authErrors } from '../../../common/type'
 import { env, reqMeta } from '../../../config'
 import { authCheck } from '../auth.middleware'
 import { authService } from '../service'
@@ -76,9 +76,7 @@ export const authController = new Elysia({
 			},
 			response: {
 				200: t.Void(),
-				401: ErrorResDto,
-				403: ErrorResDto,
-				500: ErrorResDto,
+				...authErrors,
 			},
 		},
 	)
@@ -94,9 +92,7 @@ export const authController = new Elysia({
 			response: {
 				200: t.Union([LoginResDto, LoginMFASetupResDto]),
 				400: ErrorResDto,
-				401: ErrorResDto,
-				403: ErrorResDto,
-				500: ErrorResDto,
+				...authErrors,
 			},
 		},
 	)
@@ -120,9 +116,7 @@ export const authController = new Elysia({
 			},
 			response: {
 				200: UserResDto,
-				401: ErrorResDto,
-				403: ErrorResDto,
-				500: ErrorResDto,
+				...authErrors,
 			},
 		},
 	)
@@ -138,9 +132,7 @@ export const authController = new Elysia({
 			response: {
 				200: ChangePasswordResDto,
 				400: ErrorResDto,
-				401: ErrorResDto,
-				403: ErrorResDto,
-				500: ErrorResDto,
+				...authErrors,
 			},
 		},
 	)
@@ -157,9 +149,7 @@ export const authController = new Elysia({
 			response: {
 				200: t.Void(),
 				400: ErrorResDto,
-				401: ErrorResDto,
-				403: ErrorResDto,
-				500: ErrorResDto,
+				...authErrors,
 			},
 		},
 	)

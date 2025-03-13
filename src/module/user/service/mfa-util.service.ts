@@ -21,48 +21,40 @@ export const mfaUtilService = {
 		referenceToken: string
 		user: IUserMFA
 	}): Promise<string> {
-		try {
-			const sessionId = token16()
+		const sessionId = token16()
 
-			if (
-				method === MFA_METHOD.TOTP &&
-				user.mfaTotpEnabled &&
-				user.totpSecret
-			) {
-				await mfaCache.set(sessionId, {
-					userId: user.id,
-					type: MFA_METHOD.TOTP,
-					referenceToken,
-				})
-				return sessionId
-			}
-
-			if (
-				method === MFA_METHOD.TELEGRAM &&
-				user.mfaTelegramEnabled &&
-				user.telegramUsername
-			) {
-				authenticator.options = { digits: 6, step: 300 } // 300 seconds
-				const secret = authenticator.generateSecret()
-				const otp = authenticator.generate(secret)
-				await mfaCache.set(sessionId, {
-					userId: user.id,
-					type: MFA_METHOD.TELEGRAM,
-					secret,
-					referenceToken,
-				})
-
-				// todo: send message
-				// await telegramService.jobSendMessage({
-				// 	chatIds: [user.telegramUsername],
-				// 	message: `Your OTP is: ${otp}`,
-				// })
-				return sessionId
-			}
-			throw new AppException('exception.mfa-broken')
-		} catch {
-			throw new AppException('exception.mfa-broken')
+		if (method === MFA_METHOD.TOTP && user.mfaTotpEnabled && user.totpSecret) {
+			await mfaCache.set(sessionId, {
+				userId: user.id,
+				type: MFA_METHOD.TOTP,
+				referenceToken,
+			})
+			return sessionId
 		}
+
+		if (
+			method === MFA_METHOD.TELEGRAM &&
+			user.mfaTelegramEnabled &&
+			user.telegramUsername
+		) {
+			authenticator.options = { digits: 6, step: 300 } // 300 seconds
+			const secret = authenticator.generateSecret()
+			const otp = authenticator.generate(secret)
+			await mfaCache.set(sessionId, {
+				userId: user.id,
+				type: MFA_METHOD.TELEGRAM,
+				secret,
+				referenceToken,
+			})
+
+			// todo: send message
+			// await telegramService.jobSendMessage({
+			// 	chatIds: [user.telegramUsername],
+			// 	message: `Your OTP is: ${otp}`,
+			// })
+			return sessionId
+		}
+		throw new AppException('exception.mfa-broken')
 	},
 
 	async setupMfa(
