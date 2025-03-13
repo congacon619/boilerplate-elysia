@@ -172,19 +172,6 @@ export enum CLI_QUESTION {
 	ASK_ROLE = 'ask-role',
 }
 
-// region WS
-export enum WS_NAMESPACES {
-	USER = 'user',
-}
-
-export const WS_EVENTS = {
-	EXCEPTION: 'exception',
-	CONNECT_SUCCEED: 'connect-succeed',
-	USER: {
-		REFRESH_TOKEN: 'refresh-token',
-	},
-}
-
 export const DOC_OPTIONS = {
 	info: {
 		title: 'Elysia Documentation',
@@ -200,6 +187,7 @@ export const DOC_OPTIONS = {
 	tags: {
 		auth: { name: 'Auth', description: 'Authentication endpoints' },
 		activity: { name: 'Activity', description: 'Activity endpoints' },
+		user: { name: 'User', description: 'User endpoints' },
 	},
 }
 
@@ -369,6 +357,15 @@ export const DOC_DETAIL = {
 	ACTIVITY_PAGINATE: {
 		description: 'Activity paging',
 		summary: 'Activity paging',
+	},
+
+	USER_PAGINATE: {
+		description: 'User paging',
+		summary: 'User paging',
+	},
+	USER_UPSERT: {
+		description: 'User upsert',
+		summary: 'User upsert',
 	},
 	// SEND_EMAIL_MAGIC_LOGIN: {
 	// 	description: 'Send email magic login',

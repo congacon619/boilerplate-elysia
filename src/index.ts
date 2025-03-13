@@ -3,7 +3,7 @@ import { Elysia } from 'elysia'
 import { db, env, httpError, logger, swaggerConfig } from './config'
 import { activityController } from './module/activity/controller'
 import { startupService } from './module/startup'
-import { authController } from './module/user/controller'
+import { authController, userController } from './module/user/controller'
 
 try {
 	await db.$connect()
@@ -40,6 +40,7 @@ try {
 		.use(httpError())
 		.use(authController)
 		.use(activityController)
+		.use(userController)
 	app.listen(env.PORT)
 
 	logger.info(

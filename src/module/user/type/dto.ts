@@ -84,3 +84,38 @@ export const ChangePasswordConfirm = t.Object({
 	otp: t.Optional(t.String()),
 })
 export type IChangePasswordConfirm = typeof ChangePasswordConfirm.static
+
+export const PaginateUserResDto = t.Object({
+	docs: t.Array(
+		t.Intersect([
+			t.Omit(UserResDto, ['permissions']),
+			t.Object({
+				protected: t.Boolean(),
+				roleUsers: t.Array(
+					t.Object({
+						role: t.Object({
+							name: t.String(),
+							id: t.String(),
+						}),
+					}),
+				),
+				sessions: t.Array(
+					t.Object({
+						created: t.Date({ format: 'date-time' }),
+					}),
+				),
+			}),
+		]),
+	),
+	count: t.Integer(),
+})
+export type IPaginateUserRes = typeof PaginateUserResDto.static
+
+export const UserUpsertDto = t.Object({
+	id: t.Optional(t.String()),
+	username: t.String(),
+	password: t.Optional(t.String()),
+	enabled: t.Boolean(),
+	roleIds: t.Array(t.String()),
+})
+export type IUserUpsert = typeof UserUpsertDto.static

@@ -25,3 +25,9 @@ export const ResWrapper = <T extends TSchema>(dataSchema: T) =>
 		t: t.String(),
 		code: t.String(),
 	})
+
+export const PaginationReqDto = t.Object({
+	take: t.Optional(t.Integer({ minimum: 1, examples: [20], default: 20 })),
+	skip: t.Optional(t.Integer({ minimum: 0, examples: [0], default: 0 })),
+})
+export type IPaginationReq = typeof PaginationReqDto.static
