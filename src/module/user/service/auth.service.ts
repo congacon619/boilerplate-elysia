@@ -1,4 +1,3 @@
-import { User } from '@prisma/client'
 import dayjs from 'dayjs'
 import { compact, uniq } from 'lodash'
 import {
@@ -14,12 +13,14 @@ import {
 	token16,
 } from '../../../common'
 import { IReqMeta } from '../../../common/type'
-import { db, env, loginCache } from '../../../config'
+import { changePasswordCache, db, env, loginCache } from '../../../config'
 import { activityService } from '../../activity/service'
 import { sessionService } from '../../session/service'
 import { settingService } from '../../setting/service'
 import { LOGIN_RES_TYPE, LOGIN_WITH, MFA_METHOD } from '../constant'
 import {
+	IChangePassword,
+	IChangePasswordRes,
 	ILogin,
 	ILoginConfirmReq,
 	ILoginMFARes,
@@ -28,87 +29,14 @@ import {
 	ITokenPayload,
 	IUserMeta,
 } from '../type'
-import { passwordService, tokenService } from './auth-util.service'
+import {
+	passwordService,
+	tokenService,
+	userUtilService,
+} from './auth-util.service'
 import { mfaUtilService } from './mfa-util.service'
 
 export const authService = {
-	async completeLogin(user: User, meta: IReqMeta): Promise<ILoginRes> {
-		if (await settingService.enbOnlyOneSession()) {
-			await sessionService.revoke(user.id)
-		}
-		const { ip, ua } = meta
-		const sessionId = token12(PREFIX.SESSION)
-		const payload: ITokenPayload = {
-			userId: user.id,
-			loginDate: new Date(),
-			loginWith: LOGIN_WITH.LOCAL,
-			sessionId,
-			ip,
-			ua: ua.ua,
-		}
-
-		const [
-			{ accessToken, expirationTime },
-			{ refreshToken, expirationTime: refreshTokenExpirationTime },
-		] = await Promise.all([
-			tokenService.createAccessToken(payload),
-			tokenService.createRefreshToken(payload),
-		])
-
-		await db.$transaction(async tx => {
-			const session = await tx.session.create({
-				data: {
-					id: sessionId,
-					device:
-						ua.browser.name && ua.os.name
-							? `${ua.browser.name} ${ua.browser.version} on ${ua.os.name} ${ua.os.version}`
-							: ua.ua,
-					ip,
-					createdById: user.id,
-					expired: refreshTokenExpirationTime,
-					userAgent: JSON.parse(JSON.stringify(ua)),
-					token: refreshToken,
-				},
-				select: { id: true },
-			})
-
-			await activityService.create(
-				{
-					type: ACTIVITY_TYPE.LOGIN,
-					meta,
-					user: { id: user.id, sessionId: session.id },
-				},
-				tx,
-			)
-		})
-
-		const roleUsers = await db.roleUser.findMany({
-			where: { userId: user.id },
-			select: { role: { select: { permissions: true } } },
-		})
-
-		const userRes = {
-			id: user.id,
-			mfaTelegramEnabled: user.mfaTelegramEnabled,
-			mfaTotpEnabled: user.mfaTotpEnabled,
-			telegramUsername: user.telegramUsername,
-			enabled: user.enabled,
-			created: user.created,
-			username: user.username,
-			modified: user.modified,
-			permissions: uniq(roleUsers.flatMap(e => e.role.permissions)),
-		}
-
-		return {
-			type: LOGIN_RES_TYPE.COMPLETED,
-			accessToken,
-			refreshToken,
-			exp: expirationTime.getTime(),
-			expired: dayjs(expirationTime).format(),
-			user: userRes,
-		}
-	},
-
 	async login(
 		{ username, password }: ILogin,
 		meta: IReqMeta,
@@ -165,7 +93,7 @@ export const authService = {
 			}
 		}
 
-		return authService.completeLogin(user, meta)
+		return userUtilService.completeLogin(user, meta)
 	},
 
 	async loginConfirm(
@@ -194,7 +122,7 @@ export const authService = {
 			throw new BadRequestException('exception.invalid-otp')
 		}
 
-		return authService.completeLogin(user, meta)
+		return userUtilService.completeLogin(user, meta)
 	},
 
 	async logout(meta: IReqMeta, user: IUserMeta): Promise<void> {
@@ -344,5 +272,54 @@ export const authService = {
 			expired: dayjs(expirationTime).format(),
 			user,
 		}
+	},
+
+	async changePassword(
+		{ oldPassword, method }: IChangePassword,
+		{ id }: IUserMeta,
+	): Promise<IChangePasswordRes> {
+		const user = await db.user.findUnique({
+			where: { id },
+			select: {
+				id: true,
+				password: true,
+				username: true,
+				mfaTelegramEnabled: true,
+				mfaTotpEnabled: true,
+				totpSecret: true,
+				telegramUsername: true,
+				protected: true,
+			},
+		})
+
+		if (!user) {
+			throw new NotFoundException('exception.user-not-found')
+		}
+
+		if (user.protected) {
+			throw new NotFoundException('exception.document-protected')
+		}
+
+		if (!(await passwordService.comparePassword(oldPassword, user.password))) {
+			throw new BadRequestException('exception.password-not-match')
+		}
+
+		if (!method && (user.mfaTelegramEnabled || user.mfaTotpEnabled)) {
+			throw new BadRequestException('exception.mfa-required')
+		}
+
+		const token = token16()
+		await changePasswordCache.set(token, { userId: id })
+
+		if (method) {
+			const mfaToken = await mfaUtilService.createSession({
+				method,
+				user,
+				referenceToken: token,
+			})
+			return { token, mfaToken }
+		}
+
+		return { token }
 	},
 }

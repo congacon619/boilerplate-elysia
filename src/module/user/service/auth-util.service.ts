@@ -1,16 +1,31 @@
+import { User } from '@prisma/client'
 import dayjs from 'dayjs'
 import { JWTPayload } from 'jose'
+import { uniq } from 'lodash'
 import {
+	ACTIVITY_TYPE,
 	BadRequestException,
+	PREFIX,
 	aes256Decrypt,
 	aes256Encrypt,
 	isExpired,
 	seconds,
 	signJwt,
+	token12,
 	verifyJwt,
 } from '../../../common'
+import { IReqMeta } from '../../../common/type'
 import { db, env, tokenCache } from '../../../config'
-import { IAccessTokenRes, IAuthPassword, ITokenPayload } from '../type'
+import { activityService } from '../../activity/service'
+import { sessionService } from '../../session/service'
+import { settingService } from '../../setting/service'
+import { LOGIN_RES_TYPE, LOGIN_WITH } from '../constant'
+import {
+	IAccessTokenRes,
+	IAuthPassword,
+	ILoginRes,
+	ITokenPayload,
+} from '../type'
 
 export const passwordService = {
 	async createPassword(password: string): Promise<IAuthPassword> {
@@ -111,5 +126,84 @@ export const tokenService = {
 			throw new BadRequestException('exception.expired-token')
 		}
 		return { ...res, data }
+	},
+}
+
+export const userUtilService = {
+	async completeLogin(user: User, meta: IReqMeta): Promise<ILoginRes> {
+		if (await settingService.enbOnlyOneSession()) {
+			await sessionService.revoke(user.id)
+		}
+		const { ip, ua } = meta
+		const sessionId = token12(PREFIX.SESSION)
+		const payload: ITokenPayload = {
+			userId: user.id,
+			loginDate: new Date(),
+			loginWith: LOGIN_WITH.LOCAL,
+			sessionId,
+			ip,
+			ua: ua.ua,
+		}
+
+		const [
+			{ accessToken, expirationTime },
+			{ refreshToken, expirationTime: refreshTokenExpirationTime },
+		] = await Promise.all([
+			tokenService.createAccessToken(payload),
+			tokenService.createRefreshToken(payload),
+		])
+
+		await db.$transaction(async tx => {
+			const session = await tx.session.create({
+				data: {
+					id: sessionId,
+					device:
+						ua.browser.name && ua.os.name
+							? `${ua.browser.name} ${ua.browser.version} on ${ua.os.name} ${ua.os.version}`
+							: ua.ua,
+					ip,
+					createdById: user.id,
+					expired: refreshTokenExpirationTime,
+					userAgent: JSON.parse(JSON.stringify(ua)),
+					token: refreshToken,
+				},
+				select: { id: true },
+			})
+
+			await activityService.create(
+				{
+					type: ACTIVITY_TYPE.LOGIN,
+					meta,
+					user: { id: user.id, sessionId: session.id },
+				},
+				tx,
+			)
+		})
+
+		const roleUsers = await db.roleUser.findMany({
+			where: { userId: user.id },
+			select: { role: { select: { permissions: true } } },
+		})
+
+		const userRes = {
+			id: user.id,
+			mfaTelegramEnabled: user.mfaTelegramEnabled,
+			mfaTotpEnabled: user.mfaTotpEnabled,
+			telegramUsername: user.telegramUsername,
+			enabled: user.enabled,
+			created: user.created,
+			username: user.username,
+			modified: user.modified,
+			permissions: uniq(roleUsers.flatMap(e => e.role.permissions)),
+		}
+
+		return {
+			type: LOGIN_RES_TYPE.COMPLETED,
+			accessToken,
+			refreshToken,
+			exp: expirationTime.getTime(),
+			expired: dayjs(expirationTime).format(),
+			user: userRes,
+		}
 	},
 }

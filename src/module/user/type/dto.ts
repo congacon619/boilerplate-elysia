@@ -65,3 +65,14 @@ export const LoginConfirmReqDto = t.Object({
 export type ILoginConfirmReq = typeof LoginConfirmReqDto.static
 
 export const RefreshTokenDto = t.Object({ token: t.String({ minLength: 1 }) })
+
+export const ChangePasswordDto = t.Object({
+	oldPassword: t.String(),
+	method: t.Optional(t.Enum(MFA_METHOD)),
+})
+export type IChangePassword = typeof ChangePasswordDto.static
+export const ChangePasswordResDto = t.Object({
+	token: t.String(),
+	mfaToken: t.Optional(t.String()),
+})
+export type IChangePasswordRes = typeof ChangePasswordResDto.static

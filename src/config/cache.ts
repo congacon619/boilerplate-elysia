@@ -75,3 +75,8 @@ export const currentUserCache = new Keyv<IUserMeta>(redis, {
 })
 
 export const settingCache = new Keyv({ namespace: CACHE_NS.SETTING })
+
+export const changePasswordCache = new Keyv<{ userId: string }>(redis, {
+	namespace: CACHE_NS.CHANGE_PASSWORD,
+	ttl: milliseconds('15m'),
+})

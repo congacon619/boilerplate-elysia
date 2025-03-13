@@ -217,6 +217,7 @@ export enum CACHE_NS {
 	MFA = 'mfa',
 	IP_WHITELIST = 'ip-whitelist',
 	CURRENT_USER = 'currency-user',
+	CHANGE_PASSWORD = 'change-password',
 }
 
 // region http
