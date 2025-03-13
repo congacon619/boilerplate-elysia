@@ -1,7 +1,7 @@
 import { Elysia } from 'elysia'
 import { DOC_DETAIL, DOC_OPTIONS, PERMISSION, ROUTER } from '../../../common'
-import { authErrors } from '../../../common/type'
-import { env, reqMeta } from '../../../config'
+import { ResWrapper, authErrors } from '../../../common/type'
+import { castToRes, env, reqMeta } from '../../../config'
 import { authCheck, permissionCheck } from '../../user/auth.middleware'
 import { activityService } from '../service'
 import { ActivityPaginateDto, ActivityPagingResDto } from '../type'
@@ -15,7 +15,8 @@ export const activityController = new Elysia({
 	.use(authCheck)
 	.get(
 		ROUTER.ACTIVITY.ROOT,
-		({ user, query }) => activityService.paginate(query, user),
+		async ({ user, query }) =>
+			castToRes(await activityService.paginate(query, user)),
 		{
 			beforeHandle: permissionCheck(PERMISSION.ACTIVITY_VIEW),
 			query: ActivityPaginateDto,
@@ -24,7 +25,7 @@ export const activityController = new Elysia({
 				security: [{ accessToken: [] }],
 			},
 			response: {
-				200: ActivityPagingResDto,
+				200: ResWrapper(ActivityPagingResDto),
 				...authErrors,
 			},
 		},

@@ -1,13 +1,6 @@
 import cors from '@elysiajs/cors'
 import { Elysia } from 'elysia'
-import {
-	db,
-	env,
-	httpError,
-	httpResponse,
-	logger,
-	swaggerConfig,
-} from './config'
+import { db, env, httpError, logger, swaggerConfig } from './config'
 import { activityController } from './module/activity/controller'
 import { startupService } from './module/startup'
 import { authController } from './module/user/controller'
@@ -45,7 +38,6 @@ try {
 		)
 		.use(swaggerConfig())
 		.use(httpError())
-		.use(httpResponse())
 		.use(authController)
 		.use(activityController)
 	app.listen(env.PORT)
