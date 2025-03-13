@@ -1,7 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { DOC_DETAIL, DOC_OPTIONS, ROUTER } from '../../../common'
-import { ErrorResDto, ResDto } from '../../../common/type'
-import { castToRes, env, reqMeta } from '../../../config'
+import { ErrorResDto } from '../../../common/type'
+import { env, reqMeta } from '../../../config'
 import { authCheck } from '../auth.middleware'
 import { authService } from '../service'
 import {
@@ -11,6 +11,7 @@ import {
 	LoginResDto,
 	LoginResponseDto,
 	RefreshTokenDto,
+	UserResDto,
 } from '../type'
 
 export const authController = new Elysia({
@@ -21,13 +22,12 @@ export const authController = new Elysia({
 	.use(reqMeta)
 	.post(
 		ROUTER.AUTH.LOGIN,
-		async ({ body, metadata }) =>
-			castToRes(await authService.login(body, metadata)),
+		async ({ body, metadata }) => await authService.login(body, metadata),
 		{
 			body: LoginDto,
 			detail: DOC_DETAIL.LOGIN,
 			response: {
-				200: ResDto(LoginResponseDto),
+				200: LoginResponseDto,
 				400: ErrorResDto,
 				404: ErrorResDto,
 				500: ErrorResDto,
@@ -37,12 +37,12 @@ export const authController = new Elysia({
 	.post(
 		ROUTER.AUTH.LOGIN_CONFIRM,
 		async ({ body, metadata }) =>
-			castToRes(await authService.loginConfirm(body, metadata)),
+			await authService.loginConfirm(body, metadata),
 		{
 			body: LoginConfirmReqDto,
 			detail: DOC_DETAIL.LOGIN_CONFIRM,
 			response: {
-				200: ResDto(LoginResDto),
+				200: LoginResDto,
 				400: ErrorResDto,
 				404: ErrorResDto,
 				500: ErrorResDto,
@@ -51,13 +51,12 @@ export const authController = new Elysia({
 	)
 	.post(
 		ROUTER.AUTH.REGISTER,
-		async ({ body, metadata }) =>
-			castToRes(await authService.register(body, metadata)),
+		async ({ body, metadata }) => await authService.register(body, metadata),
 		{
 			body: LoginDto,
 			detail: DOC_DETAIL.REGISTER,
 			response: {
-				200: ResDto(),
+				200: t.Void(),
 				400: ErrorResDto,
 				404: ErrorResDto,
 				500: ErrorResDto,
@@ -67,15 +66,14 @@ export const authController = new Elysia({
 	.use(authCheck)
 	.post(
 		ROUTER.AUTH.LOGOUT,
-		async ({ metadata, user }) =>
-			castToRes(await authService.logout(metadata, user)),
+		async ({ metadata, user }) => await authService.logout(metadata, user),
 		{
 			detail: {
 				...DOC_DETAIL.LOGOUT,
 				security: [{ accessToken: [] }],
 			},
 			response: {
-				200: ResDto(),
+				200: t.Void(),
 				401: ErrorResDto,
 				403: ErrorResDto,
 				500: ErrorResDto,
@@ -85,7 +83,7 @@ export const authController = new Elysia({
 	.post(
 		ROUTER.AUTH.REFRESH_TOKEN,
 		async ({ metadata, body }) =>
-			castToRes(await authService.refreshToken(body, metadata)),
+			await authService.refreshToken(body, metadata),
 		{
 			body: RefreshTokenDto,
 			detail: {
@@ -93,7 +91,7 @@ export const authController = new Elysia({
 				security: [{ accessToken: [] }],
 			},
 			response: {
-				200: ResDto(t.Union([LoginResDto, LoginMFASetupResDto])),
+				200: t.Union([LoginResDto, LoginMFASetupResDto]),
 				400: ErrorResDto,
 				401: ErrorResDto,
 				403: ErrorResDto,
@@ -103,25 +101,24 @@ export const authController = new Elysia({
 	)
 	.get(
 		ROUTER.AUTH.CURRENT_USER,
-		({ user }) =>
-			castToRes({
-				id: user.id,
-				mfaTelegramEnabled: user.mfaTelegramEnabled,
-				mfaTotpEnabled: user.mfaTotpEnabled,
-				telegramUsername: user.telegramUsername || undefined,
-				enabled: user.enabled,
-				created: user.created,
-				username: user.username,
-				modified: user.modified,
-				permissions: user.permissions,
-			}),
+		({ user }) => ({
+			id: user.id,
+			mfaTelegramEnabled: user.mfaTelegramEnabled,
+			mfaTotpEnabled: user.mfaTotpEnabled,
+			telegramUsername: user.telegramUsername,
+			enabled: user.enabled,
+			created: user.created,
+			username: user.username,
+			modified: user.modified,
+			permissions: user.permissions,
+		}),
 		{
 			detail: {
 				...DOC_DETAIL.CURRENT_USER,
 				security: [{ accessToken: [] }],
 			},
 			response: {
-				200: ResDto(),
+				200: UserResDto,
 				401: ErrorResDto,
 				403: ErrorResDto,
 				500: ErrorResDto,
