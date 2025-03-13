@@ -119,3 +119,52 @@ export const UserUpsertDto = t.Object({
 	roleIds: t.Array(t.String()),
 })
 export type IUserUpsert = typeof UserUpsertDto.static
+
+export const MfaSetupDto = t.Object({
+	password: t.String({
+		description: 'The password of the user',
+		examples: ['yourSecurePassword123'],
+	}),
+	method: t.Enum(MFA_METHOD, {
+		description: 'The MFA method to be set up',
+		examples: [MFA_METHOD.TELEGRAM],
+	}),
+	telegramUsername: t.Optional(
+		t.String({
+			description: 'The Telegram username (required if method is Telegram)',
+			examples: ['your_telegram_username'],
+		}),
+	),
+})
+export type IMfaSetup = typeof MfaSetupDto.static
+
+export const MfaSetupResDto = t.Object({
+	mfaToken: t.String(),
+	totpSecret: t.Optional(t.String()),
+})
+export type IMfaSetupRes = typeof MfaSetupResDto.static
+
+export const MfaConfirmDto = t.Object({
+	mfaToken: t.String(),
+	otp: t.String(),
+})
+export type IMfaConfirm = typeof MfaConfirmDto.static
+
+export const MfaResetDto = t.Object({
+	method: t.Enum(MFA_METHOD),
+	userIds: t.Array(t.String()),
+})
+export type IMfaReset = typeof MfaResetDto.static
+
+export const MfaResetResDto = t.Object({
+	mfaToken: t.String(),
+	token: t.String(),
+})
+export type IMfaResetRes = typeof MfaResetResDto.static
+
+export const MfaResetConfirmDto = t.Object({
+	mfaToken: t.String(),
+	otp: t.String(),
+	token: t.String(),
+})
+export type IMfaResetConfirm = typeof MfaResetConfirmDto.static

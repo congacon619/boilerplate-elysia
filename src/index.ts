@@ -4,7 +4,11 @@ import { db, env, httpError, logger, swaggerConfig } from './config'
 import { activityController } from './module/activity/controller'
 import { miscController } from './module/misc/controller'
 import { startupService } from './module/startup'
-import { authController, userController } from './module/user/controller'
+import {
+	authController,
+	mfaController,
+	userController,
+} from './module/user/controller'
 
 try {
 	await db.$connect()
@@ -44,7 +48,8 @@ try {
 				.use(authController)
 				.use(activityController)
 				.use(userController)
-				.use(miscController),
+				.use(miscController)
+				.use(mfaController),
 		)
 	app.listen(env.PORT)
 

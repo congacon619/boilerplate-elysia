@@ -189,6 +189,7 @@ export const DOC_OPTIONS = {
 		activity: { name: 'Activity', description: 'Activity endpoints' },
 		user: { name: 'User', description: 'User endpoints' },
 		misc: { name: 'MISC', description: 'MISC endpoints' },
+		mfa: { name: 'MFA', description: 'MFA endpoints' },
 	},
 }
 
@@ -385,85 +386,23 @@ export const DOC_DETAIL = {
 		description: 'Get server version',
 		summary: 'Get server version',
 	},
-	// MAGIC_LOGIN: {
-	// 	description: 'Magic login',
-	// 	summary: 'Magic login',
-	// },
-	//
-	// // user APIs
 
-	// SEND_EMAIL_VERIFY: {
-	// 	description: 'Send email verify account',
-	// 	summary: 'Send email verify',
-	// },
-	// VERIFY_ACCOUNT: {
-	// 	description: 'Verify account',
-	// 	summary: 'Verify account',
-	// },
-	// USER_BY_ID: {
-	// 	description: 'Get user information by id',
-	// 	summary: 'Get user',
-	// },
-	//
-	// // setting APIs
-	// CREATE_SETTING: {
-	// 	description: 'Create setting',
-	// 	summary: 'Create setting',
-	// },
-	// GET_SETTING: {
-	// 	description: 'Get setting detail',
-	// 	summary: 'Get setting',
-	// },
-	// LIST_SETTING: {
-	// 	description: 'Get list settings',
-	// 	summary: 'Get list settings',
-	// },
-	// DELETE_SETTING: {
-	// 	description: 'Delete setting with id',
-	// 	summary: 'Delete setting',
-	// },
-	// UPDATE_SETTING: {
-	// 	description: 'Update setting with id',
-	// 	summary: 'Update setting',
-	// },
-	//
-	// // device APIs
-	// LIST_DEVICES: {
-	// 	description: 'Get list devices',
-	// 	summary: 'List devices',
-	// },
-	//
-	// // permission APIs
-	// LIST_PERMISSION: {
-	// 	description: 'Get list permissions',
-	// 	summary: 'List permissions',
-	// },
-	// UPDATE_PERMISSION: {
-	// 	description: 'Update permission with id',
-	// 	summary: 'Update permission',
-	// },
-	//
-	// // role APIs
-	// LIST_ROLE: {
-	// 	description: 'Get list roles',
-	// 	summary: 'List roles',
-	// },
-	// GET_ROLE: {
-	// 	description: 'Get role detail',
-	// 	summary: 'Get role',
-	// },
-	// CREATE_ROLE: {
-	// 	description: 'Create role',
-	// 	summary: 'Create role',
-	// },
-	// UPDATE_ROLE: {
-	// 	description: 'Update role with id',
-	// 	summary: 'Update role',
-	// },
-	// DELETE_ROLE: {
-	// 	description: 'Delete role with id',
-	// 	summary: 'Delete role',
-	// },
+	MFA_SETUP_REQUEST: {
+		description: 'Create request setup MFA',
+		summary: 'Create request setup MFA',
+	},
+	MFA_SETUP_CONFIRM: {
+		description: 'Confirm setup MFA',
+		summary: 'Confirm setup MFA',
+	},
+	MFA_RESET_REQUEST: {
+		description: 'Request reset MFA',
+		summary: 'Request reset MFA',
+	},
+	MFA_RESET_CONFIRM: {
+		description: 'Confirm reset MFA',
+		summary: 'Confirm reset MFA',
+	},
 }
 
 export enum RES_CODE {
