@@ -4,6 +4,7 @@ import {
 	NotFoundException,
 	PERMISSION,
 	PREFIX,
+	UnauthorizedException,
 	token12,
 	token16,
 	token32,
@@ -15,6 +16,18 @@ import { IUserMeta } from '../../user/type'
 import { IPaginateApiKeyRes, IUpsertApiKey } from '../type'
 
 export const apiKeyService = {
+	validatePermission(apiKey: { userId: string } | null, user: IUserMeta): void {
+		if (!apiKey) {
+			throw new NotFoundException('exception.api-key-not-found')
+		}
+		if (
+			apiKey.userId !== user.id &&
+			!user.permissions.includes(PERMISSION.API_KEY_UPDATE_ALL)
+		) {
+			throw new UnauthorizedException('exception.forbidden')
+		}
+	},
+
 	async paginate(
 		{ take, skip }: IPaginationReq,
 		user: IUserMeta,
@@ -70,6 +83,11 @@ export const apiKeyService = {
 
 			return { secret, key }
 		}
+		const exist = await db.apiKey.findFirst({
+			where: { id },
+			select: { userId: true },
+		})
+		apiKeyService.validatePermission(exist, user)
 		await db.$transaction([
 			db.apiKey.update({
 				where: { id },
@@ -95,10 +113,14 @@ export const apiKeyService = {
 		user: IUserMeta,
 		meta: IReqMeta,
 	): Promise<{ secret: string; key: string }> {
-		const apiKey = await db.apiKey.findFirst({ where: { id } })
+		const apiKey = await db.apiKey.findFirst({
+			where: { id },
+			select: { userId: true, key: true },
+		})
 		if (!apiKey) {
-			throw new NotFoundException('exception.not-found')
+			throw new NotFoundException('exception.api-key-not-found')
 		}
+		apiKeyService.validatePermission(apiKey, user)
 		const secret = token32().toUpperCase()
 		const hash = await Bun.password.hash(secret)
 		await db.$transaction([

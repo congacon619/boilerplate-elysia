@@ -1,7 +1,8 @@
-import { Elysia, t } from 'elysia'
+import { Elysia } from 'elysia'
 import { DOC_DETAIL, DOC_OPTIONS, PERMISSION, ROUTER } from '../../../common'
 import {
 	ErrorResDto,
+	IdDto,
 	PaginationReqDto,
 	ResWrapper,
 	authErrors,
@@ -65,7 +66,7 @@ export const apiKeyController = new Elysia({
 			castToRes(await apiKeyService.reset(params.id, user, metadata)),
 		{
 			beforeHandle: permissionCheck(PERMISSION.API_KEY_UPDATE),
-			params: t.Object({ id: t.String() }),
+			params: IdDto,
 			detail: {
 				...DOC_DETAIL.API_KEY_RESET,
 				security: [{ accessToken: [] }],

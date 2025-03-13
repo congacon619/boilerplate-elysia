@@ -4,6 +4,7 @@ import { db, env, httpError, logger, swaggerConfig } from './config'
 import { activityController } from './module/activity/controller'
 import { apiKeyController } from './module/api-key/controller'
 import { miscController } from './module/misc/controller'
+import { settingController } from './module/setting/controller'
 import { startupService } from './module/startup'
 import {
 	authController,
@@ -51,7 +52,8 @@ try {
 				.use(userController)
 				.use(miscController)
 				.use(mfaController)
-				.use(apiKeyController),
+				.use(apiKeyController)
+				.use(settingController),
 		)
 	app.listen(env.PORT)
 

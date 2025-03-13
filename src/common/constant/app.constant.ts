@@ -139,6 +139,7 @@ export enum PERMISSION {
 	API_KEY_VIEW = 'API_KEY.VIEW',
 	API_KEY_VIEW_ALL = 'API_KEY.VIEW_ALL',
 	API_KEY_UPDATE = 'API_KEY.UPDATE',
+	API_KEY_UPDATE_ALL = 'API_KEY.UPDATE_ALL',
 }
 
 // region queue
@@ -190,6 +191,7 @@ export const DOC_OPTIONS = {
 		misc: { name: 'MISC', description: 'MISC endpoints' },
 		mfa: { name: 'MFA', description: 'MFA endpoints' },
 		apiKey: { name: 'ApiKey', description: 'ApiKey endpoints' },
+		setting: { name: 'Setting', description: 'ApiKey endpoints' },
 	},
 }
 
@@ -414,6 +416,15 @@ export const DOC_DETAIL = {
 	API_KEY_RESET: {
 		description: 'ApiKey reset',
 		summary: 'ApiKey reset',
+	},
+
+	SETTING_GET_ALL: {
+		description: 'Setting get all',
+		summary: 'Setting get all',
+	},
+	SETTING_UPDATE: {
+		description: 'Setting update',
+		summary: 'Setting update',
 	},
 }
 
