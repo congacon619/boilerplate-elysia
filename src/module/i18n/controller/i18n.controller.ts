@@ -18,7 +18,7 @@ export const i18nController = new Elysia({
 })
 	.get('/', async ({ query }) => castToRes(await i18nService.paginate(query)), {
 		query: I18nPaginationDto,
-		detail: DOC_DETAIL.I18N_PAGINATE,
+		detail: DOC_DETAIL.I18N_GET_ALL,
 		response: {
 			200: ResWrapper(PaginateI18nResDto),
 			500: ErrorResDto,

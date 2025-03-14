@@ -196,6 +196,7 @@ export const DOC_OPTIONS = {
 		session: { name: 'Session', description: 'Session endpoints' },
 		i18n: { name: 'I18n', description: 'I18n endpoints' },
 		file: { name: 'File', description: 'File endpoints' },
+		ipWhitelist: { name: 'IPWhitelist', description: 'IPWhitelist endpoints' },
 	},
 }
 
@@ -445,9 +446,9 @@ export const DOC_DETAIL = {
 		summary: 'Session revoke',
 	},
 
-	I18N_PAGINATE: {
-		description: 'I18n paging',
-		summary: 'I18n paging',
+	I18N_GET_ALL: {
+		description: 'I18n get all',
+		summary: 'I18n get all',
 	},
 	I18N_UPSERT: {
 		description: 'I18n upsert',
@@ -470,10 +471,22 @@ export const DOC_DETAIL = {
 		description: 'File upload',
 		summary: 'File upload',
 	},
-
 	FILE_DOWNLOAD: {
 		description: 'File download',
 		summary: 'File download',
+	},
+
+	IP_WHITELIST_GET_ALL: {
+		description: 'IPWhitelist get all',
+		summary: 'IPWhitelist get all',
+	},
+	IP_WHITELIST_CREATE: {
+		description: 'IPWhitelist create',
+		summary: 'IPWhitelist create',
+	},
+	IP_WHITELIST_DEL: {
+		description: 'IPWhitelist delete',
+		summary: 'IPWhitelist delete',
 	},
 }
 

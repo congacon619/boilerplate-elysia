@@ -5,6 +5,7 @@ import { activityController } from './module/activity/controller'
 import { apiKeyController } from './module/api-key/controller'
 import { fileController } from './module/file/controller'
 import { i18nController } from './module/i18n/controller'
+import { ipWhitelistController } from './module/ip-whitelist/controller'
 import { miscController } from './module/misc/controller'
 import { permissionController } from './module/role/controller'
 import { sessionController } from './module/session/controller'
@@ -61,7 +62,8 @@ try {
 				.use(permissionController)
 				.use(sessionController)
 				.use(i18nController)
-				.use(fileController),
+				.use(fileController)
+				.use(ipWhitelistController),
 		)
 	app.listen(env.PORT)
 	logger.info(
