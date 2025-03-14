@@ -193,6 +193,7 @@ export const DOC_OPTIONS = {
 		apiKey: { name: 'ApiKey', description: 'ApiKey endpoints' },
 		setting: { name: 'Setting', description: 'Setting endpoints' },
 		permission: { name: 'Permission', description: 'Permission endpoints' },
+		session: { name: 'Session', description: 'Session endpoints' },
 	},
 }
 
@@ -431,6 +432,15 @@ export const DOC_DETAIL = {
 	PERMISSION_GET_ALL: {
 		description: 'Permissions get all',
 		summary: 'Permissions get all',
+	},
+
+	SESSION_PAGINATE: {
+		description: 'Session paging',
+		summary: 'Session paging',
+	},
+	SESSION_REVOKE: {
+		description: 'Session revoke',
+		summary: 'Session revoke',
 	},
 }
 

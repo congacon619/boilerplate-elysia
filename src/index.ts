@@ -4,6 +4,8 @@ import { db, env, httpError, logger, swaggerConfig } from './config'
 import { activityController } from './module/activity/controller'
 import { apiKeyController } from './module/api-key/controller'
 import { miscController } from './module/misc/controller'
+import { permissionController } from './module/role/controller'
+import { sessionController } from './module/session/controller'
 import { settingController } from './module/setting/controller'
 import { startupService } from './module/startup'
 import {
@@ -11,7 +13,6 @@ import {
 	mfaController,
 	userController,
 } from './module/user/controller'
-import { permissionController } from './module/role/controller'
 
 try {
 	await db.$connect()
@@ -55,7 +56,8 @@ try {
 				.use(mfaController)
 				.use(apiKeyController)
 				.use(settingController)
-				.use(permissionController),
+				.use(permissionController)
+				.use(sessionController),
 		)
 	app.listen(env.PORT)
 
