@@ -10,11 +10,11 @@ import {
 import { db, logger } from '../../../config'
 import { activityService } from '../../activity/service'
 import { IUserMeta } from '../../user/type'
-import { IPaginateTelegramBotRes, IUpsertTelegramBot } from '../type'
+import { IPaginateTeleBotRes, IUpsertTeleBot } from '../type'
 
 export const telegramBotService = {
 	async upsert(
-		data: IUpsertTelegramBot,
+		data: IUpsertTeleBot,
 		user: IUserMeta,
 		meta: IReqMeta,
 	): Promise<void> {
@@ -69,10 +69,7 @@ export const telegramBotService = {
 		])
 	},
 
-	async paginate({
-		take,
-		skip,
-	}: IPaginationReq): Promise<IPaginateTelegramBotRes> {
+	async paginate({ take, skip }: IPaginationReq): Promise<IPaginateTeleBotRes> {
 		const [docs, count] = await Promise.all([
 			db.telegramBot.findMany({
 				take,

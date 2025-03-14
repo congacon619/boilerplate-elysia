@@ -1,9 +1,9 @@
 import { IPaginationReq, PREFIX, token12 } from '../../../common'
 import { db } from '../../../config'
-import { IPaginateTelegramChatRes, IUpsertTelegramChat } from '../type'
+import { IPaginateTeleChatRes, IUpsertTeleChat } from '../type'
 
 export const telegramChatService = {
-	async upsert(data: IUpsertTelegramChat): Promise<void> {
+	async upsert(data: IUpsertTeleChat): Promise<void> {
 		if (data.id) {
 			await db.telegramChat.update({
 				where: { id: data.id },
@@ -30,7 +30,7 @@ export const telegramChatService = {
 	async paginate({
 		take,
 		skip,
-	}: IPaginationReq): Promise<IPaginateTelegramChatRes> {
+	}: IPaginationReq): Promise<IPaginateTeleChatRes> {
 		const [docs, count] = await Promise.all([
 			db.telegramChat.findMany({
 				take,

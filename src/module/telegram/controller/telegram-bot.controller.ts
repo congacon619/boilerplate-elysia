@@ -13,7 +13,7 @@ import {
 import { castToRes, reqMeta } from '../../../config'
 import { authCheck, permissionCheck } from '../../user/auth.middleware'
 import { telegramBotService } from '../service'
-import { PaginateTelegramBotResDto, UpsertTelegramBotDto } from '../type'
+import { PaginateTeleBotResDto, UpsertTeleBotDto } from '../type'
 
 export const telegramBotController = new Elysia({
 	name: 'TelegramBotController',
@@ -33,7 +33,7 @@ export const telegramBotController = new Elysia({
 				security: [{ accessToken: [] }],
 			},
 			response: {
-				200: ResWrapper(PaginateTelegramBotResDto),
+				200: ResWrapper(PaginateTeleBotResDto),
 				...authErrors,
 			},
 		},
@@ -43,7 +43,7 @@ export const telegramBotController = new Elysia({
 		async ({ body, user, metadata }) =>
 			castToRes(await telegramBotService.upsert(body, user, metadata)),
 		{
-			body: UpsertTelegramBotDto,
+			body: UpsertTeleBotDto,
 			beforeHandle: permissionCheck(PERMISSION.TELEGRAM_BOT_UPDATE),
 			detail: {
 				...DOC_DETAIL.TELE_BOT_UPSERT,
