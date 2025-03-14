@@ -1,4 +1,3 @@
-import { join } from 'node:path'
 import { createPinoLogger, pino } from '@bogeychan/elysia-logger'
 import { env } from './env'
 
@@ -8,7 +7,7 @@ export const logger = createPinoLogger({
 			{
 				target: 'pino-roll',
 				options: {
-					file: join('logs', 'log'),
+					file: 'logs/log',
 					frequency: 'daily',
 					mkdir: true,
 					sync: false,

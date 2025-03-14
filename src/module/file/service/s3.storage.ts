@@ -1,7 +1,9 @@
+import path from 'node:path'
 import { S3Client } from 'bun'
+import { extension, lookup } from 'mime-types'
 import { BadRequestException, token16 } from '../../../common'
 import { env } from '../../../config'
-import { IContentType, IDownloadRes, IStorageBackend } from '../type'
+import { IDownloadRes, IStorageBackend } from '../type'
 
 export class S3StorageBackend implements IStorageBackend {
 	private s3: S3Client
@@ -24,10 +26,11 @@ export class S3StorageBackend implements IStorageBackend {
 		})
 	}
 
-	async upload(file: File, options: IContentType): Promise<string> {
-		const fileName = `${token16()}.${options.ext}`
+	async upload(file: File): Promise<string> {
+		const ext = path.extname(file.name) || 'bin'
+		const fileName = `${token16()}${ext}`
 		const s3file = this.s3.file(fileName)
-		await s3file.write(file, { type: options.mime })
+		await s3file.write(file, { type: file.type })
 		return fileName
 	}
 
@@ -37,8 +40,8 @@ export class S3StorageBackend implements IStorageBackend {
 			throw new BadRequestException('exception.file-not-found')
 		}
 		const fileBlob = await s3file.arrayBuffer()
-		const mime = s3file.type || 'application/octet-stream'
-		const ext = fileName.split('.').pop() || ''
+		const mime = lookup(fileName) || 'application/octet-stream'
+		const ext = extension(mime) || 'bin'
 		return {
 			content: new Blob([fileBlob], { type: mime }),
 			contentType: { mime, ext },

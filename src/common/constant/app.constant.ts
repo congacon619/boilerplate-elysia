@@ -457,6 +457,16 @@ export const DOC_DETAIL = {
 		description: 'I18n delete',
 		summary: 'I18n delete',
 	},
+
+	FILE_UPLOAD: {
+		description: 'File upload',
+		summary: 'File upload',
+	},
+
+	FILE_DOWNLOAD: {
+		description: 'File download',
+		summary: 'File download',
+	},
 }
 
 export enum RES_CODE {

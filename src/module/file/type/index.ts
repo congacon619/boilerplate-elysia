@@ -1,5 +1,5 @@
 export interface IStorageBackend {
-	upload(file: File, options: IContentType): Promise<string>
+	upload(file: File): Promise<string>
 	download(filename: string): Promise<IDownloadRes>
 }
 
@@ -9,9 +9,4 @@ export interface IDownloadRes {
 		mime: string
 		ext: string
 	}
-}
-
-export interface IContentType {
-	mime: string
-	ext: string
 }

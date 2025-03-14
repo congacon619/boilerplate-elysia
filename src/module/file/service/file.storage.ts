@@ -1,7 +1,8 @@
 import path from 'node:path'
+import { extension, lookup } from 'mime-types'
 import { APP_ENV, BadRequestException, token16 } from '../../../common'
 import { env } from '../../../config'
-import { IContentType, IDownloadRes, IStorageBackend } from '../type'
+import { IDownloadRes, IStorageBackend } from '../type'
 
 export class FileStorageBackend implements IStorageBackend {
 	private readonly imageDir: string
@@ -13,8 +14,9 @@ export class FileStorageBackend implements IStorageBackend {
 				: Bun.pathToFileURL('tmp/images').pathname
 	}
 
-	async upload(file: File, options: IContentType): Promise<string> {
-		const fileName = `${token16()}.${options.ext}`
+	async upload(file: File): Promise<string> {
+		const ext = path.extname(file.name) || 'bin'
+		const fileName = `${token16()}${ext}`
 		const destinationPath = `${this.imageDir}/${fileName}`
 		await Bun.write(destinationPath, file, { createPath: true })
 		return fileName
@@ -27,8 +29,8 @@ export class FileStorageBackend implements IStorageBackend {
 			throw new BadRequestException('exception.invalid-file')
 		}
 		const fileBlob = await file.arrayBuffer()
-		const mime = file.type || 'application/octet-stream'
-		const ext = fileName.split('.').pop() || ''
+		const mime = lookup(fileName) || 'application/octet-stream'
+		const ext = extension(mime) || 'bin'
 		return {
 			content: new Blob([fileBlob], { type: mime }),
 			contentType: { mime, ext },

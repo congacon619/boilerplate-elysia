@@ -47,3 +47,4 @@ package-lock.json
 logs
 
 .idea
+tmp

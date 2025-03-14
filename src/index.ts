@@ -3,6 +3,7 @@ import { Elysia } from 'elysia'
 import { db, env, httpError, logger, swaggerConfig } from './config'
 import { activityController } from './module/activity/controller'
 import { apiKeyController } from './module/api-key/controller'
+import { fileController } from './module/file/controller'
 import { i18nController } from './module/i18n/controller'
 import { miscController } from './module/misc/controller'
 import { permissionController } from './module/role/controller'
@@ -59,10 +60,10 @@ try {
 				.use(settingController)
 				.use(permissionController)
 				.use(sessionController)
-				.use(i18nController),
+				.use(i18nController)
+				.use(fileController),
 		)
 	app.listen(env.PORT)
-
 	logger.info(
 		`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
 	)

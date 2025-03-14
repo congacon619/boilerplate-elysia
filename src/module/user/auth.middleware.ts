@@ -122,7 +122,6 @@ export const permissionCheck =
 		permission: PermissionType,
 	): ((data: { metadata: IReqMeta; user: IUserMeta; path: string }) => void) =>
 	({ metadata, user, path }) => {
-		console.log(permission)
 		const check = validPermission(user.permissions, permission)
 		if (!check) {
 			logger.info(
