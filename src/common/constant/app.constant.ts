@@ -195,6 +195,7 @@ export const DOC_OPTIONS = {
 		permission: { name: 'Permission', description: 'Permission endpoints' },
 		session: { name: 'Session', description: 'Session endpoints' },
 		i18n: { name: 'I18n', description: 'I18n endpoints' },
+		file: { name: 'File', description: 'File endpoints' },
 	},
 }
 
