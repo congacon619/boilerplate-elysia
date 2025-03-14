@@ -51,7 +51,6 @@ try {
 				methods: env.CORS_ALLOW_METHOD ?? '*',
 				origin: env.CORS_ALLOW_ORIGIN,
 				allowedHeaders: env.CORS_ALLOW_HEADERS,
-				preflight: false,
 			}),
 		)
 		.use(swaggerConfig())

@@ -38,7 +38,7 @@
     "pino-roll": "^3.0.0",
     "range_check": "^3.2.0",
     "ua-parser-js": "^2.0.2",
-    "xlsx": "github:SheetJS/sheetjs"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

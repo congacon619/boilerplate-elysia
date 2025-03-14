@@ -86,7 +86,7 @@ export const telegramBotService = {
 					} catch (error) {
 						logger.error(`Wrong decrypt telegram bot token: ${x.id}`, error)
 					}
-					return { ...x, token }
+					return { ...x, token: String(token) }
 				}),
 			),
 			count,
