@@ -198,6 +198,18 @@ export const DOC_OPTIONS = {
 		file: { name: 'File', description: 'File endpoints' },
 		ipWhitelist: { name: 'IPWhitelist', description: 'IPWhitelist endpoints' },
 		role: { name: 'Role', description: 'Role endpoints' },
+		telegramBot: {
+			name: 'Telegram bot',
+			description: 'Telegram bot endpoints',
+		},
+		telegramChat: {
+			name: 'Telegram chat',
+			description: 'Telegram chat endpoints',
+		},
+		telegramTemplate: {
+			name: 'Telegram template',
+			description: 'Telegram template endpoints',
+		},
 	},
 }
 

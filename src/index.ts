@@ -13,6 +13,11 @@ import { sessionController } from './module/session/controller'
 import { settingController } from './module/setting/controller'
 import { startupService } from './module/startup'
 import {
+	telegramBotController,
+	telegramChatController,
+	telegramTemplateController,
+} from './module/telegram/controller'
+import {
 	authController,
 	mfaController,
 	userController,
@@ -65,7 +70,10 @@ try {
 				.use(i18nController)
 				.use(fileController)
 				.use(ipWhitelistController)
-				.use(roleController),
+				.use(roleController)
+				.use(telegramBotController)
+				.use(telegramChatController)
+				.use(telegramTemplateController),
 		)
 	app.listen(env.PORT)
 	logger.info(
