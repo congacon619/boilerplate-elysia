@@ -1,11 +1,11 @@
 import { Prisma } from '@prisma/client'
 import {
 	ACTIVITY_TYPE,
+	IReqMeta,
 	NotFoundException,
 	PERMISSION,
 	UnauthorizedException,
 } from '../../../common'
-import { IReqMeta } from '../../../common/type'
 import { db, tokenCache } from '../../../config'
 import { activityService } from '../../activity/service'
 import { IUserMeta } from '../../user/type'

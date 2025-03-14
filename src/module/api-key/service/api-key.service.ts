@@ -1,6 +1,8 @@
 import { API_KEY_TYPE, Prisma } from '@prisma/client'
 import {
 	ACTIVITY_TYPE,
+	IPaginationReq,
+	IReqMeta,
 	NotFoundException,
 	PERMISSION,
 	PREFIX,
@@ -9,7 +11,6 @@ import {
 	token16,
 	token32,
 } from '../../../common'
-import { IPaginationReq, IReqMeta } from '../../../common/type'
 import { db, env } from '../../../config'
 import { activityService } from '../../activity/service'
 import { IUserMeta } from '../../user/type'

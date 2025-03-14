@@ -1,6 +1,10 @@
 import { authenticator } from 'otplib'
-import { ACTIVITY_TYPE, BadRequestException, token16 } from '../../../common'
-import { IReqMeta } from '../../../common/type'
+import {
+	ACTIVITY_TYPE,
+	BadRequestException,
+	IReqMeta,
+	token16,
+} from '../../../common'
 import { db, mfaSetupCache, resetMfaCache } from '../../../config'
 import { activityService } from '../../activity/service'
 import { sessionService } from '../../session/service'

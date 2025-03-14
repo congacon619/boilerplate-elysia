@@ -1,6 +1,13 @@
 import { Elysia, t } from 'elysia'
-import { DOC_DETAIL, DOC_OPTIONS, PERMISSION, ROUTER } from '../../../common'
-import { ErrorResDto, ResWrapper, authErrors } from '../../../common/type'
+import {
+	DOC_DETAIL,
+	DOC_OPTIONS,
+	ErrorResDto,
+	PERMISSION,
+	ROUTER,
+	ResWrapper,
+	authErrors,
+} from '../../../common'
 import { castToRes, reqMeta } from '../../../config'
 import { authCheck, permissionCheck } from '../auth.middleware'
 import { mfaService } from '../service'

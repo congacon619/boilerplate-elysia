@@ -2,11 +2,11 @@ import { IPWhitelist } from '@prisma/client'
 import { inRange, isIP, isPrivateIP, isRange } from 'range_check'
 import {
 	ACTIVITY_TYPE,
+	IReqMeta,
 	PREFIX,
 	UnauthorizedException,
 	token12,
 } from '../../../common'
-import { IReqMeta } from '../../../common/type'
 import { db, ipWhitelistCache, logger } from '../../../config'
 import { activityService } from '../../activity/service'
 import { settingService } from '../../setting/service'

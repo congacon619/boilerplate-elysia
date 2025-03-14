@@ -3,6 +3,7 @@ import { compact, uniq } from 'lodash'
 import {
 	ACTIVITY_TYPE,
 	BadRequestException,
+	IReqMeta,
 	NotFoundException,
 	PREFIX,
 	ROLE_NAME,
@@ -12,7 +13,6 @@ import {
 	token12,
 	token16,
 } from '../../../common'
-import { IReqMeta } from '../../../common/type'
 import { changePasswordCache, db, env, loginCache } from '../../../config'
 import { activityService } from '../../activity/service'
 import { sessionService } from '../../session/service'

@@ -1,6 +1,11 @@
 import { Elysia, t } from 'elysia'
-import { DOC_DETAIL, DOC_OPTIONS, PERMISSION, ROUTER } from '../../../common'
-import { ResWrapper } from '../../../common/type'
+import {
+	DOC_DETAIL,
+	DOC_OPTIONS,
+	PERMISSION,
+	ROUTER,
+	ResWrapper,
+} from '../../../common'
 import { castToRes } from '../../../config'
 
 export const permissionController = new Elysia({

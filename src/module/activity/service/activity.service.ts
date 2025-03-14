@@ -1,6 +1,11 @@
 import { Prisma, PrismaClient } from '@prisma/client'
-import { ACTIVITY_TYPE, PERMISSION, PREFIX, token12 } from '../../../common'
-import { IReqMeta } from '../../../common/type'
+import {
+	ACTIVITY_TYPE,
+	IReqMeta,
+	PERMISSION,
+	PREFIX,
+	token12,
+} from '../../../common'
 import { db } from '../../../config'
 import { IUserMeta } from '../../user/type'
 import { IActivityPaginate, IActivityPagingRes } from '../type'

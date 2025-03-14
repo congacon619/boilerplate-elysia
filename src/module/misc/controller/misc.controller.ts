@@ -1,6 +1,11 @@
 import { Elysia, t } from 'elysia'
-import { DOC_DETAIL, DOC_OPTIONS, ROUTER } from '../../../common'
-import { ErrorResDto, ResWrapper } from '../../../common/type'
+import {
+	DOC_DETAIL,
+	DOC_OPTIONS,
+	ErrorResDto,
+	ROUTER,
+	ResWrapper,
+} from '../../../common'
 import { castToRes, reqMeta } from '../../../config'
 import { ipWhitelistService } from '../../ip-whitelist/service'
 import { miscService } from '../service'

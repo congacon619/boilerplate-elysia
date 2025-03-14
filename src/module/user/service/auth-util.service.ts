@@ -5,6 +5,7 @@ import { uniq } from 'lodash'
 import {
 	ACTIVITY_TYPE,
 	BadRequestException,
+	IReqMeta,
 	PREFIX,
 	aes256Decrypt,
 	aes256Encrypt,
@@ -14,7 +15,6 @@ import {
 	token12,
 	verifyJwt,
 } from '../../../common'
-import { IReqMeta } from '../../../common/type'
 import { db, env, tokenCache } from '../../../config'
 import { activityService } from '../../activity/service'
 import { sessionService } from '../../session/service'

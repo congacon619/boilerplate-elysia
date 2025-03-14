@@ -3,11 +3,12 @@ import {
 	ACTIVITY_TYPE,
 	AppException,
 	HTTP_STATUS,
+	IPaginationReq,
+	IReqMeta,
 	NotFoundException,
 	PREFIX,
 	token12,
 } from '../../../common'
-import { IPaginationReq, IReqMeta } from '../../../common/type'
 import { db } from '../../../config'
 import { activityService } from '../../activity/service'
 import { IUserMeta } from '../../user/type'

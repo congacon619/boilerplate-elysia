@@ -1,12 +1,15 @@
 import { Elysia } from 'elysia'
-import { DOC_DETAIL, DOC_OPTIONS, PERMISSION, ROUTER } from '../../../common'
 import {
+	DOC_DETAIL,
+	DOC_OPTIONS,
 	ErrorResDto,
 	IdDto,
+	PERMISSION,
 	PaginationReqDto,
+	ROUTER,
 	ResWrapper,
 	authErrors,
-} from '../../../common/type'
+} from '../../../common'
 import { castToRes, reqMeta } from '../../../config'
 import { authCheck, permissionCheck } from '../../user/auth.middleware'
 import { apiKeyService } from '../service/api-key.service'

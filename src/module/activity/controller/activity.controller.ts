@@ -1,6 +1,12 @@
 import { Elysia } from 'elysia'
-import { DOC_DETAIL, DOC_OPTIONS, PERMISSION, ROUTER } from '../../../common'
-import { ResWrapper, authErrors } from '../../../common/type'
+import {
+	DOC_DETAIL,
+	DOC_OPTIONS,
+	PERMISSION,
+	ROUTER,
+	ResWrapper,
+	authErrors,
+} from '../../../common'
 import { castToRes, reqMeta } from '../../../config'
 import { authCheck, permissionCheck } from '../../user/auth.middleware'
 import { activityService } from '../service'

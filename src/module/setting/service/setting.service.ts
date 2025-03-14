@@ -5,12 +5,12 @@ import { isNil } from 'lodash'
 import {
 	ACTIVITY_TYPE,
 	BadRequestException,
+	IReqMeta,
 	NotFoundException,
 	SETTING,
 	aes256Decrypt,
 	aes256Encrypt,
 } from '../../../common'
-import { IReqMeta } from '../../../common/type'
 import { db, settingCache } from '../../../config'
 import { activityService } from '../../activity/service'
 import { IUserMeta } from '../../user/type'
