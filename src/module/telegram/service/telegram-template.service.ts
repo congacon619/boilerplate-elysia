@@ -1,6 +1,12 @@
+import { InlineKeyboardButton } from 'node-telegram-bot-api'
 import { IPaginationReq, PREFIX, token12 } from '../../../common'
 import { db } from '../../../config'
-import { IPaginateTeleTemplateRes, IUpsertTeleTemplate } from '../type'
+import {
+	IPaginateTeleTemplateRes,
+	ISendTemplate,
+	IUpsertTeleTemplate,
+} from '../type'
+import { telegramService } from './telegram.service'
 
 export const telegramTemplateService = {
 	async upsert({
@@ -62,5 +68,29 @@ export const telegramTemplateService = {
 			docs,
 			count,
 		}
+	},
+
+	async sentTemplate(body: ISendTemplate): Promise<void> {
+		const [template, chats] = await Promise.all([
+			db.telegramTemplate.findUnique({
+				where: { id: body.telegramTemplateId },
+			}),
+			db.telegramChat.findMany({
+				where: { id: { in: body.telegramChatIds } },
+			}),
+		])
+		if (!template || !chats.length) {
+			return
+		}
+
+		await telegramService.jobSendMessage({
+			...template,
+			chatIds: chats.map(x => x.chatId),
+			botId: body.telegramBotId,
+			reply_markup: {
+				inline_keyboard:
+					template.buttons as unknown as InlineKeyboardButton[][],
+			},
+		})
 	},
 }

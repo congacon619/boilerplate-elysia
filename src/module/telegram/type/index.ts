@@ -65,3 +65,18 @@ export const PaginateTeleTemplateResDto = t.Object({
 	count: t.Integer(),
 })
 export type IPaginateTeleTemplateRes = typeof PaginateTeleTemplateResDto.static
+
+export const SendTemplateDto = t.Object({
+	telegramTemplateId: t.String(),
+	telegramChatIds: t.Array(t.String(), { minItems: 1 }),
+	telegramBotId: t.Optional(t.String()),
+})
+export type ISendTemplate = typeof SendTemplateDto.static
+
+export const SendTelegramMessageDto = t.Composite([
+	t.Omit(UpsertTeleTemplateDto, ['id', 'name', 'description']),
+	t.Object({
+		telegramBotId: t.Optional(t.String()),
+		chatIds: t.Array(t.String(), { minItems: 1 }),
+	}),
+])

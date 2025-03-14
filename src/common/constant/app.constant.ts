@@ -151,15 +151,6 @@ export enum TASK_NAME {
 	SEND_TELEGRAM_MESSAGE = 'SEND_TELEGRAM_MESSAGE',
 }
 
-export enum BULL_ERROR {
-	JOB_ID_EXISTED = 'job_id_existed',
-	INIT_FAILED = 'init_failed',
-}
-
-export enum EVENT {
-	USER_UPDATED = 'user_updated',
-}
-
 // region cli
 export enum CLI_COMMAND {
 	SYSTEM_INFO = 'system-info',
@@ -552,6 +543,14 @@ export const DOC_DETAIL = {
 	TELE_TEMPLATE_DEL: {
 		description: 'Telegram template delete',
 		summary: 'Telegram template delete',
+	},
+	TELE_TEMPLATE_SEND: {
+		description: 'Telegram template send',
+		summary: 'Telegram template send',
+	},
+	TELE_SEND_MANUAL: {
+		description: 'Telegram send manual message',
+		summary: 'Telegram send manual message',
 	},
 }
 

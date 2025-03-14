@@ -12,8 +12,13 @@ import {
 } from '../../../common'
 import { castToRes, reqMeta } from '../../../config'
 import { authCheck, permissionCheck } from '../../user/auth.middleware'
-import { telegramTemplateService } from '../service'
-import { PaginateTeleTemplateResDto, UpsertTeleTemplateDto } from '../type'
+import { telegramService, telegramTemplateService } from '../service'
+import {
+	PaginateTeleTemplateResDto,
+	SendTelegramMessageDto,
+	SendTemplateDto,
+	UpsertTeleTemplateDto,
+} from '../type'
 
 export const telegramTemplateController = new Elysia({
 	name: 'TelegramTemplateController',
@@ -64,6 +69,41 @@ export const telegramTemplateController = new Elysia({
 			beforeHandle: permissionCheck(PERMISSION.TELEGRAM_TEMPLATE_DELETE),
 			detail: {
 				...DOC_DETAIL.TELE_TEMPLATE_DEL,
+				security: [{ accessToken: [] }],
+			},
+			response: {
+				200: ResWrapper(t.Void()),
+				400: ErrorResDto,
+				...authErrors,
+			},
+		},
+	)
+	.post(
+		ROUTER.TELEGRAM_TEMPLATE.SEND,
+		async ({ body }) =>
+			castToRes(await telegramTemplateService.sentTemplate(body)),
+		{
+			body: SendTemplateDto,
+			beforeHandle: permissionCheck(PERMISSION.TELEGRAM_TEMPLATE_SEND),
+			detail: {
+				...DOC_DETAIL.TELE_TEMPLATE_SEND,
+				security: [{ accessToken: [] }],
+			},
+			response: {
+				200: ResWrapper(t.Void()),
+				400: ErrorResDto,
+				...authErrors,
+			},
+		},
+	)
+	.post(
+		ROUTER.TELEGRAM_TEMPLATE.MANUAL_SEND,
+		async ({ body }) => castToRes(await telegramService.jobSendMessage(body)),
+		{
+			body: SendTelegramMessageDto,
+			beforeHandle: permissionCheck(PERMISSION.TELEGRAM_TEMPLATE_SEND),
+			detail: {
+				...DOC_DETAIL.TELE_SEND_MANUAL,
 				security: [{ accessToken: [] }],
 			},
 			response: {

@@ -1,4 +1,10 @@
 import { JWTPayload } from 'jose'
+import {
+	ForceReply,
+	InlineKeyboardMarkup,
+	ReplyKeyboardMarkup,
+	ReplyKeyboardRemove,
+} from 'node-telegram-bot-api'
 import { IResult } from 'ua-parser-js'
 
 export interface IReqMeta extends Record<string, unknown> {
@@ -25,3 +31,16 @@ export type IPHeaders =
 	| (string & {})
 
 export type IJwtVerified = JWTPayload & { data: string }
+
+export interface ITelegramMessage {
+	chatIds: string[]
+	botId?: string
+	message?: string | null
+	reply_markup?:
+		| InlineKeyboardMarkup
+		| ReplyKeyboardMarkup
+		| ReplyKeyboardRemove
+		| ForceReply
+	photos?: string[]
+	videos?: string[]
+}
