@@ -1,7 +1,10 @@
 import { TSchema, t } from 'elysia'
 import { HTTP_STATUS, RES_CODE } from '../constant'
 
-export const IdDto = t.Object({ id: t.String() })
+export const IdDto = t.Object({ id: t.String({ minLength: 1 }) })
+export const IdsDto = t.Object({
+	ids: t.Array(t.String({ minLength: 1 }), { minItems: 1 }),
+})
 
 export const ErrorResDto = t.Object({
 	code: t.Enum(RES_CODE),

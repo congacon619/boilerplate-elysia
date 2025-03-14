@@ -3,6 +3,7 @@ import { Elysia } from 'elysia'
 import { db, env, httpError, logger, swaggerConfig } from './config'
 import { activityController } from './module/activity/controller'
 import { apiKeyController } from './module/api-key/controller'
+import { i18nController } from './module/i18n/controller'
 import { miscController } from './module/misc/controller'
 import { permissionController } from './module/role/controller'
 import { sessionController } from './module/session/controller'
@@ -57,7 +58,8 @@ try {
 				.use(apiKeyController)
 				.use(settingController)
 				.use(permissionController)
-				.use(sessionController),
+				.use(sessionController)
+				.use(i18nController),
 		)
 	app.listen(env.PORT)
 

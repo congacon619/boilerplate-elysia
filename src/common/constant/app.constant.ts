@@ -194,6 +194,7 @@ export const DOC_OPTIONS = {
 		setting: { name: 'Setting', description: 'Setting endpoints' },
 		permission: { name: 'Permission', description: 'Permission endpoints' },
 		session: { name: 'Session', description: 'Session endpoints' },
+		i18n: { name: 'I18n', description: 'I18n endpoints' },
 	},
 }
 
@@ -441,6 +442,19 @@ export const DOC_DETAIL = {
 	SESSION_REVOKE: {
 		description: 'Session revoke',
 		summary: 'Session revoke',
+	},
+
+	I18N_PAGINATE: {
+		description: 'I18n paging',
+		summary: 'I18n paging',
+	},
+	I18N_UPSERT: {
+		description: 'I18n upsert',
+		summary: 'I18n upsert',
+	},
+	I18N_DEL: {
+		description: 'I18n delete',
+		summary: 'I18n delete',
 	},
 }
 
