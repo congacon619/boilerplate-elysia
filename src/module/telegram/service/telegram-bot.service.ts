@@ -10,6 +10,7 @@ import {
 import { db, logger } from '../../../config'
 import { activityService } from '../../activity/service'
 import { IUserMeta } from '../../user/type'
+import { IPaginateTelegramBotRes, IUpsertTelegramBot } from '../type'
 
 export const telegramBotService = {
 	async upsert(
@@ -21,7 +22,7 @@ export const telegramBotService = {
 			await db.$transaction([
 				db.telegramBot.update({
 					where: { id: data.id },
-					data: { ...data, token: aes256Encrypt(data.token) },
+					data: { ...data, token: await aes256Encrypt(data.token) },
 					select: { id: true },
 				}),
 				activityService.create({
@@ -37,7 +38,7 @@ export const telegramBotService = {
 					data: {
 						...data,
 						id: token12(PREFIX.TELEGRAM_BOT),
-						token: aes256Encrypt(data.token),
+						token: await aes256Encrypt(data.token),
 					},
 					select: { id: true },
 				})
@@ -71,7 +72,7 @@ export const telegramBotService = {
 	async paginate({
 		take,
 		skip,
-	}: IPaginationReq): Promise<IPagingData<TelegramBot>> {
+	}: IPaginationReq): Promise<IPaginateTelegramBotRes> {
 		const [docs, count] = await Promise.all([
 			db.telegramBot.findMany({
 				take,

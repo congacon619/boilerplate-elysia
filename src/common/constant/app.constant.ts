@@ -514,6 +514,45 @@ export const DOC_DETAIL = {
 		description: 'Role delete',
 		summary: 'Role delete',
 	},
+
+	TELE_BOT_PAGINATE: {
+		description: 'Telegram bot paginate',
+		summary: 'Telegram bot paginate',
+	},
+	TELE_BOT_UPSERT: {
+		description: 'Telegram bot upsert',
+		summary: 'Telegram bot upsert',
+	},
+	TELE_BOT_DEL: {
+		description: 'Telegram bot delete',
+		summary: 'Telegram bot delete',
+	},
+
+	TELE_CHAT_PAGINATE: {
+		description: 'Telegram chat paginate',
+		summary: 'Telegram chat paginate',
+	},
+	TELE_CHAT_UPSERT: {
+		description: 'Telegram chat upsert',
+		summary: 'Telegram chat upsert',
+	},
+	TELE_CHAT_DEL: {
+		description: 'Telegram chat delete',
+		summary: 'Telegram chat delete',
+	},
+
+	TELE_TEMPLATE_PAGINATE: {
+		description: 'Telegram template paginate',
+		summary: 'Telegram template paginate',
+	},
+	TELE_TEMPLATE_UPSERT: {
+		description: 'Telegram template upsert',
+		summary: 'Telegram template upsert',
+	},
+	TELE_TEMPLATE_DEL: {
+		description: 'Telegram template delete',
+		summary: 'Telegram template delete',
+	},
 }
 
 export enum RES_CODE {
