@@ -197,6 +197,7 @@ export const DOC_OPTIONS = {
 		i18n: { name: 'I18n', description: 'I18n endpoints' },
 		file: { name: 'File', description: 'File endpoints' },
 		ipWhitelist: { name: 'IPWhitelist', description: 'IPWhitelist endpoints' },
+		role: { name: 'Role', description: 'Role endpoints' },
 	},
 }
 
@@ -487,6 +488,19 @@ export const DOC_DETAIL = {
 	IP_WHITELIST_DEL: {
 		description: 'IPWhitelist delete',
 		summary: 'IPWhitelist delete',
+	},
+
+	ROLE_PAGINATE: {
+		description: 'Role paginate',
+		summary: 'Role paginate',
+	},
+	ROLE_UPSERT: {
+		description: 'Role upsert',
+		summary: 'Role upsert',
+	},
+	ROLE_DEL: {
+		description: 'Role delete',
+		summary: 'Role delete',
 	},
 }
 

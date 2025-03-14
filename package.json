@@ -23,7 +23,7 @@
     "dayjs": "^1.11.13",
     "elysia": "latest",
     "elysia-i18next": "^4.0.3",
-    "i18next": "^24.2.2",
+    "i18next": "^24.2.3",
     "jose": "^6.0.10",
     "keyv": "^5.3.1",
     "lodash": "^4.17.21",
@@ -36,7 +36,7 @@
     "pino-roll": "^3.0.0",
     "range_check": "^3.2.0",
     "ua-parser-js": "^2.0.2",
-    "xlsx": "^0.18.5"
+    "xlsx": "github:SheetJS/sheetjs"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

@@ -8,6 +8,7 @@ import { i18nController } from './module/i18n/controller'
 import { ipWhitelistController } from './module/ip-whitelist/controller'
 import { miscController } from './module/misc/controller'
 import { permissionController } from './module/role/controller'
+import { roleController } from './module/role/controller/role.controller'
 import { sessionController } from './module/session/controller'
 import { settingController } from './module/setting/controller'
 import { startupService } from './module/startup'
@@ -63,7 +64,8 @@ try {
 				.use(sessionController)
 				.use(i18nController)
 				.use(fileController)
-				.use(ipWhitelistController),
+				.use(ipWhitelistController)
+				.use(roleController),
 		)
 	app.listen(env.PORT)
 	logger.info(
