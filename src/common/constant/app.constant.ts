@@ -457,6 +457,14 @@ export const DOC_DETAIL = {
 		description: 'I18n delete',
 		summary: 'I18n delete',
 	},
+	I18N_IMPORT: {
+		description: 'I18n import',
+		summary: 'I18n import',
+	},
+	I18N_EXPORT: {
+		description: 'I18n export',
+		summary: 'I18n export',
+	},
 
 	FILE_UPLOAD: {
 		description: 'File upload',

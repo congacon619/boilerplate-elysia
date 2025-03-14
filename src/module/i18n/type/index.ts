@@ -1,3 +1,4 @@
+import { Type } from '@sinclair/typebox'
 import { t } from 'elysia'
 
 export const I18nDto = t.Object({
@@ -27,3 +28,12 @@ export const I18nUpsertDto = t.Intersect([
 	t.Object({ id: t.Optional(t.String()) }),
 ])
 export type II18nUpsert = typeof I18nUpsertDto.static
+
+export const I18NImportDto = Type.Object({
+	KEY: Type.String(),
+	EN: Type.Optional(Type.String()),
+	ZH: Type.Optional(Type.String()),
+	KR: Type.Optional(Type.String()),
+	VI: Type.Optional(Type.String()),
+})
+export type I18NImport = typeof I18NImportDto.static

@@ -56,3 +56,50 @@ export const i18nController = new Elysia({
 			},
 		},
 	)
+	.post(
+		ROUTER.I18N.IMPORT,
+		async ({ body }) => castToRes(await i18nService.import(body.file)),
+		{
+			beforeHandle: permissionCheck(PERMISSION.I18N_UPDATE),
+			body: t.Object({
+				file: t.File({ format: 'application/vnd.ms-excel' }),
+			}),
+			detail: DOC_DETAIL.I18N_IMPORT,
+			response: {
+				200: ResWrapper(t.Void()),
+				400: ErrorResDto,
+				...authErrors,
+			},
+		},
+	)
+	.get(
+		ROUTER.I18N.EXPORT,
+		async () => {
+			const buffer = await i18nService.export()
+			const res = new Response(buffer)
+			res.headers.set('Content-Type', 'application/vnd.ms-excel')
+			res.headers.set(
+				'Content-Disposition',
+				`attachment; filename="translations_${new Date().getTime()}.xlsx"`,
+			)
+			return res
+		},
+		{
+			beforeHandle: permissionCheck(PERMISSION.I18N_VIEW),
+			detail: {
+				...DOC_DETAIL.I18N_EXPORT,
+				responses: {
+					200: {
+						description: 'File stream',
+						content: {
+							'application/vnd.ms-excel': {},
+						},
+					},
+				},
+			},
+			response: {
+				400: ErrorResDto,
+				...authErrors,
+			},
+		},
+	)
