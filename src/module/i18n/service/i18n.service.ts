@@ -31,7 +31,7 @@ export const i18nService = {
 				skip,
 				take,
 			}),
-			db.i18n.count({ where: { key: { contains: key } } }),
+			db.i18n.count({ where }),
 		])
 		return { docs, count }
 	},
