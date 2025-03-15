@@ -4,6 +4,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun run --watch src/index.ts",
+    "start": "NODE_ENV=production bun run ./src/index.ts",
+    "start:prod": "bun build \\\n\t--compile \\\n\t--minify-whitespace \\\n\t--minify-syntax \\\n\t--target bun \\\n\t--outfile server \\\n\t./src/index.ts && ./server",
     "----CHECK": "echo CHECK",
     "format": "bunx @biomejs/biome format --write .",
     "lint": "bunx @biomejs/biome lint --write .",

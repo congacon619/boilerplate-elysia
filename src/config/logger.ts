@@ -1,5 +1,7 @@
 import { createPinoLogger, pino } from '@bogeychan/elysia-logger'
 import { env } from './env'
+import 'pino-roll'
+import 'pino-pretty'
 
 export const logger = createPinoLogger({
 	transport: {
@@ -23,7 +25,3 @@ export const logger = createPinoLogger({
 	timestamp: pino.stdTimeFunctions.isoTime,
 	level: env.LOG_LEVEL,
 })
-
-// export const redisLogger = logger.child({ service: APP_SERVICE.REDIS })
-// export const postgresLogger = logger.child({ service: APP_SERVICE.POSTGRES })
-// export const queueLogger = logger.child({ service: APP_SERVICE.QUEUE })

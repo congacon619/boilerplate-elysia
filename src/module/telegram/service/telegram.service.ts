@@ -47,7 +47,7 @@ export const telegramService = {
 					if (data.photos?.length === 1 && !data.videos?.length) {
 						await teleBot.sendPhoto(chatId, data.photos[0], {
 							...options,
-							caption: data.message,
+							caption: data.message ?? '',
 						})
 						return
 					}
@@ -55,7 +55,7 @@ export const telegramService = {
 					if (data.videos?.length === 1 && !data.photos?.length) {
 						await teleBot.sendVideo(chatId, data.videos[0], {
 							...options,
-							caption: data.message,
+							caption: data.message ?? '',
 						})
 						return
 					}

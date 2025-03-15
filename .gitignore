@@ -43,8 +43,11 @@ package-lock.json
 
 *.env
 .env.dev
+.env.prod
 
 logs
 
 .idea
 tmp
+
+server
