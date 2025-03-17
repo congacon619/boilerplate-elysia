@@ -79,7 +79,8 @@ export const envSchema = t.Object({
 
 	LOG_LEVEL: t.String({ default: LOG_LEVEL.INFO }),
 
-	RESEND_API_KEY: t.Optional(t.String()),
+	RESEND_API_KEY: t.String({ minLength: 1 }),
+	SEND_FROM_EMAIL: t.String({ minLength: 1, format: 'email' }),
 })
 
 const Compiler = TypeCompiler.Compile(envSchema)
