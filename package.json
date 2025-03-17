@@ -13,7 +13,9 @@
     "----DATABASE": "",
     "db:generate": "bun prisma generate --schema prisma/schema.prisma",
     "db:deploy": "prisma migrate deploy",
-    "db:migrate": "prisma migrate dev --create-only --name init"
+    "db:migrate": "prisma migrate dev --create-only --name init",
+    "----EMAIL": "",
+    "email": "email dev --dir src/emails"
   },
   "dependencies": {
     "@bogeychan/elysia-logger": "^0.1.8",
@@ -24,11 +26,13 @@
     "@elysiajs/swagger": "^1.2.2",
     "@keyv/redis": "^4.3.2",
     "@prisma/client": "^6.5.0",
+    "@react-email/components": "^0.0.33",
     "@sinclair/typebox": "^0.34.30",
     "bullmq": "^5.43.1",
     "dayjs": "^1.11.13",
     "elysia": "latest",
     "elysia-i18next": "^4.0.3",
+    "elysia-rate-limit": "^4.2.1",
     "i18next": "^24.2.3",
     "jose": "^6.0.10",
     "keyv": "^5.3.2",
@@ -42,6 +46,9 @@
     "pino-pretty": "^13.0.0",
     "pino-roll": "^3.0.0",
     "range_check": "^3.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "resend": "^4.1.2",
     "ua-parser-js": "^2.0.3",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
@@ -51,8 +58,10 @@
     "@types/mime-types": "^2.1.4",
     "@types/ms": "^2.1.0",
     "@types/node-telegram-bot-api": "^0.64.7",
+    "@types/react": "^19.0.10",
     "bun-types": "latest",
-    "prisma": "^6.5.0"
+    "prisma": "^6.5.0",
+    "react-email": "^3.0.7"
   },
   "module": "src/index.js"
 }

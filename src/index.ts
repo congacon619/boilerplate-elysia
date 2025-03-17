@@ -4,6 +4,7 @@ import { serverTiming } from '@elysiajs/server-timing'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto'
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-node'
 import { Elysia } from 'elysia'
+import { rateLimit } from 'elysia-rate-limit'
 import { db, env, httpError, logger, swaggerConfig } from './config'
 import { activityController } from './module/activity/controller'
 import { apiKeyController } from './module/api-key/controller'
@@ -34,6 +35,7 @@ try {
 	await startupService.initSettings()
 
 	const app = new Elysia()
+		.use(rateLimit())
 		.use(
 			logger.into({
 				autoLogging: {

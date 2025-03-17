@@ -78,6 +78,8 @@ export const envSchema = t.Object({
 	BULL_BOARD_EP: t.String({ default: 'queues' }),
 
 	LOG_LEVEL: t.String({ default: LOG_LEVEL.INFO }),
+
+	RESEND_API_KEY: t.Optional(t.String()),
 })
 
 const Compiler = TypeCompiler.Compile(envSchema)
