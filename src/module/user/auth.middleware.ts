@@ -1,6 +1,7 @@
+import bearer from '@elysiajs/bearer'
 import { Elysia } from 'elysia'
 import { UnauthorizedException } from '../../common'
-import { IReqMeta } from '../../common/type'
+import { IReqMeta } from '../../common'
 import { currentUserCache, db, logger } from '../../config'
 import { ipWhitelistService } from '../ip-whitelist/service'
 import { tokenService } from './service'
@@ -19,17 +20,13 @@ export const authCheck = (
 ) =>
 	app
 		.guard({ as: 'scoped' })
-		.resolve({ as: 'local' }, async ({ request: { headers }, metadata }) => {
+		.use(bearer())
+		.resolve({ as: 'local' }, async ({ metadata, bearer }) => {
 			await ipWhitelistService.preflight(metadata.ip)
-			const authorization: string | null = headers.get('Authorization')
-			if (!authorization) {
+			if (!bearer) {
 				throw new UnauthorizedException('exception.invalid-token')
 			}
-			const token: string = authorization.split(' ')[1]
-			if (!token) {
-				throw new UnauthorizedException('exception.invalid-token')
-			}
-			const { data } = await tokenService.verifyAccessToken(token)
+			const { data } = await tokenService.verifyAccessToken(bearer)
 			let userPayload: IUserMeta
 			const cachedUser = await currentUserCache.get(data.sessionId)
 

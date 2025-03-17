@@ -6,9 +6,7 @@ import {
 	CORS_ALLOW_HEADERS,
 	LOG_LEVEL,
 	REGEX_HTTP_METHOD,
-	REGEX_SIZE,
 	REGEX_TIME,
-	SENTRY_DSN_REGEX,
 } from '../common'
 
 export const envSchema = t.Object({
@@ -17,14 +15,6 @@ export const envSchema = t.Object({
 	PORT: t.Number({ minimum: 0, maximum: 65535, default: 3000 }),
 
 	API_PREFIX: t.String({ default: 'api' }),
-	GRAPHQL_PREFIX: t.String({ default: 'graphql' }),
-
-	ENB_HTTP: t.Boolean({ default: true }),
-	ENB_GRAPHQL: t.Boolean({ default: true }),
-	ENB_WEBSOCKET: t.Boolean({ default: true }),
-	ENB_CLI: t.Boolean({ default: true }),
-	ENB_SCHEDULE: t.Boolean({ default: true }),
-	ENB_GRPC: t.Boolean({ default: true }),
 
 	COMMIT_HASH: t.String(),
 	BUILD_DATE: t.Integer(),
@@ -41,23 +31,6 @@ export const envSchema = t.Object({
 	CORS_ALLOW_METHOD: t.Optional(t.RegExp(REGEX_HTTP_METHOD)),
 	CORS_ALLOW_HEADERS: t.String({ default: CORS_ALLOW_HEADERS.join(',') }),
 	CORS_ALLOW_ORIGIN: t.String({ default: '*' }),
-
-	BODY_URLENCODED_MAX_SIZE: t.RegExp(REGEX_SIZE, { default: '100kb' }),
-	BODY_JSON_MAX_SIZE: t.RegExp(REGEX_SIZE, { default: '100kb' }),
-	BODY_RAW_MAX_SIZE: t.RegExp(REGEX_SIZE, { default: '100kb' }),
-	BODY_TEXT_MAX_SIZE: t.RegExp(REGEX_SIZE, { default: '100kb' }),
-
-	FILE_IMAGE_MAX_FILES: t.Integer({ minimum: 1, default: 1 }),
-	FILE_EXCEL_MAX_FILES: t.Integer({ minimum: 1, default: 1 }),
-	FILE_DOC_MAX_FILES: t.Integer({ minimum: 1, default: 1 }),
-	FILE_VIDEO_MAX_FILES: t.Integer({ minimum: 1, default: 1 }),
-	FILE_AUDIO_MAX_FILES: t.Integer({ minimum: 1, default: 1 }),
-
-	FILE_IMAGE_MAX_SIZE: t.RegExp(REGEX_SIZE, { default: '10MB' }),
-	FILE_EXCEL_MAX_SIZE: t.RegExp(REGEX_SIZE, { default: '10MB' }),
-	FILE_DOC_MAX_SIZE: t.RegExp(REGEX_SIZE, { default: '10MB' }),
-	FILE_VIDEO_MAX_SIZE: t.RegExp(REGEX_SIZE, { default: '10MB' }),
-	FILE_AUDIO_MAX_SIZE: t.RegExp(REGEX_SIZE, { default: '10MB' }),
 
 	JWT_AUDIENCE: t.String({ default: 'https://example.com' }),
 	JWT_ISSUER: t.String({ default: 'admin' }),
@@ -93,13 +66,6 @@ export const envSchema = t.Object({
 	ENB_SWAGGER_UI: t.Boolean({ default: true }),
 	SWAGGER_EP: t.String({ default: 'swagger' }),
 	ENB_SWAGGER_WRITE_FILE: t.Boolean({ default: false }),
-	ENB_REDOC: t.Boolean({ default: true }),
-	REDOC_EP: t.String({ default: 'redoc' }),
-	ENB_SWAGGER_STATS: t.Boolean({ default: true }),
-	SWAGGER_STATS_EP: t.String({ default: 'swagger-stats' }),
-	ENB_ASYNC_API: t.Boolean({ default: true }),
-	ASYNC_API_EP: t.String({ default: 'async-api' }),
-	ENB_PROMETHEUS: t.Boolean({ default: true }),
 
 	AUTHOR_NAME: t.String({ default: 'AUTHOR_NAME' }),
 	AUTHOR_URL: t.String({ default: 'https://example.com' }),
@@ -109,13 +75,7 @@ export const envSchema = t.Object({
 		default: 'https://www.apache.org/licenses/LICENSE-2.0',
 	}),
 
-	METRIC_EP: t.String({ default: 'metrics' }),
 	BULL_BOARD_EP: t.String({ default: 'queues' }),
-
-	ENB_SENTRY: t.Boolean({ default: false }),
-	SENTRY_DSN: t.Optional(t.RegExp(SENTRY_DSN_REGEX)),
-	SENTRY_DEBUG: t.Boolean({ default: false }),
-	SENTRY_ENVIRONMENT: t.Enum(APP_ENV, { default: APP_ENV.DEV }),
 
 	LOG_LEVEL: t.String({ default: LOG_LEVEL.INFO }),
 })

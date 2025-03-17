@@ -1,7 +1,6 @@
 import { Elysia } from 'elysia'
 import { UAParser } from 'ua-parser-js'
-import { DEFAULT_LANGUAGE, LANG, token12 } from '../common'
-import { IPHeaders, IReqMeta } from '../common/type'
+import { DEFAULT_LANGUAGE, IPHeaders, IReqMeta, LANG, token12 } from '../common'
 
 export const headersToCheck: IPHeaders[] = [
 	'x-real-ip', // Nginx proxy/FastCGI

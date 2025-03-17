@@ -37,10 +37,7 @@ export enum SETTING {
 }
 
 // region regex
-export const REGEX_SIZE = /^[0-9]+(kb|MB|GB|TB)$/i
 export const REGEX_TIME = /^\d+(s|m|h|d|w|mo|y)$/i
-export const SENTRY_DSN_REGEX =
-	/https:\/\/[\da-f]{32}@o\d+\.ingest\.sentry\.io\/\d+/
 export const PASSWORD_REGEX =
 	/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/
 
@@ -56,20 +53,6 @@ export enum HTTP_METHOD {
 }
 export const REGEX_HTTP_METHOD = `^(${Object.values(HTTP_METHOD).join('|')})(,(${Object.values(HTTP_METHOD).join('|')}))*$`
 
-// region file
-export enum FILE_MIME {
-	JPG = 'image/jpg',
-	JPEG = 'image/jpeg',
-	PNG = 'image/png',
-	XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-	CSV = 'text/csv',
-	PDF = 'application/pdf',
-	MPEG = 'audio/mpeg',
-	MP3 = 'audio/mp3',
-	M4A = 'audio/x-m4a',
-	MP4 = 'video/mp4',
-}
-
 // region db
 export enum PREFIX {
 	SESSION = 'session',
@@ -84,7 +67,6 @@ export enum PREFIX {
 	TELEGRAM_BOT = 'tele_bot',
 	TELEGRAM_CHAT = 'tele_chat',
 	TELEGRAM_TEMPLATE = 'tele_template',
-	SOCKET = 'socket',
 }
 
 // region role permissions
@@ -149,18 +131,6 @@ export enum QUEUE {
 
 export enum TASK_NAME {
 	SEND_TELEGRAM_MESSAGE = 'SEND_TELEGRAM_MESSAGE',
-}
-
-// region cli
-export enum CLI_COMMAND {
-	SYSTEM_INFO = 'system-info',
-	CREATE_USER = 'create-user',
-}
-
-export enum CLI_QUESTION {
-	ASK_USERNAME = 'ask-user-name',
-	ASK_PASSWORD = 'ask-password',
-	ASK_ROLE = 'ask-role',
 }
 
 export const DOC_OPTIONS = {

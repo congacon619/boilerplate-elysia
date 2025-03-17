@@ -1,4 +1,8 @@
 import cors from '@elysiajs/cors'
+import { opentelemetry } from '@elysiajs/opentelemetry'
+import { serverTiming } from '@elysiajs/server-timing'
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto'
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-node'
 import { Elysia } from 'elysia'
 import { db, env, httpError, logger, swaggerConfig } from './config'
 import { activityController } from './module/activity/controller'
@@ -34,14 +38,9 @@ try {
 			logger.into({
 				autoLogging: {
 					ignore(ctx) {
-						return [
-							env.ASYNC_API_EP,
-							env.REDOC_EP,
-							env.SWAGGER_EP,
-							env.SWAGGER_STATS_EP,
-							env.METRIC_EP,
-							env.BULL_BOARD_EP,
-						].some(a => ctx.path.includes(a.replaceAll('/', '')))
+						return [env.SWAGGER_EP, env.BULL_BOARD_EP].some(a =>
+							ctx.path.includes(a.replaceAll('/', '')),
+						)
 					},
 				},
 			}),
@@ -53,6 +52,12 @@ try {
 				allowedHeaders: env.CORS_ALLOW_HEADERS,
 			}),
 		)
+		.use(
+			opentelemetry({
+				spanProcessors: [new BatchSpanProcessor(new OTLPTraceExporter())],
+			}),
+		)
+		.use(serverTiming())
 		.use(swaggerConfig())
 		.use(httpError())
 		.group(env.API_PREFIX, app =>

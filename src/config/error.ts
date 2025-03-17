@@ -3,9 +3,10 @@ import {
 	AppException,
 	DEFAULT_LANGUAGE,
 	HTTP_STATUS,
+	I18nPath,
+	IErrorRes,
 	RES_CODE,
 } from '../common'
-import { I18nPath, IErrorRes } from '../common/type'
 import { i18n } from './i18n'
 import { logger } from './logger'
 
