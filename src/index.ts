@@ -5,6 +5,8 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto'
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-node'
 import { Elysia } from 'elysia'
 import { rateLimit } from 'elysia-rate-limit'
+import { elysiaXSS } from 'elysia-xss'
+import { elysiaHelmet } from 'elysiajs-helmet'
 import { db, env, httpError, logger, swaggerConfig } from './config'
 import { activityController } from './module/activity/controller'
 import { apiKeyController } from './module/api-key/controller'
@@ -36,6 +38,8 @@ try {
 
 	const app = new Elysia()
 		.use(rateLimit())
+		.use(elysiaXSS({ as: 'global' }))
+		.use(elysiaHelmet())
 		.use(
 			logger.into({
 				autoLogging: {
