@@ -80,3 +80,8 @@ export const changePasswordCache = new Keyv<{ userId: string }>(redis, {
 	namespace: CACHE_NS.CHANGE_PASSWORD,
 	ttl: milliseconds('15m'),
 })
+
+export const captchaCache = new Keyv<string>(redis, {
+	namespace: CACHE_NS.CAPTCHA,
+	ttl: milliseconds('5m'),
+})

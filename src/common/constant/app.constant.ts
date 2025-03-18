@@ -171,6 +171,7 @@ export const DOC_OPTIONS = {
 			name: 'Telegram template',
 			description: 'Telegram template endpoints',
 		},
+		captcha: { name: 'Captcha', description: 'Captcha endpoints' },
 	},
 }
 
@@ -184,6 +185,7 @@ export enum CACHE_NS {
 	IP_WHITELIST = 'ip-whitelist',
 	CURRENT_USER = 'currency-user',
 	CHANGE_PASSWORD = 'change-password',
+	CAPTCHA = 'captcha',
 }
 
 // region http
@@ -298,6 +300,10 @@ export const ROUTER = {
 	API_KEY: {
 		ROOT: '/api-keys',
 		RESET: '/reset/:id',
+	},
+	CAPTCHA: {
+		ROOT: '/captcha',
+		VERIFY: '/verify',
 	},
 }
 
@@ -521,6 +527,15 @@ export const DOC_DETAIL = {
 	TELE_SEND_MANUAL: {
 		description: 'Telegram send manual message',
 		summary: 'Telegram send manual message',
+	},
+
+	CAPTCHA_GENERATE: {
+		description: 'Captcha generate',
+		summary: 'Captcha generate',
+	},
+	CAPTCHA_VERIFY: {
+		description: 'Captcha verify',
+		summary: 'Captcha verify',
 	},
 }
 
