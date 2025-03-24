@@ -37,14 +37,14 @@ export const envSchema = t.Object({
 	JWT_SUBJECT: t.String({ default: 'admin' }),
 
 	JWT_ACCESS_TOKEN_SECRET_KEY: t.String(),
-	JWT_ACCESS_TOKEN_EXPIRED: t.RegExp(REGEX_TIME, { default: '15m' }),
+	JWT_ACCESS_TOKEN_EXPIRED: t.RegExp(REGEX_TIME, { default: '15 minutes' }),
 	JWT_ACCESS_TOKEN_NOT_BEFORE_EXPIRATION: t.RegExp(REGEX_TIME, {
-		default: '0s',
+		default: '0 second',
 	}),
-	JWT_REFRESH_TOKEN_EXPIRED: t.RegExp(REGEX_TIME, { default: '15d' }),
-	EXPIRED_TOLERANCE: t.RegExp(REGEX_TIME, { default: '1m' }),
+	JWT_REFRESH_TOKEN_EXPIRED: t.RegExp(REGEX_TIME, { default: '15 days' }),
+	EXPIRED_TOLERANCE: t.RegExp(REGEX_TIME, { default: '1 minute' }),
 
-	REQUEST_TIMEOUT: t.RegExp(REGEX_TIME, { default: '10s' }),
+	REQUEST_TIMEOUT: t.RegExp(REGEX_TIME, { default: '10 seconds' }),
 
 	SYSTEM_USERNAME: t.String(),
 	SYSTEM_PASSWORD: t.String(),
@@ -52,7 +52,7 @@ export const envSchema = t.Object({
 	SALT_LENGTH: t.Integer({ minimum: 8, maximum: 20, default: 10 }),
 	PASSWORD_MAX_ATTEMPT: t.Integer({ minimum: 1, maximum: 100, default: 5 }),
 	PASSWORD_PEPPER: t.String(),
-	PASSWORD_EXPIRED: t.RegExp(REGEX_TIME, { default: '180d' }),
+	PASSWORD_EXPIRED: t.RegExp(REGEX_TIME, { default: '180 days' }),
 
 	ENCRYPT_KEY: t.String(),
 	ENCRYPT_IV: t.String(),
@@ -80,13 +80,21 @@ export const envSchema = t.Object({
 	LOG_LEVEL: t.String({ default: LOG_LEVEL.INFO }),
 
 	RESEND_API_KEY: t.String({ minLength: 1 }),
-	SEND_FROM_EMAIL: t.String({ minLength: 1, format: 'email' }),
+	SEND_FROM_EMAIL: t.String({
+		minLength: 1,
+		pattern: '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$',
+	}),
 })
 
 const Compiler = TypeCompiler.Compile(envSchema)
-export const env = Value.Cast(envSchema, process.env) as Static<
-	typeof envSchema
->
+let env: Static<typeof envSchema>
+
+try {
+	env = Value.Cast(envSchema, process.env) as Static<typeof envSchema>
+} catch (error) {
+	console.error('❌ Failed to cast environment variables:', error)
+	process.exit(1)
+}
 
 if (!Compiler.Check(env)) {
 	const errors = [...Compiler.Errors(env)].reduce((errors, e) => {
@@ -96,3 +104,4 @@ if (!Compiler.Check(env)) {
 	console.error('❌ Invalid environment variables:', errors)
 	process.exit(1)
 }
+export { env }

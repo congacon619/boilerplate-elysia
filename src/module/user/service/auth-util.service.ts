@@ -10,7 +10,6 @@ import {
 	aes256Decrypt,
 	aes256Encrypt,
 	isExpired,
-	seconds,
 	signJwt,
 	token12,
 	verifyJwt,
@@ -26,6 +25,7 @@ import {
 	ILoginRes,
 	ITokenPayload,
 } from '../type'
+import { seconds } from 'itty-time'
 
 export const passwordService = {
 	async createPassword(password: string): Promise<IAuthPassword> {

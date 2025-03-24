@@ -1,9 +1,10 @@
 import KeyvRedis from '@keyv/redis'
 import Keyv from 'keyv'
-import { CACHE_NS, milliseconds } from '../common'
+import { CACHE_NS } from '../common'
 import { MFA_METHOD } from '../module/user/constant'
 import { IUserMeta } from '../module/user/type'
 import { env } from './env'
+import { ms } from 'itty-time'
 
 const redis = new KeyvRedis({
 	url: env.REDIS_URI,
@@ -12,12 +13,12 @@ const redis = new KeyvRedis({
 
 export const tokenCache = new Keyv<string>(redis, {
 	namespace: CACHE_NS.ACCESS_TOKEN,
-	ttl: milliseconds(env.JWT_ACCESS_TOKEN_EXPIRED),
+	ttl: ms(env.JWT_ACCESS_TOKEN_EXPIRED),
 })
 
 export const loginCache = new Keyv<{ userId: string }>(redis, {
 	namespace: CACHE_NS.LOGIN,
-	ttl: milliseconds('5m'),
+	ttl: ms('5m'),
 })
 
 export const mfaSetupCache = new Keyv<
@@ -37,7 +38,7 @@ export const mfaSetupCache = new Keyv<
 	  }
 >(redis, {
 	namespace: CACHE_NS.MFA_SETUP,
-	ttl: milliseconds('15m'),
+	ttl: ms('15m'),
 })
 
 export const mfaCache = new Keyv<
@@ -54,34 +55,34 @@ export const mfaCache = new Keyv<
 	  }
 >(redis, {
 	namespace: CACHE_NS.MFA,
-	ttl: milliseconds('5m'),
+	ttl: ms('5m'),
 })
 
 export const resetMfaCache = new Keyv<{
 	userIds: string[]
 }>(redis, {
 	namespace: CACHE_NS.MFA,
-	ttl: milliseconds('15m'),
+	ttl: ms('15m'),
 })
 
 export const ipWhitelistCache = new Keyv<string[]>(redis, {
 	namespace: CACHE_NS.IP_WHITELIST,
-	ttl: milliseconds('15m'),
+	ttl: ms('15m'),
 })
 
 export const currentUserCache = new Keyv<IUserMeta>(redis, {
 	namespace: CACHE_NS.CURRENT_USER,
-	ttl: milliseconds('5m'),
+	ttl: ms('5m'),
 })
 
 export const settingCache = new Keyv({ namespace: CACHE_NS.SETTING })
 
 export const changePasswordCache = new Keyv<{ userId: string }>(redis, {
 	namespace: CACHE_NS.CHANGE_PASSWORD,
-	ttl: milliseconds('15m'),
+	ttl: ms('15m'),
 })
 
 export const captchaCache = new Keyv<string>(redis, {
 	namespace: CACHE_NS.CAPTCHA,
-	ttl: milliseconds('5m'),
+	ttl: ms('5m'),
 })

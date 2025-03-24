@@ -9,7 +9,6 @@ import {
 	ROLE_NAME,
 	UnauthorizedException,
 	isExpired,
-	seconds,
 	token12,
 	token16,
 } from '../../../common'
@@ -36,6 +35,7 @@ import {
 	userUtilService,
 } from './auth-util.service'
 import { mfaUtilService } from './mfa-util.service'
+import { seconds } from 'itty-time'
 
 export const authService = {
 	async login(

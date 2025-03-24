@@ -1,6 +1,5 @@
 import dayjs from 'dayjs'
 import { SignJWT, jwtVerify } from 'jose'
-import ms, { StringValue } from 'ms'
 import { customAlphabet } from 'nanoid'
 import { env } from '../config'
 import { IJwtVerified } from './type'
@@ -19,15 +18,6 @@ export const token16 = (prefix = ''): string => {
 export const token32 = (prefix = ''): string => {
 	const id = customAlphabet(NANO_ID_ALPHABET)(32)
 	return prefix.length ? `${prefix}_${id}` : id
-}
-
-// region time
-export function seconds(time: string): number {
-	const result = ms(time as StringValue)
-	return result / 1000
-}
-export function milliseconds(time: string): number {
-	return ms(time as StringValue)
 }
 
 export function isExpired(

@@ -37,7 +37,8 @@ export enum SETTING {
 }
 
 // region regex
-export const REGEX_TIME = /^\d+(s|m|h|d|w|mo|y)$/i
+export const REGEX_TIME =
+	/^\d+\s*(seconds?|minutes?|hours?|days?|weeks?|months?|years?)$/i
 export const PASSWORD_REGEX =
 	/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/
 
