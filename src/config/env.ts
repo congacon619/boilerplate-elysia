@@ -87,14 +87,12 @@ export const envSchema = t.Object({
 })
 
 const Compiler = TypeCompiler.Compile(envSchema)
-let env: Static<typeof envSchema>
 
-try {
-	env = Value.Cast(envSchema, process.env) as Static<typeof envSchema>
-} catch (error) {
-	console.error('❌ Failed to cast environment variables:', error)
-	process.exit(1)
-}
+const env = Value.Parse(
+	['Clone', 'Clean', 'Default', 'Decode', 'Convert'],
+	envSchema,
+	process.env,
+) as Static<typeof envSchema>
 
 if (!Compiler.Check(env)) {
 	const errors = [...Compiler.Errors(env)].reduce((errors, e) => {
