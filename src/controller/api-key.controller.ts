@@ -7,7 +7,6 @@ import {
 	ErrorResDto,
 	IdDto,
 	NotFoundException,
-	PERMISSION,
 	PREFIX,
 	PaginationReqDto,
 	ROUTER,
@@ -42,7 +41,7 @@ export const apiKeyController = new Elysia({
 		'/',
 		async ({ query: { take, skip }, currentUser }) => {
 			let where: Prisma.ApiKeyWhereInput = {}
-			if (!currentUser.permissions.includes(PERMISSION.API_KEY_VIEW_ALL)) {
+			if (!currentUser.permissions.includes('API_KEY.VIEW_ALL')) {
 				where = { userId: currentUser.id }
 			}
 			const [docs, count] = await Promise.all([
@@ -58,7 +57,7 @@ export const apiKeyController = new Elysia({
 			return castToRes({ docs: docs.map(({ hash, ...rest }) => rest), count })
 		},
 		{
-			beforeHandle: permissionCheck(PERMISSION.API_KEY_VIEW),
+			beforeHandle: permissionCheck('API_KEY.VIEW'),
 			query: PaginationReqDto,
 			detail: {
 				...DOC_DETAIL.API_KEY_PAGINATE,
@@ -141,7 +140,7 @@ export const apiKeyController = new Elysia({
 			return castToRes(null)
 		},
 		{
-			beforeHandle: permissionCheck(PERMISSION.API_KEY_UPDATE),
+			beforeHandle: permissionCheck('API_KEY.UPDATE'),
 			body: UpsertApiKeyDto,
 			detail: {
 				...DOC_DETAIL.API_KEY_UPSERT,
@@ -186,7 +185,7 @@ export const apiKeyController = new Elysia({
 			return castToRes({ secret, key: apiKey.key })
 		},
 		{
-			beforeHandle: permissionCheck(PERMISSION.API_KEY_UPDATE),
+			beforeHandle: permissionCheck('API_KEY.UPDATE'),
 			params: IdDto,
 			detail: {
 				...DOC_DETAIL.API_KEY_RESET,

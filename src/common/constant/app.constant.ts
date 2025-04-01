@@ -1,5 +1,5 @@
 import { SETTING_DATA_TYPE } from '@prisma/client'
-import dayjs from 'dayjs'
+import dayjs from 'dayjs' // region app
 
 // region app
 export enum LANG {
@@ -243,6 +243,7 @@ export const ROUTER = {
 	API_KEY: {
 		ROOT: '/api-keys',
 		RESET: '/reset/:id',
+		DEL: '/del',
 	},
 	CAPTCHA: {
 		ROOT: '/captcha',
@@ -643,12 +644,11 @@ export const PERMISSIONS = {
 		SEND: { roles: [defaultRoles.administrator.id] },
 	},
 	API_KEY: {
-		VIEW: {
-			roles: [defaultRoles.administrator.id, defaultRoles.user.id],
-		},
+		VIEW: { roles: [defaultRoles.administrator.id, defaultRoles.user.id] },
 		VIEW_ALL: { roles: [defaultRoles.administrator.id] },
 		UPDATE: { roles: [defaultRoles.administrator.id] },
-		DELETE: { roles: [defaultRoles.administrator.id] },
+		UPDATE_ALL: { roles: [defaultRoles.administrator.id] },
+		DELETE: { roles: [defaultRoles.administrator.id, defaultRoles.user.id] },
 	},
 }
 

@@ -10,7 +10,6 @@ import {
 	ErrorResDto,
 	HTTP_STATUS,
 	IdsDto,
-	PERMISSION,
 	PREFIX,
 	ROUTER,
 	ResWrapper,
@@ -92,7 +91,7 @@ export const i18nController = new Elysia({
 		},
 		{
 			body: I18nUpsertDto,
-			beforeHandle: permissionCheck(PERMISSION.I18N_UPDATE),
+			beforeHandle: permissionCheck('I18N.UPDATE'),
 			detail: {
 				...DOC_DETAIL.I18N_UPSERT,
 				security: [{ accessToken: [] }],
@@ -114,7 +113,7 @@ export const i18nController = new Elysia({
 		},
 		{
 			body: IdsDto,
-			beforeHandle: permissionCheck(PERMISSION.I18N_DELETE),
+			beforeHandle: permissionCheck('I18N.DELETE'),
 			detail: {
 				...DOC_DETAIL.I18N_DEL,
 				security: [{ accessToken: [] }],
@@ -181,7 +180,7 @@ export const i18nController = new Elysia({
 			return castToRes(null)
 		},
 		{
-			beforeHandle: permissionCheck(PERMISSION.I18N_UPDATE),
+			beforeHandle: permissionCheck('I18N.UPDATE'),
 			body: t.Object({
 				file: t.File({ format: 'application/vnd.ms-excel' }),
 			}),
@@ -219,7 +218,7 @@ export const i18nController = new Elysia({
 			return res
 		},
 		{
-			beforeHandle: permissionCheck(PERMISSION.I18N_VIEW),
+			beforeHandle: permissionCheck('I18N.VIEW'),
 			detail: {
 				...DOC_DETAIL.I18N_EXPORT,
 				responses: {

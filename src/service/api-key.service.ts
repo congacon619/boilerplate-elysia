@@ -1,9 +1,4 @@
-import {
-	IUserMeta,
-	NotFoundException,
-	PERMISSION,
-	UnauthorizedException,
-} from '../common'
+import { IUserMeta, NotFoundException, UnauthorizedException } from '../common'
 
 export const apiKeyService = {
 	validatePermission(apiKey: { userId: string } | null, user: IUserMeta): void {
@@ -12,7 +7,7 @@ export const apiKeyService = {
 		}
 		if (
 			apiKey.userId !== user.id &&
-			!user.permissions.includes(PERMISSION.API_KEY_UPDATE_ALL)
+			!user.permissions.includes('API_KEY.UPDATE')
 		) {
 			throw new UnauthorizedException('exception.forbidden')
 		}

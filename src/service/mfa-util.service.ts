@@ -1,7 +1,7 @@
 import { authenticator, totp } from 'otplib'
 import { AppException, MFA_METHOD, token16 } from '../common'
 import { mfaCache, mfaSetupCache } from '../config'
-import { telegramService } from '../module/telegram/service'
+import { telegramService } from './telegram.service'
 
 interface IUserMFA {
 	mfaTotpEnabled: boolean

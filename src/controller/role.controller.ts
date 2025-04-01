@@ -7,7 +7,6 @@ import {
 	DOC_OPTIONS,
 	ErrorResDto,
 	IdsDto,
-	PERMISSION,
 	PREFIX,
 	ROUTER,
 	ResWrapper,
@@ -61,7 +60,7 @@ export const roleController = new Elysia({
 			)
 		},
 		{
-			beforeHandle: permissionCheck(PERMISSION.ROLE_VIEW),
+			beforeHandle: permissionCheck('ROLE.VIEW'),
 			query: RolePaginationDto,
 			detail: {
 				...DOC_DETAIL.ROLE_PAGINATE,
@@ -170,7 +169,7 @@ export const roleController = new Elysia({
 		},
 		{
 			body: UpsertRoleDto,
-			beforeHandle: permissionCheck(PERMISSION.ROLE_UPDATE),
+			beforeHandle: permissionCheck('ROLE.UPDATE'),
 			detail: {
 				...DOC_DETAIL.ROLE_UPSERT,
 				security: [{ accessToken: [] }],
@@ -208,7 +207,7 @@ export const roleController = new Elysia({
 		},
 		{
 			body: IdsDto,
-			beforeHandle: permissionCheck(PERMISSION.ROLE_DELETE),
+			beforeHandle: permissionCheck('ROLE.DELETE'),
 			detail: {
 				...DOC_DETAIL.ROLE_DEL,
 				security: [{ accessToken: [] }],

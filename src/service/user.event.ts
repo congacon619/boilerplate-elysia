@@ -1,4 +1,4 @@
-import { currentUserCache, userEmitter } from '../../../config'
+import { currentUserCache, userEmitter } from '../config'
 
 userEmitter.on(
 	'userUpdated',

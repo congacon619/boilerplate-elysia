@@ -7,7 +7,6 @@ import {
 	ErrorResDto,
 	IdDto,
 	NotFoundException,
-	PERMISSION,
 	ROUTER,
 	ResWrapper,
 	aes256Decrypt,
@@ -99,7 +98,7 @@ export const settingController = new Elysia({
 			return castToRes(null)
 		},
 		{
-			beforeHandle: permissionCheck(PERMISSION.SETTING_UPDATE),
+			beforeHandle: permissionCheck('SETTING.UPDATE'),
 			body: UpdateSettingDto,
 			params: IdDto,
 			detail: {

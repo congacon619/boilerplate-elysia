@@ -7,7 +7,6 @@ import {
 	DOC_OPTIONS,
 	ErrorResDto,
 	MFA_METHOD,
-	PERMISSION,
 	ROUTER,
 	ResWrapper,
 	authErrors,
@@ -188,7 +187,7 @@ export const mfaController = new Elysia({
 			})
 		},
 		{
-			beforeHandle: permissionCheck(PERMISSION.USER_RESET_MFA),
+			beforeHandle: permissionCheck('USER.RESET_MFA'),
 			body: MfaResetDto,
 			detail: {
 				...DOC_DETAIL.MFA_RESET_REQUEST,
@@ -247,7 +246,7 @@ export const mfaController = new Elysia({
 			return castToRes(null)
 		},
 		{
-			beforeHandle: permissionCheck(PERMISSION.USER_RESET_MFA),
+			beforeHandle: permissionCheck('USER.RESET_MFA'),
 			body: MfaResetConfirmDto,
 			detail: {
 				...DOC_DETAIL.MFA_RESET_CONFIRM,

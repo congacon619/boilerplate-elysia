@@ -5,7 +5,6 @@ import {
 	DOC_OPTIONS,
 	ErrorResDto,
 	IdsDto,
-	PERMISSION,
 	PREFIX,
 	ROUTER,
 	ResWrapper,
@@ -24,7 +23,7 @@ export const ipWhitelistController = new Elysia({
 	.use(reqMeta)
 	.use(authCheck)
 	.get('/', async () => castToRes(await db.iPWhitelist.findMany()), {
-		beforeHandle: permissionCheck(PERMISSION.IP_WHITELIST_VIEW),
+		beforeHandle: permissionCheck('IPWHITELIST.VIEW'),
 		detail: {
 			...DOC_DETAIL.IP_WHITELIST_GET_ALL,
 			security: [{ accessToken: [] }],
@@ -53,7 +52,7 @@ export const ipWhitelistController = new Elysia({
 		},
 		{
 			body: CreateIpWhitelistDto,
-			beforeHandle: permissionCheck(PERMISSION.IP_WHITELIST_CREATE),
+			beforeHandle: permissionCheck('IPWHITELIST.CREATE'),
 			detail: {
 				...DOC_DETAIL.IP_WHITELIST_CREATE,
 				security: [{ accessToken: [] }],
@@ -84,7 +83,7 @@ export const ipWhitelistController = new Elysia({
 		},
 		{
 			body: IdsDto,
-			beforeHandle: permissionCheck(PERMISSION.IP_WHITELIST_DELETE),
+			beforeHandle: permissionCheck('IPWHITELIST.DELETE'),
 			detail: {
 				...DOC_DETAIL.IP_WHITELIST_DEL,
 				security: [{ accessToken: [] }],

@@ -7,7 +7,6 @@ import {
 	DOC_OPTIONS,
 	HTTP_STATUS,
 	NotFoundException,
-	PERMISSION,
 	PREFIX,
 	ROUTER,
 	ResWrapper,
@@ -63,7 +62,7 @@ export const userController = new Elysia({
 			)
 		},
 		{
-			beforeHandle: permissionCheck(PERMISSION.USER_VIEW),
+			beforeHandle: permissionCheck('USER.VIEW'),
 			detail: {
 				...DOC_DETAIL.USER_PAGINATE,
 				security: [{ accessToken: [] }],
@@ -182,7 +181,7 @@ export const userController = new Elysia({
 			return castToRes(null)
 		},
 		{
-			beforeHandle: permissionCheck(PERMISSION.USER_UPDATE),
+			beforeHandle: permissionCheck('USER.UPDATE'),
 			body: UserUpsertDto,
 			detail: {
 				...DOC_DETAIL.USER_UPSERT,

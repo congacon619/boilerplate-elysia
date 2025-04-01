@@ -7,7 +7,6 @@ import {
 	ErrorResDto,
 	IdDto,
 	NotFoundException,
-	PERMISSION,
 	ROUTER,
 	ResWrapper,
 	UnauthorizedException,
@@ -44,7 +43,7 @@ export const sessionController = new Elysia({
 				},
 			]
 
-			if (!currentUser.permissions.includes(PERMISSION.SESSION_VIEW_ALL)) {
+			if (!currentUser.permissions.includes('SESSION.VIEW_ALL')) {
 				conditions.push({ createdById: currentUser.id })
 			}
 
@@ -107,7 +106,7 @@ export const sessionController = new Elysia({
 			}
 
 			if (
-				!currentUser.permissions.includes(PERMISSION.SESSION_REVOKE_ALL) &&
+				!currentUser.permissions.includes('SESSION.REVOKE_ALL') &&
 				session.createdById !== currentUser.id
 			) {
 				throw new UnauthorizedException('exception.permission-denied')
@@ -124,7 +123,7 @@ export const sessionController = new Elysia({
 			return castToRes(null)
 		},
 		{
-			beforeHandle: permissionCheck(PERMISSION.SESSION_REVOKE),
+			beforeHandle: permissionCheck('SESSION.REVOKE'),
 			params: IdDto,
 			detail: {
 				...DOC_DETAIL.SESSION_REVOKE,
