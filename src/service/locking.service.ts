@@ -1,7 +1,7 @@
 import IORedis from 'ioredis'
 import Redis from 'ioredis'
 import { Mutex } from 'redis-semaphore'
-import { env } from '../../config'
+import { env } from '../config'
 
 const client = new Redis(env.REDIS_URI, {
 	password: env.REDIS_PASSWORD,
