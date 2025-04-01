@@ -1,16 +1,27 @@
 import { Elysia, t } from 'elysia'
+import { authenticator } from 'otplib'
 import {
+	ACTIVITY_TYPE,
+	BadRequestException,
 	DOC_DETAIL,
 	DOC_OPTIONS,
 	ErrorResDto,
+	MFA_METHOD,
 	PERMISSION,
 	ROUTER,
 	ResWrapper,
 	authErrors,
-} from '../../../common'
-import { castToRes, reqMeta } from '../../../config'
-import { authCheck, permissionCheck } from '../auth.middleware'
-import { mfaService } from '../service'
+	token16,
+} from '../common'
+import { castToRes, db, mfaSetupCache, reqMeta, resetMfaCache } from '../config'
+import {
+	activityService,
+	authCheck,
+	mfaUtilService,
+	passwordService,
+	permissionCheck,
+	sessionService,
+} from '../service'
 import {
 	MfaConfirmDto,
 	MfaResetConfirmDto,
@@ -18,7 +29,7 @@ import {
 	MfaResetResDto,
 	MfaSetupDto,
 	MfaSetupResDto,
-} from '../type'
+} from './dto'
 
 export const mfaController = new Elysia({
 	name: 'MfaController',
@@ -26,25 +37,124 @@ export const mfaController = new Elysia({
 	prefix: ROUTER.MFA.ROOT,
 })
 	.use(reqMeta)
+	.use(authCheck)
 	.post(
 		ROUTER.MFA.CONFIRM,
-		async ({ body, metadata }) =>
-			castToRes(await mfaService.setupMFAConfirm(body, metadata)),
+		async ({ body: { mfaToken, otp }, clientIp, userAgent, currentUser }) => {
+			const cachedData = await mfaSetupCache.get(mfaToken)
+			if (!cachedData) {
+				throw new BadRequestException('exception.session-expired')
+			}
+
+			if (cachedData.method === MFA_METHOD.TELEGRAM) {
+				if (
+					!authenticator.verify({ secret: cachedData.totpSecret, token: otp })
+				) {
+					throw new BadRequestException('exception.invalid-otp')
+				}
+
+				await db.user.update({
+					where: { id: cachedData.userId },
+					data: {
+						telegramUsername: cachedData.telegramUsername,
+						mfaTelegramEnabled: true,
+					},
+					select: { id: true },
+				})
+			} else {
+				if (
+					!authenticator.verify({ secret: cachedData.totpSecret, token: otp })
+				) {
+					throw new BadRequestException('exception.invalid-otp')
+				}
+
+				await db.user.update({
+					where: { id: cachedData.userId },
+					data: {
+						totpSecret: cachedData.totpSecret,
+						mfaTotpEnabled: true,
+					},
+					select: { id: true },
+				})
+			}
+
+			if (cachedData.sessionId) {
+				await sessionService.revoke(cachedData.userId, [cachedData.sessionId])
+				await activityService.create(
+					ACTIVITY_TYPE.SETUP_MFA,
+					{
+						method: cachedData.method,
+						telegramUsername:
+							cachedData.method === MFA_METHOD.TELEGRAM
+								? cachedData.telegramUsername
+								: undefined,
+					},
+					{ clientIp, userAgent, currentUser },
+				)
+			}
+			return castToRes(null)
+		},
 		{
 			body: MfaConfirmDto,
 			detail: DOC_DETAIL.MFA_SETUP_CONFIRM,
 			response: {
-				200: ResWrapper(t.Void()),
+				200: ResWrapper(t.Null()),
 				400: ErrorResDto,
 				500: ErrorResDto,
 			},
 		},
 	)
-	.use(authCheck)
 	.post(
 		ROUTER.MFA.REQUEST,
-		async ({ body, user }) =>
-			castToRes(await mfaService.setupMFARequest(body, user)),
+		async ({ body: { password, method, telegramUsername }, currentUser }) => {
+			if (
+				!(await passwordService.comparePassword(password, currentUser.password))
+			) {
+				throw new BadRequestException('exception.password-not-match')
+			}
+			const mfaToken = token16()
+			const totpSecret = authenticator.generateSecret().toUpperCase()
+
+			if (method === MFA_METHOD.TELEGRAM && !currentUser.mfaTelegramEnabled) {
+				if (!telegramUsername) {
+					throw new BadRequestException('exception.validation-error')
+				}
+
+				authenticator.options = { digits: 6, step: 300 }
+				const secret = authenticator.generateSecret()
+				const otp = authenticator.generate(secret)
+
+				await mfaSetupCache.set(mfaToken, {
+					method,
+					userId: currentUser.id,
+					sessionId: currentUser.sessionId,
+					telegramUsername,
+					otp,
+					totpSecret,
+				})
+
+				return castToRes({
+					mfaToken,
+				})
+			}
+
+			if (method === MFA_METHOD.TOTP && !currentUser.mfaTotpEnabled) {
+				const totpSecret = authenticator.generateSecret().toUpperCase()
+				await mfaSetupCache.set(mfaToken, {
+					method,
+					totpSecret,
+					userId: currentUser.id,
+					sessionId: currentUser.sessionId,
+				})
+
+				return castToRes({
+					mfaToken,
+					totpSecret,
+				})
+			}
+
+			throw new BadRequestException('exception.mfa-method-unavailable')
+		},
 		{
 			body: MfaSetupDto,
 			detail: {
@@ -60,8 +170,23 @@ export const mfaController = new Elysia({
 	)
 	.post(
 		ROUTER.MFA.RESET_REQUEST,
-		async ({ body, user }) =>
-			castToRes(await mfaService.createResetMFARequest(body, user)),
+		async ({ body: { userIds, method }, currentUser }) => {
+			const token = token16()
+			const mfaToken = await mfaUtilService.createSession({
+				method,
+				user: currentUser,
+				referenceToken: token,
+			})
+
+			await resetMfaCache.set(token, {
+				userIds,
+			})
+
+			return castToRes({
+				mfaToken,
+				token,
+			})
+		},
 		{
 			beforeHandle: permissionCheck(PERMISSION.USER_RESET_MFA),
 			body: MfaResetDto,
@@ -78,8 +203,49 @@ export const mfaController = new Elysia({
 	)
 	.post(
 		ROUTER.MFA.RESET_CONFIRM,
-		async ({ body, user, metadata }) =>
-			castToRes(await mfaService.confirmResetMFA(body, user, metadata)),
+		async ({
+			body: { token, mfaToken, otp },
+			currentUser,
+			clientIp,
+			userAgent,
+		}) => {
+			const cacheData = await resetMfaCache.get(token)
+			if (!cacheData) {
+				throw new BadRequestException('exception.session-expired')
+			}
+
+			const isVerified = await mfaUtilService.verifySession({
+				mfaToken,
+				otp,
+				referenceToken: token,
+				user: currentUser,
+			})
+			if (!isVerified) {
+				throw new BadRequestException('exception.invalid-otp')
+			}
+
+			await db.$transaction([
+				db.user.updateMany({
+					where: { id: { in: cacheData.userIds } },
+					data: {
+						mfaTelegramEnabled: false,
+						mfaTotpEnabled: false,
+						totpSecret: null,
+						telegramUsername: null,
+					},
+				}),
+				activityService.create(
+					ACTIVITY_TYPE.RESET_MFA,
+					{ userIds: cacheData.userIds },
+					{ userAgent, clientIp, currentUser },
+				),
+			])
+
+			await Promise.all(
+				cacheData.userIds.map(userId => sessionService.revoke(userId)),
+			)
+			return castToRes(null)
+		},
 		{
 			beforeHandle: permissionCheck(PERMISSION.USER_RESET_MFA),
 			body: MfaResetConfirmDto,
@@ -88,7 +254,7 @@ export const mfaController = new Elysia({
 				security: [{ accessToken: [] }],
 			},
 			response: {
-				200: ResWrapper(t.Void()),
+				200: ResWrapper(t.Null()),
 				400: ErrorResDto,
 				...authErrors,
 			},

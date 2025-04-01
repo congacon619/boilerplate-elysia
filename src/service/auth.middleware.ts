@@ -1,9 +1,15 @@
 import bearer from '@elysiajs/bearer'
 import { Elysia } from 'elysia'
-import { IUserMeta, UnauthorizedException } from '../common'
+import {
+	IUserMeta,
+	UPermission,
+	UnauthorizedException,
+	userResSelect,
+} from '../common'
 import { currentUserCache, db, logger } from '../config'
 import { tokenService } from './auth-util.service'
 import { ipWhitelistService } from './ip-whitelist.service'
+import { permissionService } from './permission.service'
 
 export const authCheck = (
 	app: Elysia<
@@ -34,27 +40,14 @@ export const authCheck = (
 				const user = await db.user.findUnique({
 					where: { id: data.userId },
 					select: {
-						id: true,
-						username: true,
-						mfaTelegramEnabled: true,
-						mfaTotpEnabled: true,
-						totpSecret: true,
-						telegramUsername: true,
+						...userResSelect,
 						password: true,
-						enabled: true,
-						created: true,
-						modified: true,
 					},
 				})
 
 				if (!user || !user.enabled) {
 					throw new UnauthorizedException('exception.expired-token')
 				}
-
-				const roleUsers = await db.roleUser.findMany({
-					where: { userId: user.id },
-					select: { role: { select: { permissions: true } } },
-				})
 
 				currentUser = {
 					id: user.id,
@@ -68,7 +61,7 @@ export const authCheck = (
 					enabled: user.enabled,
 					created: user.created,
 					modified: user.modified,
-					permissions: [...new Set(roleUsers.flatMap(p => p.role.permissions))],
+					permissions: await permissionService.getPermissions(user),
 				}
 
 				await currentUserCache.set(data.sessionId, currentUser)
@@ -81,7 +74,7 @@ export const authCheck = (
 
 export const permissionCheck =
 	(
-		...requiredPermissions: string[]
+		...requiredPermissions: UPermission[]
 	): ((data: {
 		clientIp: string
 		currentUser: IUserMeta
