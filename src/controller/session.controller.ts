@@ -80,7 +80,7 @@ export const sessionController = new Elysia({
 			})
 		},
 		{
-			beforeHandle: permissionCheck(PERMISSION.SESSION_VIEW),
+			beforeHandle: permissionCheck('SESSION.VIEW'),
 			query: SessionPaginateDto,
 			detail: {
 				...DOC_DETAIL.SESSION_PAGINATE,

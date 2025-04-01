@@ -143,7 +143,7 @@ export interface IUserMeta {
 	enabled: boolean
 	created: Date
 	modified: Date
-	permissions: string[]
+	permissions: UPermission[]
 	sessionId: string
 	password: string
 	totpSecret?: string | null

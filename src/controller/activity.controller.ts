@@ -3,7 +3,6 @@ import { Elysia } from 'elysia'
 import {
 	DOC_DETAIL,
 	DOC_OPTIONS,
-	PERMISSION,
 	ROUTER,
 	ResWrapper,
 	authErrors,
@@ -34,7 +33,7 @@ export const activityController = new Elysia({
 				},
 			]
 
-			if (!currentUser.permissions.includes(PERMISSION.ACTIVITY_VIEW_ALL)) {
+			if (!currentUser.permissions.includes('ACTIVITY.VIEW_ALL')) {
 				conditions.push({ createdById: currentUser.id })
 			}
 			if (ip) {
@@ -84,7 +83,7 @@ export const activityController = new Elysia({
 			})
 		},
 		{
-			beforeHandle: permissionCheck(PERMISSION.ACTIVITY_VIEW),
+			beforeHandle: permissionCheck('ACTIVITY.VIEW'),
 			query: ActivityPaginateDto,
 			detail: {
 				...DOC_DETAIL.ACTIVITY_PAGINATE,

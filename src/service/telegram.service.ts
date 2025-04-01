@@ -2,8 +2,8 @@ import TelegramBot, {
 	InputMedia,
 	SendMediaGroupOptions,
 } from 'node-telegram-bot-api'
-import { ITelegramMessage, TASK_NAME, aes256Decrypt } from '../../../common'
-import { db, logger, teleQueue } from '../../../config'
+import { ITelegramMessage, TASK_NAME, aes256Decrypt } from '../common'
+import { db, logger, teleQueue } from '../config'
 
 export const telegramService = {
 	async jobSendMessage(data: ITelegramMessage): Promise<void> {

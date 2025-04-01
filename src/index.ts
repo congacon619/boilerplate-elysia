@@ -22,13 +22,11 @@ import {
 	roleController,
 	sessionController,
 	settingController,
-	userController,
-} from './controller'
-import {
 	telegramBotController,
 	telegramChatController,
 	telegramTemplateController,
-} from './module/telegram/controller'
+	userController,
+} from './controller'
 import { startupService } from './service'
 
 try {

@@ -8,7 +8,6 @@ export const UpsertTeleBotDto = t.Object({
 	enabled: t.Boolean(),
 	description: t.Optional(t.String()),
 })
-export type IUpsertTeleBot = typeof UpsertTeleBotDto.static
 
 export const PaginateTeleBotResDto = t.Object({
 	docs: t.Array(
@@ -19,7 +18,6 @@ export const PaginateTeleBotResDto = t.Object({
 	),
 	count: t.Integer(),
 })
-export type IPaginateTeleBotRes = typeof PaginateTeleBotResDto.static
 
 export const UpsertTeleChatDto = t.Object({
 	id: t.Optional(t.String()),
@@ -28,7 +26,6 @@ export const UpsertTeleChatDto = t.Object({
 	chatId: t.String(),
 	type: t.Enum(TELEGRAM_CHAT_TYPE),
 })
-export type IUpsertTeleChat = typeof UpsertTeleChatDto.static
 
 export const PaginateTeleChatResDto = t.Object({
 	docs: t.Array(
@@ -39,7 +36,6 @@ export const PaginateTeleChatResDto = t.Object({
 	),
 	count: t.Integer(),
 })
-export type IPaginateTeleChatRes = typeof PaginateTeleChatResDto.static
 
 export const UpsertTeleTemplateDto = t.Object({
 	id: t.Optional(t.String()),
@@ -50,7 +46,6 @@ export const UpsertTeleTemplateDto = t.Object({
 	videos: t.Optional(t.Array(t.String())),
 	buttons: t.Optional(t.Any()),
 })
-export type IUpsertTeleTemplate = typeof UpsertTeleTemplateDto.static
 
 export const PaginateTeleTemplateResDto = t.Object({
 	docs: t.Array(
@@ -64,14 +59,12 @@ export const PaginateTeleTemplateResDto = t.Object({
 	),
 	count: t.Integer(),
 })
-export type IPaginateTeleTemplateRes = typeof PaginateTeleTemplateResDto.static
 
 export const SendTemplateDto = t.Object({
 	telegramTemplateId: t.String(),
 	telegramChatIds: t.Array(t.String(), { minItems: 1 }),
 	telegramBotId: t.Optional(t.String()),
 })
-export type ISendTemplate = typeof SendTemplateDto.static
 
 export const SendTelegramMessageDto = t.Composite([
 	t.Omit(UpsertTeleTemplateDto, ['id', 'name', 'description']),

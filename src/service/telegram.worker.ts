@@ -1,6 +1,6 @@
 import { Job, Worker } from 'bullmq'
-import { ITelegramMessage, QUEUE } from '../../../common'
-import { env, logger } from '../../../config'
+import { ITelegramMessage, QUEUE } from '../common'
+import { env, logger } from '../config'
 import { telegramService } from './telegram.service'
 
 export const teleWorker = new Worker<ITelegramMessage, void>(
