@@ -7,9 +7,8 @@ import {
 	userResSelect,
 } from '../common'
 import { currentUserCache, db, logger } from '../config'
-import { tokenService } from './auth-util.service'
+import { tokenService, userUtilService } from './auth-util.service'
 import { ipWhitelistService } from './ip-whitelist.service'
-import { permissionService } from './permission.service'
 
 export const authCheck = (
 	app: Elysia<
@@ -61,7 +60,7 @@ export const authCheck = (
 					enabled: user.enabled,
 					created: user.created,
 					modified: user.modified,
-					permissions: await permissionService.getPermissions(user),
+					permissions: await userUtilService.getPermissions(user),
 				}
 
 				await currentUserCache.set(data.sessionId, currentUser)

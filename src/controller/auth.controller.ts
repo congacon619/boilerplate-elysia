@@ -36,7 +36,6 @@ import {
 	authCheck,
 	mfaUtilService,
 	passwordService,
-	permissionService,
 	sessionService,
 	settingService,
 	tokenService,
@@ -63,7 +62,10 @@ export const authController = new Elysia({
 	.post(
 		ROUTER.AUTH.LOGIN,
 		async ({ body: { username, password }, clientIp, userAgent }) => {
-			const user = await db.user.findUnique({ where: { username } })
+			const user = await db.user.findUnique({
+				where: { username },
+				include: { roles: true },
+			})
 			if (!user) {
 				throw new NotFoundException('exception.user-not-found')
 			}
@@ -143,6 +145,7 @@ export const authController = new Elysia({
 
 			const user = await db.user.findUnique({
 				where: { id: login.userId },
+				include: { roles: true },
 			})
 			if (!user || !user.enabled) {
 				throw new BadRequestException('exception.user-not-active')
@@ -175,7 +178,7 @@ export const authController = new Elysia({
 	)
 	.post(
 		ROUTER.AUTH.REGISTER,
-		async ({ body: { username, password }, clientIp, userAgent }) => {
+		async ({ body: { username, password } }) => {
 			const existingUser = await db.user.findFirst({
 				where: { username },
 				select: { id: true },
@@ -289,7 +292,7 @@ export const authController = new Elysia({
 				created: session.createdBy.created,
 				username: session.createdBy.username,
 				modified: session.createdBy.modified,
-				permissions: await permissionService.getPermissions(session.createdBy),
+				permissions: await userUtilService.getPermissions(session.createdBy),
 			}
 
 			return castToRes({

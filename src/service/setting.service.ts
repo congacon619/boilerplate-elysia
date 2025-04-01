@@ -12,7 +12,6 @@ import {
 	aes256Encrypt,
 } from '../common'
 import { db, settingCache } from '../config'
-import { IUpdateSetting } from '../type'
 
 export const settingService = {
 	async getValue<T>(setting: Setting, raw = false): Promise<T> {

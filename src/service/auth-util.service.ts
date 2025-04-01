@@ -10,6 +10,7 @@ import {
 	LOGIN_RES_TYPE,
 	LOGIN_WITH,
 	PREFIX,
+	UPermission,
 	aes256Decrypt,
 	aes256Encrypt,
 	isExpired,
@@ -134,8 +135,18 @@ export const tokenService = {
 }
 
 export const userUtilService = {
+	async getPermissions(user: { roles: { roleId: string }[] }): Promise<
+		UPermission[]
+	> {
+		const permissions = await db.rolePermission.findMany({
+			where: { roleId: { in: user.roles.map(x => x.roleId) } },
+			select: { permission: { select: { title: true } } },
+		})
+		return uniq(permissions.map(x => x.permission.title)) as UPermission[]
+	},
+
 	async completeLogin(
-		user: User,
+		user: User & { roles: { roleId: string }[] },
 		clientIp: string,
 		userAgent: string,
 	): Promise<ILoginRes> {
@@ -185,11 +196,6 @@ export const userUtilService = {
 			)
 		})
 
-		const roleUsers = await db.roleUser.findMany({
-			where: { userId: user.id },
-			select: { role: { select: { permissions: true } } },
-		})
-
 		const userRes = {
 			id: user.id,
 			mfaTelegramEnabled: user.mfaTelegramEnabled,
@@ -199,7 +205,7 @@ export const userUtilService = {
 			created: user.created,
 			username: user.username,
 			modified: user.modified,
-			permissions: uniq(roleUsers.flatMap(e => e.role.permissions)),
+			permissions: await userUtilService.getPermissions(user),
 		}
 
 		return {
