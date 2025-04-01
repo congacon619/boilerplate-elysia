@@ -24,18 +24,17 @@ import {
 } from './controller'
 import { permissionController } from './module/role/controller'
 import { roleController } from './module/role/controller/role.controller'
-import { startupService } from './module/startup'
 import {
 	telegramBotController,
 	telegramChatController,
 	telegramTemplateController,
 } from './module/telegram/controller'
+import { startupService } from './service'
 
 try {
 	await db.$connect()
 	logger.info('DB Connected successfully!')
-	await startupService.initRoleAndUser()
-	await startupService.initSettings()
+	await startupService.seed()
 
 	const app = new Elysia()
 		.use(rateLimit())

@@ -48,6 +48,7 @@ export const envSchema = t.Object({
 
 	SYSTEM_USERNAME: t.String(),
 	SYSTEM_PASSWORD: t.String(),
+	ADMIN_PASSWORD: t.String(),
 
 	SALT_LENGTH: t.Integer({ minimum: 8, maximum: 20, default: 10 }),
 	PASSWORD_MAX_ATTEMPT: t.Integer({ minimum: 1, maximum: 100, default: 5 }),
