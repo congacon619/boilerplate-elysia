@@ -346,6 +346,10 @@ export const DOC_DETAIL = {
 		description: 'ApiKey reset',
 		summary: 'ApiKey reset',
 	},
+	API_KEY_DEL: {
+		description: 'ApiKey delete',
+		summary: 'ApiKey delete',
+	},
 
 	SETTING_GET_ALL: {
 		description: 'Setting get all',
@@ -504,7 +508,6 @@ export enum HTTP_STATUS {
 export enum ACTIVITY_TYPE {
 	LOGIN = 'login',
 	LOGOUT = 'logout',
-	REGISTER = 'register',
 	CHANGE_PASSWORD = 'change-password',
 	SETUP_MFA = 'setup-mfa',
 
@@ -646,9 +649,10 @@ export const PERMISSIONS = {
 	API_KEY: {
 		VIEW: { roles: [defaultRoles.administrator.id, defaultRoles.user.id] },
 		VIEW_ALL: { roles: [defaultRoles.administrator.id] },
-		UPDATE: { roles: [defaultRoles.administrator.id] },
+		UPDATE: { roles: [defaultRoles.administrator.id, defaultRoles.user.id] },
 		UPDATE_ALL: { roles: [defaultRoles.administrator.id] },
 		DELETE: { roles: [defaultRoles.administrator.id, defaultRoles.user.id] },
+		DELETE_ALL: { roles: [defaultRoles.administrator.id] },
 	},
 }
 

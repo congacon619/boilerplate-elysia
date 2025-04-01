@@ -1,5 +1,5 @@
 import { API_KEY_TYPE, Prisma } from '@prisma/client'
-import { Elysia } from 'elysia'
+import { Elysia, t } from 'elysia'
 import {
 	ACTIVITY_TYPE,
 	DOC_DETAIL,
@@ -11,6 +11,7 @@ import {
 	PaginationReqDto,
 	ROUTER,
 	ResWrapper,
+	UnauthorizedException,
 	authErrors,
 	token12,
 	token16,
@@ -130,11 +131,7 @@ export const apiKeyController = new Elysia({
 				activityService.create(
 					ACTIVITY_TYPE.UPDATE_API_KEY,
 					{ id },
-					{
-						currentUser,
-						clientIp,
-						userAgent,
-					},
+					{ currentUser, clientIp, userAgent },
 				),
 			])
 			return castToRes(null)
@@ -175,11 +172,7 @@ export const apiKeyController = new Elysia({
 				activityService.create(
 					ACTIVITY_TYPE.UPDATE_API_KEY,
 					{ id },
-					{
-						currentUser,
-						clientIp,
-						userAgent,
-					},
+					{ currentUser, clientIp, userAgent },
 				),
 			])
 			return castToRes({ secret, key: apiKey.key })
@@ -193,6 +186,46 @@ export const apiKeyController = new Elysia({
 			},
 			response: {
 				200: ResWrapper(ResetApiKeyDto),
+				400: ErrorResDto,
+				...authErrors,
+			},
+		},
+	)
+	.post(
+		ROUTER.API_KEY.DEL,
+		async ({ body: { id }, currentUser, clientIp, userAgent }) => {
+			const apiKey = await db.apiKey.findUnique({
+				where: { id },
+				select: { userId: true },
+			})
+			if (!apiKey) {
+				throw new NotFoundException('exception.api-key-not-found')
+			}
+			if (
+				apiKey.userId !== currentUser.id &&
+				!currentUser.permissions.includes('API_KEY.DELETE_ALL')
+			) {
+				throw new UnauthorizedException('exception.forbidden')
+			}
+			await db.$transaction([
+				db.apiKey.delete({ where: { id } }),
+				activityService.create(
+					ACTIVITY_TYPE.DEL_API_KEY,
+					{ apiKeyId: id },
+					{ currentUser, clientIp, userAgent },
+				),
+			])
+			return castToRes(null)
+		},
+		{
+			body: IdDto,
+			beforeHandle: permissionCheck('API_KEY.DELETE'),
+			detail: {
+				...DOC_DETAIL.I18N_DEL,
+				security: [{ accessToken: [] }],
+			},
+			response: {
+				200: ResWrapper(t.Null()),
 				400: ErrorResDto,
 				...authErrors,
 			},

@@ -455,11 +455,7 @@ export const authController = new Elysia({
 				activityService.create(
 					ACTIVITY_TYPE.CHANGE_PASSWORD,
 					{},
-					{
-						currentUser,
-						clientIp,
-						userAgent,
-					},
+					{ currentUser, clientIp, userAgent },
 				),
 			])
 

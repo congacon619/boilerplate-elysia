@@ -130,7 +130,7 @@ export interface ActivityTypeMap extends Record<ACTIVITY_TYPE, object> {
 		id: string
 	}
 	[ACTIVITY_TYPE.DEL_API_KEY]: {
-		apiKeyIds: string[]
+		apiKeyId: string
 	}
 }
 
