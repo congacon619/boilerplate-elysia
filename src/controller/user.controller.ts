@@ -9,9 +9,9 @@ import {
 	NotFoundException,
 	PERMISSION,
 	PREFIX,
-	PaginationReqDto,
 	ROUTER,
 	ResWrapper,
+	SYS_USER_ID,
 	authErrors,
 	token12,
 } from '../common'
@@ -33,43 +33,37 @@ export const userController = new Elysia({
 	.use(authCheck)
 	.get(
 		'/',
-		async ({ query: { take, skip } }) => {
-			const [docs, count] = await Promise.all([
-				db.user.findMany({
-					orderBy: { created: 'desc' },
-					take,
-					skip,
-					select: {
-						id: true,
-						enabled: true,
-						created: true,
-						username: true,
-						modified: true,
-						mfaTelegramEnabled: true,
-						mfaTotpEnabled: true,
-						telegramUsername: true,
-						protected: true,
-						sessions: {
-							take: 1,
-							orderBy: { created: 'desc' },
-							select: { created: true },
-						},
-						roleUsers: {
-							select: { role: { select: { name: true, id: true } } },
-						},
+		async () => {
+			const users = await db.user.findMany({
+				where: { id: { notIn: [SYS_USER_ID] } },
+				select: {
+					id: true,
+					username: true,
+					enabled: true,
+					created: true,
+					modified: true,
+					mfaTelegramEnabled: true,
+					telegramUsername: true,
+					mfaTotpEnabled: true,
+					roles: {
+						select: { role: true },
 					},
-				}),
-				db.user.count(),
-			])
-
-			return castToRes({
-				docs,
-				count,
+					sessions: {
+						take: 1,
+						orderBy: { created: 'desc' },
+						select: { created: true },
+					},
+				},
 			})
+			return castToRes(
+				users.map(({ roles, ...user }) => ({
+					...user,
+					roles: roles.map(r => r.role),
+				})),
+			)
 		},
 		{
 			beforeHandle: permissionCheck(PERMISSION.USER_VIEW),
-			query: PaginationReqDto,
 			detail: {
 				...DOC_DETAIL.USER_PAGINATE,
 				security: [{ accessToken: [] }],
@@ -100,49 +94,41 @@ export const userController = new Elysia({
 				throw new AppException(
 					'exception.item-exists',
 					HTTP_STATUS.HTTP_409_CONFLICT,
-					{
-						args: { item: `Username ${username} ` },
-					},
+					{ args: { item: `Username ${username} ` } },
 				)
 			}
 
 			if (id) {
 				const existUser = await db.user.findUnique({
 					where: { id },
-					select: { protected: true },
+					select: { id: true },
 				})
 				if (!existUser) {
 					throw new NotFoundException('exception.item-not-found', {
 						args: { item: `User with id ${id}` },
 					})
 				}
-				if (existUser.protected) {
-					throw new AppException('exception.document-protected')
-				}
 
 				const data: Prisma.UserUpdateInput = {
 					username,
 					enabled,
-					roleUsers: {
-						deleteMany: { roleId: { notIn: roleIds } },
-						connectOrCreate: roleIds.map(roleId => ({
-							where: { roleId_userId: { roleId, userId: id } },
-							create: {
-								roleId,
-								id: token12(PREFIX.ROLE_USER),
-							},
-						})),
+					roles: {
+						deleteMany: {
+							playerId: id,
+							roleId: { notIn: roleIds },
+						},
+						createMany: {
+							skipDuplicates: true,
+							data: roleIds.map(roleId => ({ roleId, id: token12() })),
+						},
 					},
 				}
 				if (password) {
-					const {
-						passwordExpired,
-						password: passwordHash,
-						passwordCreated,
-					} = await passwordService.createPassword(password)
-					data.password = passwordHash
-					data.passwordExpired = passwordExpired
-					data.passwordCreated = passwordCreated
+					const p = await passwordService.createPassword(password)
+					data.password = p.password
+					data.passwordExpired = p.passwordExpired
+					data.passwordCreated = p.passwordCreated
+					data.passwordAttempt = p.passwordAttempt
 				}
 
 				await db.$transaction([
@@ -172,13 +158,11 @@ export const userController = new Elysia({
 							id: token12(PREFIX.USER),
 							username,
 							enabled,
-							protected: false,
 							...(await passwordService.createPassword(password)),
-							roleUsers: {
-								create: roleIds.map(id => ({
-									roleId: id,
-									id: token12(PREFIX.ROLE_USER),
-								})),
+							roles: {
+								createMany: {
+									data: roleIds.map(roleId => ({ roleId, id: token12() })),
+								},
 							},
 						},
 						select: { id: true },

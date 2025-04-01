@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import { Elysia, t } from 'elysia'
 import { seconds } from 'itty-time'
-import { compact, uniq } from 'lodash'
+import { compact } from 'lodash'
 import {
 	ACTIVITY_TYPE,
 	BadRequestException,
@@ -14,7 +14,6 @@ import {
 	MFA_METHOD,
 	NotFoundException,
 	PREFIX,
-	ROLE_NAME,
 	ROUTER,
 	ResWrapper,
 	UnauthorizedException,
@@ -22,6 +21,7 @@ import {
 	isExpired,
 	token12,
 	token16,
+	userResSelect,
 } from '../common'
 import {
 	castToRes,
@@ -36,6 +36,7 @@ import {
 	authCheck,
 	mfaUtilService,
 	passwordService,
+	permissionService,
 	sessionService,
 	settingService,
 	tokenService,
@@ -179,16 +180,8 @@ export const authController = new Elysia({
 				where: { username },
 				select: { id: true },
 			})
-
 			if (existingUser) {
 				throw new BadRequestException('exception.user-existed')
-			}
-			const userRole = await db.role.findFirst({
-				where: { name: ROLE_NAME.USER },
-				select: { id: true },
-			})
-			if (!userRole) {
-				throw new NotFoundException('exception.user-role-not-found')
 			}
 			await db.user.create({
 				data: {
@@ -246,18 +239,7 @@ export const authController = new Elysia({
 					revoked: true,
 					id: true,
 					expired: true,
-					createdBy: {
-						select: {
-							mfaTelegramEnabled: true,
-							enabled: true,
-							id: true,
-							mfaTotpEnabled: true,
-							telegramUsername: true,
-							created: true,
-							username: true,
-							modified: true,
-						},
-					},
+					createdBy: { select: userResSelect },
 				},
 			})
 
@@ -298,11 +280,6 @@ export const authController = new Elysia({
 			const { accessToken, expirationTime } =
 				await tokenService.createAccessToken(payload)
 
-			const roleUsers = await db.roleUser.findMany({
-				where: { userId: session.createdBy.id },
-				select: { role: { select: { permissions: true } } },
-			})
-
 			const user = {
 				id: session.createdBy.id,
 				mfaTelegramEnabled: session.createdBy.mfaTelegramEnabled,
@@ -312,7 +289,7 @@ export const authController = new Elysia({
 				created: session.createdBy.created,
 				username: session.createdBy.username,
 				modified: session.createdBy.modified,
-				permissions: uniq(roleUsers.flatMap(e => e.role.permissions)),
+				permissions: await permissionService.getPermissions(session.createdBy),
 			}
 
 			return castToRes({
@@ -375,16 +352,11 @@ export const authController = new Elysia({
 					mfaTotpEnabled: true,
 					totpSecret: true,
 					telegramUsername: true,
-					protected: true,
 				},
 			})
 
 			if (!user) {
 				throw new NotFoundException('exception.user-not-found')
-			}
-
-			if (user.protected) {
-				throw new NotFoundException('exception.document-protected')
 			}
 
 			if (

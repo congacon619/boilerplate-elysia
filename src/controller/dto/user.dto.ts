@@ -76,33 +76,29 @@ export const ChangePasswordConfirm = t.Object({
 	mfaToken: t.Optional(t.String()),
 	otp: t.Optional(t.String()),
 })
-export type IChangePasswordConfirm = typeof ChangePasswordConfirm.static
 
-export const PaginateUserResDto = t.Object({
-	docs: t.Array(
-		t.Intersect([
-			t.Omit(UserResDto, ['permissions']),
-			t.Object({
-				protected: t.Boolean(),
-				roleUsers: t.Array(
-					t.Object({
-						role: t.Object({
-							name: t.String(),
-							id: t.String(),
-						}),
-					}),
-				),
-				sessions: t.Array(
-					t.Object({
-						created: t.Date({ format: 'date-time' }),
-					}),
-				),
-			}),
-		]),
-	),
-	count: t.Integer(),
-})
-export type IPaginateUserRes = typeof PaginateUserResDto.static
+export const PaginateUserResDto = t.Array(
+	t.Intersect([
+		t.Omit(UserResDto, ['permissions']),
+		t.Object({
+			roles: t.Array(
+				t.Object({
+					id: t.String(),
+					title: t.String(),
+					description: t.Nullable(t.String()),
+					enabled: t.Boolean(),
+					created: t.Date({ format: 'date-time' }),
+					modified: t.Date({ format: 'date-time' }),
+				}),
+			),
+			sessions: t.Array(
+				t.Object({
+					created: t.Date({ format: 'date-time' }),
+				}),
+			),
+		}),
+	]),
+)
 
 export const UserUpsertDto = t.Object({
 	id: t.Optional(t.String()),

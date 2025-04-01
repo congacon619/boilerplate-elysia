@@ -5,7 +5,8 @@ import {
 	ReplyKeyboardMarkup,
 	ReplyKeyboardRemove,
 } from 'node-telegram-bot-api'
-import { ACTIVITY_TYPE, LOGIN_WITH, MFA_METHOD } from '../constant'
+import { Paths } from 'type-fest'
+import { ACTIVITY_TYPE, LOGIN_WITH, MFA_METHOD, PERMISSIONS } from '../constant'
 
 export interface IReqMeta extends Record<string, unknown> {
 	id: string
@@ -147,3 +148,7 @@ export interface IUserMeta {
 	password: string
 	totpSecret?: string | null
 }
+
+export type PermissionKey = Paths<typeof PERMISSIONS, { maxRecursionDepth: 1 }>
+export type ValidPermissionKey<T> = T extends `${string}.${string}` ? T : never
+export type UPermission = ValidPermissionKey<PermissionKey>

@@ -1,3 +1,6 @@
+import { SETTING_DATA_TYPE } from '@prisma/client'
+import dayjs from 'dayjs'
+
 // region app
 export enum LANG {
 	VI = 'vi',
@@ -25,12 +28,8 @@ export enum LOG_LEVEL {
 
 export enum SETTING {
 	MAINTENANCE_END_DATE = 'MAINTENANCE_END_DATE',
-
 	ENB_PASSWORD_ATTEMPT = 'ENB_PASSWORD_ATTEMPT',
 	ENB_PASSWORD_EXPIRED = 'ENB_PASSWORD_EXPIRED',
-
-	ENB_JWT_PAYLOAD_ENCRYPT = 'ENB_JWT_PAYLOAD_ENCRYPT',
-
 	ENB_MFA_REQUIRED = 'ENB_MFA_REQUIRED',
 	ENB_IP_WHITELIST = 'ENB_IP_WHITELIST',
 	ENB_ONLY_ONE_SESSION = 'ENB_ONLY_ONE_SESSION',
@@ -54,18 +53,18 @@ export const REGEX_HTTP_METHOD = `^(${Object.values(HTTP_METHOD).join('|')})(,($
 
 // region db
 export enum PREFIX {
-	SESSION = 'session',
-	USER = 'user',
-	ROLE_USER = 'role_user',
-	ROLE = 'role',
+	SESSION = 'sess',
+	USER = 'usr',
+	ROLE = 'rl',
 	I18N = 'i18n',
-	API_KEY = 'api_key',
-	ACTIVITY = 'activity',
-	IP_WHITELIST = 'ip_whitelist',
-	SETTING = 'setting',
-	TELEGRAM_BOT = 'tele_bot',
-	TELEGRAM_CHAT = 'tele_chat',
-	TELEGRAM_TEMPLATE = 'tele_template',
+	API_KEY = 'key',
+	ACTIVITY = 'act',
+	IP_WHITELIST = 'ipw',
+	SETTING = 'set',
+	TELEGRAM_BOT = 'tbot',
+	TELEGRAM_CHAT = 'tchat',
+	TELEGRAM_TEMPLATE = 'ttpl',
+	PERMISSION = 'perm',
 }
 
 // region role permissions
@@ -590,4 +589,125 @@ export enum ACTIVITY_TYPE {
 export enum HEALTH_STATE {
 	ERROR = 'error',
 	OK = 'ok',
+}
+
+export const SYS_USER_ID = 'usr_xs6ua3wp0rtm'
+export const SYS_USERNAME = 'system'
+export const ADMIN_USER_ID = 'usr_a8bpd742rslg'
+export const ADMIN_USERNAME = 'admin'
+
+export const defaultRoles: Record<
+	string,
+	{ id: string; title: string; description: string }
+> = {
+	system: {
+		id: 'rl_m8jgrcy4y0yf',
+		title: 'System',
+		description: 'System role',
+	},
+	administrator: {
+		id: 'rl_x4tu1hzoh13g',
+		title: 'Administrator',
+		description: 'Administrator role',
+	},
+	user: { id: 'rl_sabb8hc2pqmd', title: 'User', description: 'User role' },
+}
+
+export const defaultSettings: Record<
+	SETTING,
+	{ value: string; type: SETTING_DATA_TYPE }
+> = {
+	[SETTING.ENB_IP_WHITELIST]: {
+		type: SETTING_DATA_TYPE.BOOLEAN,
+		value: 'true',
+	},
+	[SETTING.MAINTENANCE_END_DATE]: {
+		type: SETTING_DATA_TYPE.DATE,
+		value: dayjs(0).toJSON(),
+	},
+	[SETTING.ENB_PASSWORD_ATTEMPT]: {
+		type: SETTING_DATA_TYPE.BOOLEAN,
+		value: 'false',
+	},
+	[SETTING.ENB_PASSWORD_EXPIRED]: {
+		type: SETTING_DATA_TYPE.BOOLEAN,
+		value: 'false',
+	},
+	[SETTING.ENB_MFA_REQUIRED]: {
+		type: SETTING_DATA_TYPE.BOOLEAN,
+		value: 'false',
+	},
+	[SETTING.ENB_ONLY_ONE_SESSION]: {
+		type: SETTING_DATA_TYPE.BOOLEAN,
+		value: 'false',
+	},
+}
+
+export const PERMISSIONS = {
+	ACTIVITY: {
+		VIEW: { roles: [defaultRoles.administrator.id, defaultRoles.user.id] },
+		VIEW_ALL: { roles: [defaultRoles.administrator.id] },
+	},
+	FILE: {
+		UPLOAD: { roles: [defaultRoles.administrator.id] },
+	},
+	SESSION: {
+		VIEW: { roles: [defaultRoles.administrator.id, defaultRoles.user.id] },
+		VIEW_ALL: { roles: [defaultRoles.administrator.id] },
+		REVOKE: { roles: [defaultRoles.administrator.id, defaultRoles.user.id] },
+		REVOKE_ALL: { roles: [defaultRoles.administrator.id] },
+	},
+	SETTING: {
+		VIEW: { roles: [defaultRoles.administrator.id, defaultRoles.user.id] },
+		UPDATE: { roles: [defaultRoles.administrator.id] },
+	},
+	I18N: {
+		VIEW: { roles: [defaultRoles.administrator.id] },
+		UPDATE: { roles: [defaultRoles.administrator.id] },
+		DELETE: { roles: [defaultRoles.administrator.id] },
+	},
+	IPWHITELIST: {
+		VIEW: { roles: [defaultRoles.administrator.id] },
+		CREATE: { roles: [defaultRoles.administrator.id] },
+		DELETE: { roles: [defaultRoles.administrator.id] },
+	},
+	USER: {
+		VIEW: { roles: [defaultRoles.administrator.id] },
+		UPDATE: { roles: [defaultRoles.administrator.id] },
+		RESET_MFA: { roles: [defaultRoles.administrator.id] },
+	},
+	ROLE: {
+		VIEW: { roles: [defaultRoles.administrator.id] },
+		UPDATE: { roles: [defaultRoles.administrator.id] },
+		DELETE: { roles: [defaultRoles.administrator.id] },
+	},
+	TELE_BOT: {
+		VIEW: { roles: [defaultRoles.administrator.id] },
+		UPDATE: { roles: [defaultRoles.administrator.id] },
+		DELETE: { roles: [defaultRoles.administrator.id] },
+	},
+	TELE_CHAT: {
+		VIEW: { roles: [defaultRoles.administrator.id] },
+		UPDATE: { roles: [defaultRoles.administrator.id] },
+		DELETE: { roles: [defaultRoles.administrator.id] },
+	},
+	TELE_TEMPLATE: {
+		VIEW: { roles: [defaultRoles.administrator.id] },
+		UPDATE: { roles: [defaultRoles.administrator.id] },
+		DELETE: { roles: [defaultRoles.administrator.id] },
+		SEND: { roles: [defaultRoles.administrator.id] },
+	},
+	API_KEY: {
+		VIEW: {
+			roles: [defaultRoles.administrator.id, defaultRoles.user.id],
+		},
+		VIEW_ALL: { roles: [defaultRoles.administrator.id] },
+		UPDATE: { roles: [defaultRoles.administrator.id] },
+		DELETE: { roles: [defaultRoles.administrator.id] },
+	},
+}
+
+export enum TF_TYPE {
+	HOUR = 'HOUR',
+	DAY = 'DAY',
 }
