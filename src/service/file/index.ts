@@ -1,5 +1,5 @@
-import { logger } from '../../../config'
-import { IStorageBackend } from '../type'
+import { IStorageBackend } from '../../common'
+import { logger } from '../../config'
 import { FileStorageBackend } from './file.storage'
 import { S3StorageBackend } from './s3.storage'
 

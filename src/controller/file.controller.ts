@@ -5,8 +5,8 @@ import {
 	ErrorResDto,
 	ROUTER,
 	ResWrapper,
-} from '../../../common'
-import { castToRes } from '../../../config'
+} from '../common'
+import { castToRes } from '../config'
 import { storageBackend } from '../service'
 
 export const fileController = new Elysia({

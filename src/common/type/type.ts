@@ -152,3 +152,16 @@ export interface IUserMeta {
 export type PermissionKey = Paths<typeof PERMISSIONS, { maxRecursionDepth: 1 }>
 export type ValidPermissionKey<T> = T extends `${string}.${string}` ? T : never
 export type UPermission = ValidPermissionKey<PermissionKey>
+
+export interface IStorageBackend {
+	upload(file: File): Promise<string>
+	download(filename: string): Promise<IDownloadRes>
+}
+
+export interface IDownloadRes {
+	content: Blob
+	contentType: {
+		mime: string
+		ext: string
+	}
+}

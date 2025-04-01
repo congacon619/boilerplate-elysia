@@ -1,9 +1,13 @@
 import path from 'node:path'
 import { S3Client } from 'bun'
 import { extension, lookup } from 'mime-types'
-import { BadRequestException, token16 } from '../../../common'
-import { env } from '../../../config'
-import { IDownloadRes, IStorageBackend } from '../type'
+import {
+	BadRequestException,
+	IDownloadRes,
+	IStorageBackend,
+	token16,
+} from '../../common'
+import { env } from '../../config'
 
 export class S3StorageBackend implements IStorageBackend {
 	private s3: S3Client

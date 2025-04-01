@@ -1,8 +1,13 @@
 import path from 'node:path'
 import { extension, lookup } from 'mime-types'
-import { APP_ENV, BadRequestException, token16 } from '../../../common'
-import { env } from '../../../config'
-import { IDownloadRes, IStorageBackend } from '../type'
+import {
+	APP_ENV,
+	BadRequestException,
+	IDownloadRes,
+	IStorageBackend,
+	token16,
+} from '../../common'
+import { env } from '../../config'
 
 export class FileStorageBackend implements IStorageBackend {
 	private readonly imageDir: string
