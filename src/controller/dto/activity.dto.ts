@@ -15,7 +15,6 @@ export const ActivityPaginateDto = t.Object({
 		example: '2023-10-10T23:59:59.999Z',
 	}),
 })
-export type IActivityPaginate = typeof ActivityPaginateDto.static
 
 export const ActivityPagingResDto = t.Object({
 	docs: t.Array(
@@ -34,4 +33,3 @@ export const ActivityPagingResDto = t.Object({
 	hasNext: t.Boolean(),
 	nextCursor: t.Optional(t.String()),
 })
-export type IActivityPagingRes = typeof ActivityPagingResDto.static

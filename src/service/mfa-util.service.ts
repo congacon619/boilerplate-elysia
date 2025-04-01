@@ -1,7 +1,7 @@
 import { authenticator, totp } from 'otplib'
-import { AppException, token16 } from '../../../common'
-import { mfaCache, mfaSetupCache } from '../../../config'
-import { MFA_METHOD } from '../constant'
+import { AppException, MFA_METHOD, token16 } from '../common'
+import { mfaCache, mfaSetupCache } from '../config'
+import { telegramService } from '../module/telegram/service'
 
 interface IUserMFA {
 	mfaTotpEnabled: boolean
@@ -47,11 +47,10 @@ export const mfaUtilService = {
 				referenceToken,
 			})
 
-			// todo: send message
-			// await telegramService.jobSendMessage({
-			// 	chatIds: [user.telegramUsername],
-			// 	message: `Your OTP is: ${otp}`,
-			// })
+			await telegramService.sendMessage({
+				chatIds: [user.telegramUsername],
+				message: `Your OTP is: ${otp}`,
+			})
 			return sessionId
 		}
 		throw new AppException('exception.mfa-broken')

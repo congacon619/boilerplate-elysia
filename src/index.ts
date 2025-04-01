@@ -8,8 +8,12 @@ import { rateLimit } from 'elysia-rate-limit'
 import { elysiaXSS } from 'elysia-xss'
 import { elysiaHelmet } from 'elysiajs-helmet'
 import { db, env, httpError, logger, swaggerConfig } from './config'
-import { authController, mfaController, userController } from './controller'
-import { activityController } from './module/activity/controller'
+import {
+	activityController,
+	authController,
+	mfaController,
+	userController,
+} from './controller'
 import { apiKeyController } from './module/api-key/controller'
 import { captchaController } from './module/captcha/controller'
 import { fileController } from './module/file/controller'

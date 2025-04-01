@@ -5,7 +5,6 @@ export const LoginDto = t.Object({
 	username: t.String({ minLength: 1 }),
 	password: t.String({ minLength: 1 }),
 })
-export type ILogin = typeof LoginDto.static
 
 export const UserResDto = t.Object({
 	id: t.String(),
@@ -131,29 +130,24 @@ export const MfaSetupResDto = t.Object({
 	mfaToken: t.String(),
 	totpSecret: t.Optional(t.String()),
 })
-export type IMfaSetupRes = typeof MfaSetupResDto.static
 
 export const MfaConfirmDto = t.Object({
 	mfaToken: t.String(),
 	otp: t.String(),
 })
-export type IMfaConfirm = typeof MfaConfirmDto.static
 
 export const MfaResetDto = t.Object({
 	method: t.Enum(MFA_METHOD),
 	userIds: t.Array(t.String()),
 })
-export type IMfaReset = typeof MfaResetDto.static
 
 export const MfaResetResDto = t.Object({
 	mfaToken: t.String(),
 	token: t.String(),
 })
-export type IMfaResetRes = typeof MfaResetResDto.static
 
 export const MfaResetConfirmDto = t.Object({
 	mfaToken: t.String(),
 	otp: t.String(),
 	token: t.String(),
 })
-export type IMfaResetConfirm = typeof MfaResetConfirmDto.static
