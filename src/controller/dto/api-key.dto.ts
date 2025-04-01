@@ -7,7 +7,6 @@ export const UpsertApiKeyDto = t.Object({
 	name: t.String(),
 	enabled: t.Boolean(),
 })
-export type IUpsertApiKey = typeof UpsertApiKeyDto.static
 
 export const PaginateApiKeyResDto = t.Object({
 	docs: t.Array(
@@ -25,11 +24,10 @@ export const PaginateApiKeyResDto = t.Object({
 	),
 	count: t.Integer(),
 })
-export type IPaginateApiKeyRes = typeof PaginateApiKeyResDto.static
 
 export const ResetApiKeyDto = t.Object({
 	secret: t.String(),
 	key: t.String(),
 })
 
-export const UpsertApiKeyResDto = t.Optional(ResetApiKeyDto)
+export const UpsertApiKeyResDto = t.Union([ResetApiKeyDto, t.Null()])

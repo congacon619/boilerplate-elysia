@@ -10,11 +10,11 @@ import { elysiaHelmet } from 'elysiajs-helmet'
 import { db, env, httpError, logger, swaggerConfig } from './config'
 import {
 	activityController,
+	apiKeyController,
 	authController,
 	mfaController,
 	userController,
 } from './controller'
-import { apiKeyController } from './module/api-key/controller'
 import { captchaController } from './module/captcha/controller'
 import { fileController } from './module/file/controller'
 import { i18nController } from './module/i18n/controller'
