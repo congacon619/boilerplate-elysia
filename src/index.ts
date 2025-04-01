@@ -18,12 +18,12 @@ import {
 	ipWhitelistController,
 	mfaController,
 	miscController,
+	permissionController,
+	roleController,
 	sessionController,
 	settingController,
 	userController,
 } from './controller'
-import { permissionController } from './module/role/controller'
-import { roleController } from './module/role/controller/role.controller'
 import {
 	telegramBotController,
 	telegramChatController,

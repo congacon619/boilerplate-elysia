@@ -14,7 +14,6 @@ export const SessionPaginateDto = t.Object({
 		example: '2023-10-10T23:59:59.999Z',
 	}),
 })
-export type ISessionPaginate = typeof SessionPaginateDto.static
 
 export const SessionPagingResDto = t.Object({
 	docs: t.Array(
@@ -30,4 +29,3 @@ export const SessionPagingResDto = t.Object({
 	hasNext: t.Boolean(),
 	nextCursor: t.Optional(t.String()),
 })
-export type ISessionPagingRes = typeof SessionPagingResDto.static

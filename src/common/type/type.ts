@@ -69,14 +69,14 @@ export interface ActivityTypeMap extends Record<ACTIVITY_TYPE, object> {
 	}
 	[ACTIVITY_TYPE.CREATE_ROLE]: {
 		id: string
-		description: string
+		description: string | null
 		title: string
 		permissionIds: string[]
 		playerIds: string[]
 	}
 	[ACTIVITY_TYPE.UPDATE_ROLE]: {
 		id: string
-		description: string
+		description: string | null
 		title: string
 		permissionIds: string[]
 		playerIds: string[]
