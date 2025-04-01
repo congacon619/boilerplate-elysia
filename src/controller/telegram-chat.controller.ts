@@ -4,16 +4,16 @@ import {
 	DOC_OPTIONS,
 	ErrorResDto,
 	IdsDto,
-	PERMISSION,
+	PREFIX,
 	PaginationReqDto,
 	ROUTER,
 	ResWrapper,
 	authErrors,
-} from '../../../common'
-import { castToRes, reqMeta } from '../../../config'
-import { authCheck, permissionCheck } from '../../user/auth.middleware'
-import { telegramChatService } from '../service'
-import { PaginateTeleChatResDto, UpsertTeleChatDto } from '../type'
+	token12,
+} from '../common'
+import { castToRes, db, reqMeta } from '../config'
+import { authCheck, permissionCheck } from '../service'
+import { PaginateTeleChatResDto, UpsertTeleChatDto } from './dto'
 
 export const telegramChatController = new Elysia({
 	name: 'TelegramChatController',
@@ -24,9 +24,21 @@ export const telegramChatController = new Elysia({
 	.use(authCheck)
 	.get(
 		'/',
-		async ({ query }) => castToRes(await telegramChatService.paginate(query)),
+		async ({ query: { take, skip } }) => {
+			const [docs, count] = await Promise.all([
+				db.telegramChat.findMany({
+					take,
+					skip,
+				}),
+				db.telegramChat.count(),
+			])
+			return castToRes({
+				docs,
+				count,
+			})
+		},
 		{
-			beforeHandle: permissionCheck(PERMISSION.TELEGRAM_CHAT_VIEW),
+			beforeHandle: permissionCheck('TELE_CHAT.VIEW'),
 			query: PaginationReqDto,
 			detail: {
 				...DOC_DETAIL.TELE_CHAT_PAGINATE,
@@ -40,16 +52,33 @@ export const telegramChatController = new Elysia({
 	)
 	.post(
 		'/',
-		async ({ body }) => castToRes(await telegramChatService.upsert(body)),
+		async ({ body }) => {
+			if (body.id) {
+				await db.telegramChat.update({
+					where: { id: body.id },
+					data: body,
+					select: { id: true },
+				})
+			} else {
+				await db.telegramChat.create({
+					data: {
+						...body,
+						id: token12(PREFIX.TELEGRAM_CHAT),
+					},
+					select: { id: true },
+				})
+			}
+			return castToRes(null)
+		},
 		{
 			body: UpsertTeleChatDto,
-			beforeHandle: permissionCheck(PERMISSION.TELEGRAM_CHAT_UPDATE),
+			beforeHandle: permissionCheck('TELE_CHAT.UPDATE'),
 			detail: {
 				...DOC_DETAIL.TELE_CHAT_UPSERT,
 				security: [{ accessToken: [] }],
 			},
 			response: {
-				200: ResWrapper(t.Void()),
+				200: ResWrapper(t.Null()),
 				400: ErrorResDto,
 				...authErrors,
 			},
@@ -57,16 +86,21 @@ export const telegramChatController = new Elysia({
 	)
 	.post(
 		ROUTER.TELEGRAM_CHAT.DEL,
-		async ({ body }) => castToRes(await telegramChatService.del(body.ids)),
+		async ({ body: { ids } }) => {
+			await db.telegramChat.deleteMany({
+				where: { id: { in: ids } },
+			})
+			return castToRes(null)
+		},
 		{
 			body: IdsDto,
-			beforeHandle: permissionCheck(PERMISSION.TELEGRAM_CHAT_DELETE),
+			beforeHandle: permissionCheck('TELE_CHAT.DELETE'),
 			detail: {
 				...DOC_DETAIL.TELE_CHAT_DEL,
 				security: [{ accessToken: [] }],
 			},
 			response: {
-				200: ResWrapper(t.Void()),
+				200: ResWrapper(t.Null()),
 				400: ErrorResDto,
 				...authErrors,
 			},
