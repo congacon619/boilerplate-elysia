@@ -1,17 +1,7 @@
-import { IPWhitelist } from '@prisma/client'
 import { inRange, isIP, isPrivateIP, isRange } from 'range_check'
-import {
-	ACTIVITY_TYPE,
-	IReqMeta,
-	PREFIX,
-	UnauthorizedException,
-	token12,
-} from '../../../common'
-import { db, ipWhitelistCache, logger } from '../../../config'
-import { activityService } from '../../activity/service'
-import { settingService } from '../../setting/service'
-import { IUserMeta } from '../../user/type'
-import { ICreateIpWhitelist } from '../type'
+import { PREFIX, UnauthorizedException, token12 } from '../common'
+import { db, ipWhitelistCache, logger } from '../config'
+import { settingService } from './setting.service'
 
 export const ipWhitelistService = {
 	canIPAccess(ip: string, whitelist: string[]): boolean {
@@ -56,40 +46,5 @@ export const ipWhitelistService = {
 			)
 			throw new UnauthorizedException('exception.permission-denied')
 		}
-	},
-
-	getAll(): Promise<IPWhitelist[]> {
-		return db.iPWhitelist.findMany()
-	},
-
-	async create(
-		{ ip, note }: ICreateIpWhitelist,
-		user: IUserMeta,
-		meta: IReqMeta,
-	): Promise<void> {
-		await db.$transaction([
-			db.iPWhitelist.create({
-				data: { ip, id: token12(PREFIX.IP_WHITELIST), note },
-				select: { id: true },
-			}),
-			activityService.create({
-				type: ACTIVITY_TYPE.CREATE_IP_WHITELIST,
-				user,
-				meta,
-			}),
-		])
-		await ipWhitelistCache.delete('IPS')
-	},
-
-	async del(ids: string[], user: IUserMeta, meta: IReqMeta): Promise<void> {
-		await db.$transaction([
-			db.iPWhitelist.deleteMany({ where: { id: { in: ids } } }),
-			activityService.create({
-				type: ACTIVITY_TYPE.DEL_IP_WHITELIST,
-				user,
-				meta,
-			}),
-		])
-		await ipWhitelistCache.delete('IPS')
 	},
 }

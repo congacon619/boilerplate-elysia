@@ -12,13 +12,13 @@ import {
 	activityController,
 	apiKeyController,
 	authController,
+	ipWhitelistController,
 	mfaController,
 	userController,
 } from './controller'
 import { captchaController } from './module/captcha/controller'
 import { fileController } from './module/file/controller'
 import { i18nController } from './module/i18n/controller'
-import { ipWhitelistController } from './module/ip-whitelist/controller'
 import { miscController } from './module/misc/controller'
 import { permissionController } from './module/role/controller'
 import { roleController } from './module/role/controller/role.controller'

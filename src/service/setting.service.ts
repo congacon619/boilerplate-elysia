@@ -10,10 +10,8 @@ import {
 	SETTING,
 	aes256Decrypt,
 	aes256Encrypt,
-} from '../../../common'
-import { db, settingCache } from '../../../config'
-import { activityService } from '../../activity/service'
-import { IUserMeta } from '../../user/type'
+} from '../common'
+import { db, settingCache } from '../config'
 import { IUpdateSetting } from '../type'
 
 export const settingService = {
