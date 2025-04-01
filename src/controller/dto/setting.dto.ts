@@ -13,4 +13,3 @@ export const UpdateSettingDto = t.Object({
 	value: t.String(),
 	encrypted: t.Boolean(),
 })
-export type IUpdateSetting = typeof UpdateSettingDto.static

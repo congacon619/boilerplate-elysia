@@ -15,6 +15,7 @@ import {
 	captchaController,
 	ipWhitelistController,
 	mfaController,
+	settingController,
 	userController,
 } from './controller'
 import { fileController } from './module/file/controller'
@@ -23,7 +24,6 @@ import { miscController } from './module/misc/controller'
 import { permissionController } from './module/role/controller'
 import { roleController } from './module/role/controller/role.controller'
 import { sessionController } from './module/session/controller'
-import { settingController } from './module/setting/controller'
 import { startupService } from './module/startup'
 import {
 	telegramBotController,

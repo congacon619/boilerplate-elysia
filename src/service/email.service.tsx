@@ -1,5 +1,5 @@
-import { env, resend } from '../../config'
-import OTPEmail from '../../emails/otp'
+import { env, resend } from '../config'
+import OTPEmail from '../emails/otp'
 
 export const emailService = {
 	async sendOtpEmail(email: string, otp: string) {

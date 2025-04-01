@@ -2,15 +2,7 @@ import { SETTING_DATA_TYPE, Setting } from '@prisma/client'
 import { Type } from '@sinclair/typebox'
 import { Value } from '@sinclair/typebox/value'
 import { isNil } from 'lodash'
-import {
-	ACTIVITY_TYPE,
-	BadRequestException,
-	IReqMeta,
-	NotFoundException,
-	SETTING,
-	aes256Decrypt,
-	aes256Encrypt,
-} from '../common'
+import { SETTING, aes256Decrypt } from '../common'
 import { db, settingCache } from '../config'
 
 export const settingService = {
@@ -38,62 +30,6 @@ export const settingService = {
 			default:
 				return value as T
 		}
-	},
-
-	async getAll(): Promise<Setting[]> {
-		const settings = await db.setting.findMany()
-
-		return await Promise.all(
-			settings.map(async x => {
-				if (x.encrypted) {
-					try {
-						x.value = await aes256Decrypt(x.value)
-					} catch {}
-				}
-				return x
-			}),
-		)
-	},
-
-	async update(
-		id: string,
-		{ value, encrypted }: IUpdateSetting,
-		user: IUserMeta,
-		meta: IReqMeta,
-	): Promise<void> {
-		const setting = await db.setting.findUnique({
-			where: { id },
-			select: { value: true, type: true },
-		})
-		if (!setting) {
-			throw new NotFoundException('exception.item-not-found', {
-				args: { item: `Setting with id ${id}` },
-			})
-		}
-		if (!settingService.checkValue(value, setting.type)) {
-			throw new BadRequestException('exception.bad-request')
-		}
-		const newValue = encrypted ? await aes256Encrypt(value) : value
-		const updated = await db.$transaction(async tx => {
-			const res = await tx.setting.update({
-				where: { id },
-				data: {
-					value: newValue,
-					encrypted,
-				},
-			})
-			await activityService.create(
-				{
-					type: ACTIVITY_TYPE.UPDATE_SETTING,
-					meta,
-					user,
-					reference: { id },
-				},
-				tx,
-			)
-			return res
-		})
-		await settingCache.set(updated.key, await settingService.getValue(updated))
 	},
 
 	checkValue(value: string, type: SETTING_DATA_TYPE): boolean {
