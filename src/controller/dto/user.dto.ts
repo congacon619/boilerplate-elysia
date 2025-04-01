@@ -33,7 +33,6 @@ export const LoginMFASetupResDto = t.Object({
 	mfaToken: t.String(),
 	totpSecret: t.String(),
 })
-export type ILoginMFASetupRes = typeof LoginMFASetupResDto.static
 
 export const LoginMFAResDto = t.Object({
 	type: t.Literal(LOGIN_RES_TYPE.MFA_CONFIRM),
@@ -41,7 +40,6 @@ export const LoginMFAResDto = t.Object({
 	token: t.String(),
 	availableMethods: t.Array(t.Enum(MFA_METHOD)),
 })
-export type ILoginMFARes = typeof LoginMFAResDto.static
 
 export const LoginResponseDto = t.Union([
 	LoginResDto,
@@ -54,7 +52,6 @@ export const LoginConfirmReqDto = t.Object({
 	otp: t.String(),
 	token: t.String(),
 })
-export type ILoginConfirmReq = typeof LoginConfirmReqDto.static
 
 export const RefreshTokenDto = t.Object({ token: t.String({ minLength: 1 }) })
 
@@ -62,12 +59,10 @@ export const ChangePasswordDto = t.Object({
 	oldPassword: t.String(),
 	method: t.Optional(t.Enum(MFA_METHOD)),
 })
-export type IChangePassword = typeof ChangePasswordDto.static
 export const ChangePasswordResDto = t.Object({
 	token: t.String(),
 	mfaToken: t.Optional(t.String()),
 })
-export type IChangePasswordRes = typeof ChangePasswordResDto.static
 
 export const ChangePasswordConfirm = t.Object({
 	newPassword: t.String(),
@@ -106,7 +101,6 @@ export const UserUpsertDto = t.Object({
 	enabled: t.Boolean(),
 	roleIds: t.Array(t.String()),
 })
-export type IUserUpsert = typeof UserUpsertDto.static
 
 export const MfaSetupDto = t.Object({
 	password: t.String({
@@ -124,7 +118,6 @@ export const MfaSetupDto = t.Object({
 		}),
 	),
 })
-export type IMfaSetup = typeof MfaSetupDto.static
 
 export const MfaSetupResDto = t.Object({
 	mfaToken: t.String(),

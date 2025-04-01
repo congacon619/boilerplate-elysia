@@ -6,7 +6,6 @@ export const HealthCheckDto = t.Object({
 	details: t.Optional(t.Nullable(t.Any())),
 	error: t.Optional(t.Nullable(t.Any())),
 })
-export type IHealthCheck = typeof HealthCheckDto.static
 
 export const GetTimeDto = t.Object({
 	t: t.Integer(),
