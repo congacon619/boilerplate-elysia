@@ -1,17 +1,15 @@
 import bearer from '@elysiajs/bearer'
 import { Elysia } from 'elysia'
-import { UnauthorizedException } from '../../common'
-import { IReqMeta } from '../../common'
-import { currentUserCache, db, logger } from '../../config'
-import { ipWhitelistService } from '../ip-whitelist/service'
-import { tokenService } from './service'
-import { IUserMeta, PermissionType } from './type'
+import { IUserMeta, UnauthorizedException } from '../common'
+import { currentUserCache, db, logger } from '../config'
+import { tokenService } from './auth-util.service'
+import { ipWhitelistService } from './ip-whitelist.service'
 
 export const authCheck = (
 	app: Elysia<
 		'',
 		{
-			derive: { metadata: IReqMeta }
+			derive: { clientIp: string; userAgent: string }
 			decorator: Record<string, unknown>
 			store: Record<string, unknown>
 			resolve: Record<string, unknown>
@@ -21,17 +19,17 @@ export const authCheck = (
 	app
 		.guard({ as: 'scoped' })
 		.use(bearer())
-		.resolve({ as: 'local' }, async ({ metadata, bearer }) => {
-			await ipWhitelistService.preflight(metadata.ip)
+		.resolve({ as: 'local' }, async ({ clientIp, bearer }) => {
+			await ipWhitelistService.preflight(clientIp)
 			if (!bearer) {
 				throw new UnauthorizedException('exception.invalid-token')
 			}
 			const { data } = await tokenService.verifyAccessToken(bearer)
-			let userPayload: IUserMeta
+			let currentUser: IUserMeta
 			const cachedUser = await currentUserCache.get(data.sessionId)
 
 			if (cachedUser) {
-				userPayload = cachedUser
+				currentUser = cachedUser
 			} else {
 				const user = await db.user.findUnique({
 					where: { id: data.userId },
@@ -58,7 +56,7 @@ export const authCheck = (
 					select: { role: { select: { permissions: true } } },
 				})
 
-				userPayload = {
+				currentUser = {
 					id: user.id,
 					username: user.username,
 					sessionId: data.sessionId,
@@ -73,56 +71,31 @@ export const authCheck = (
 					permissions: [...new Set(roleUsers.flatMap(p => p.role.permissions))],
 				}
 
-				await currentUserCache.set(data.sessionId, userPayload)
+				await currentUserCache.set(data.sessionId, currentUser)
 			}
-			if (!userPayload) {
+			if (!currentUser) {
 				throw new UnauthorizedException('exception.user-not-found')
 			}
-			return { user: userPayload }
+			return { currentUser }
 		})
-
-const validPermission = (
-	userPermissions: string[],
-	requiredPermissions: PermissionType,
-): boolean => {
-	if (!requiredPermissions) {
-		return true
-	}
-	if (!userPermissions?.length) {
-		return false
-	}
-	if (typeof requiredPermissions === 'string') {
-		return userPermissions.includes(requiredPermissions)
-	}
-
-	if ('and' in requiredPermissions) {
-		return requiredPermissions.and.every(permission =>
-			validPermission(userPermissions, permission),
-		)
-	}
-
-	if ('or' in requiredPermissions) {
-		return requiredPermissions.or.some(permission =>
-			validPermission(userPermissions, permission),
-		)
-	}
-
-	if ('not' in requiredPermissions) {
-		return !validPermission(userPermissions, requiredPermissions.not)
-	}
-
-	return false
-}
 
 export const permissionCheck =
 	(
-		permission: PermissionType,
-	): ((data: { metadata: IReqMeta; user: IUserMeta; path: string }) => void) =>
-	({ metadata, user, path }) => {
-		const check = validPermission(user.permissions, permission)
+		...requiredPermissions: string[]
+	): ((data: {
+		clientIp: string
+		currentUser: IUserMeta
+		path: string
+	}) => void) =>
+	({ clientIp, currentUser, path }) => {
+		const check =
+			currentUser &&
+			requiredPermissions.every(perm => currentUser.permissions.includes(perm))
 		if (!check) {
-			logger.info(
-				`User ${user?.username}@${metadata.ip} trying to access resource ${path} but doesn't have enough permissions`,
+			logger.error(
+				currentUser
+					? `User ${currentUser.username}@${clientIp} tried to access ${path} without sufficient permissions.`
+					: `Anonymous user @${clientIp} tried to access ${path} without sufficient permissions.`,
 			)
 			throw new UnauthorizedException('exception.permission-denied')
 		}

@@ -77,7 +77,7 @@ export const envSchema = t.Object({
 
 	BULL_BOARD_EP: t.String({ default: 'queues' }),
 
-	LOG_LEVEL: t.String({ default: LOG_LEVEL.INFO }),
+	LOG_LEVEL: t.Enum(LOG_LEVEL, { default: LOG_LEVEL.INFO }),
 
 	RESEND_API_KEY: t.String({ minLength: 1 }),
 	SEND_FROM_EMAIL: t.String({

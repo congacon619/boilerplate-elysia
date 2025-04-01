@@ -1,5 +1,5 @@
 import { t } from 'elysia'
-import { LOGIN_RES_TYPE, MFA_METHOD } from '../constant'
+import { LOGIN_RES_TYPE, MFA_METHOD } from '../../common'
 
 export const LoginDto = t.Object({
 	username: t.String({ minLength: 1 }),
@@ -18,13 +18,6 @@ export const UserResDto = t.Object({
 	modified: t.Date({ format: 'date-time' }),
 	permissions: t.Array(t.String()),
 })
-export type IUserRes = typeof UserResDto.static
-
-export interface IUserMeta extends IUserRes {
-	sessionId: string
-	password: string
-	totpSecret?: string | null
-}
 
 export const LoginResDto = t.Object({
 	type: t.Literal(LOGIN_RES_TYPE.COMPLETED),

@@ -1,11 +1,14 @@
 import { User } from '@prisma/client'
 import dayjs from 'dayjs'
+import { seconds } from 'itty-time'
 import { JWTPayload } from 'jose'
 import { uniq } from 'lodash'
 import {
 	ACTIVITY_TYPE,
 	BadRequestException,
-	IReqMeta,
+	ITokenPayload,
+	LOGIN_RES_TYPE,
+	LOGIN_WITH,
 	PREFIX,
 	aes256Decrypt,
 	aes256Encrypt,
@@ -13,22 +16,20 @@ import {
 	signJwt,
 	token12,
 	verifyJwt,
-} from '../../../common'
-import { db, env, tokenCache } from '../../../config'
-import { activityService } from '../../activity/service'
-import { sessionService } from '../../session/service'
-import { settingService } from '../../setting/service'
-import { LOGIN_RES_TYPE, LOGIN_WITH } from '../constant'
-import {
-	IAccessTokenRes,
-	IAuthPassword,
-	ILoginRes,
-	ITokenPayload,
-} from '../type'
-import { seconds } from 'itty-time'
+} from '../common'
+import { db, env, tokenCache } from '../config'
+import { ILoginRes } from '../controller/dto'
+import { activityService } from './activity.service'
+import { sessionService } from './session.service'
+import { settingService } from './setting.service'
 
 export const passwordService = {
-	async createPassword(password: string): Promise<IAuthPassword> {
+	async createPassword(password: string): Promise<{
+		password: string
+		passwordExpired: Date
+		passwordCreated: Date
+		passwordAttempt: 0
+	}> {
 		const passwordWithPepper = password + env.PASSWORD_PEPPER
 		const passwordHash = await Bun.password.hash(passwordWithPepper)
 		const passwordExpired = dayjs()
@@ -37,9 +38,10 @@ export const passwordService = {
 		const passwordCreated = new Date()
 
 		return {
-			passwordHash,
+			password: passwordHash,
 			passwordExpired,
 			passwordCreated,
+			passwordAttempt: 0,
 		}
 	},
 
@@ -79,7 +81,7 @@ export const tokenService = {
 
 	async generateAndCacheToken(
 		payload: ITokenPayload,
-	): Promise<IAccessTokenRes> {
+	): Promise<{ accessToken: string; expirationTime: Date }> {
 		const data = await aes256Encrypt(payload)
 		const accessToken = await signJwt({ data })
 		await tokenCache.set(payload.sessionId, accessToken)
@@ -91,7 +93,9 @@ export const tokenService = {
 		}
 	},
 
-	async createAccessToken(payload: ITokenPayload): Promise<IAccessTokenRes> {
+	async createAccessToken(
+		payload: ITokenPayload,
+	): Promise<{ accessToken: string; expirationTime: Date }> {
 		const cachedToken = await tokenCache.get(payload.sessionId)
 		if (cachedToken) {
 			const res = await verifyJwt(cachedToken)
@@ -130,19 +134,22 @@ export const tokenService = {
 }
 
 export const userUtilService = {
-	async completeLogin(user: User, meta: IReqMeta): Promise<ILoginRes> {
+	async completeLogin(
+		user: User,
+		clientIp: string,
+		userAgent: string,
+	): Promise<ILoginRes> {
 		if (await settingService.enbOnlyOneSession()) {
 			await sessionService.revoke(user.id)
 		}
-		const { ip, ua } = meta
 		const sessionId = token12(PREFIX.SESSION)
 		const payload: ITokenPayload = {
 			userId: user.id,
 			loginDate: new Date(),
 			loginWith: LOGIN_WITH.LOCAL,
 			sessionId,
-			ip,
-			ua: ua.ua,
+			clientIp,
+			userAgent,
 		}
 
 		const [
@@ -157,24 +164,22 @@ export const userUtilService = {
 			const session = await tx.session.create({
 				data: {
 					id: sessionId,
-					device:
-						ua.browser.name && ua.os.name
-							? `${ua.browser.name} ${ua.browser.version} on ${ua.os.name} ${ua.os.version}`
-							: ua.ua,
-					ip,
+					device: userAgent,
+					ip: clientIp,
 					createdById: user.id,
 					expired: refreshTokenExpirationTime,
-					userAgent: JSON.parse(JSON.stringify(ua)),
 					token: refreshToken,
 				},
 				select: { id: true },
 			})
 
 			await activityService.create(
+				ACTIVITY_TYPE.LOGIN,
+				{},
 				{
-					type: ACTIVITY_TYPE.LOGIN,
-					meta,
-					user: { id: user.id, sessionId: session.id },
+					currentUser: { id: user.id, sessionId: session.id },
+					clientIp,
+					userAgent,
 				},
 				tx,
 			)

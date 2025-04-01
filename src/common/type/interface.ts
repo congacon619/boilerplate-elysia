@@ -5,15 +5,15 @@ import {
 	ReplyKeyboardMarkup,
 	ReplyKeyboardRemove,
 } from 'node-telegram-bot-api'
-import { IResult } from 'ua-parser-js'
+import { ACTIVITY_TYPE, LOGIN_WITH, MFA_METHOD } from '../constant'
 
 export interface IReqMeta extends Record<string, unknown> {
 	id: string
 	timezone: string
 	timestamp: number
-	ua: IResult
+	userAgent: string
 	language: string
-	ip: string
+	clientIp: string
 }
 
 export type IPHeaders =
@@ -43,4 +43,107 @@ export interface ITelegramMessage {
 		| ForceReply
 	photos?: string[]
 	videos?: string[]
+}
+
+export interface ITokenPayload {
+	userId: string
+	loginDate: Date
+	loginWith: LOGIN_WITH
+	sessionId: string
+	clientIp: string
+	userAgent: string
+}
+
+export interface ActivityTypeMap extends Record<ACTIVITY_TYPE, object> {
+	[ACTIVITY_TYPE.LOGIN]: Record<string, never>
+	[ACTIVITY_TYPE.LOGOUT]: Record<string, never>
+	[ACTIVITY_TYPE.CHANGE_PASSWORD]: Record<string, never>
+	[ACTIVITY_TYPE.SETUP_MFA]: {
+		method: MFA_METHOD
+		telegramUsername?: string
+	}
+
+	[ACTIVITY_TYPE.DEL_ROLE]: {
+		roleIds: string[]
+	}
+	[ACTIVITY_TYPE.CREATE_ROLE]: {
+		id: string
+		description: string
+		title: string
+		permissionIds: string[]
+		playerIds: string[]
+	}
+	[ACTIVITY_TYPE.UPDATE_ROLE]: {
+		id: string
+		description: string
+		title: string
+		permissionIds: string[]
+		playerIds: string[]
+	}
+
+	[ACTIVITY_TYPE.REVOKE_SESSION]: {
+		sessionId: string
+	}
+	[ACTIVITY_TYPE.RESET_MFA]: {
+		userIds: string[]
+	}
+	[ACTIVITY_TYPE.CREATE_IP_WHITELIST]: {
+		ip: string
+		note?: string
+	}
+	[ACTIVITY_TYPE.DEL_IP_WHITELIST]: {
+		ips: string[]
+	}
+	[ACTIVITY_TYPE.UPDATE_SETTING]: {
+		key: string
+		value: string
+	}
+
+	[ACTIVITY_TYPE.CREATE_TELEGRAM_BOT]: {
+		id: string
+	}
+	[ACTIVITY_TYPE.UPDATE_TELEGRAM_BOT]: {
+		id: string
+	}
+	[ACTIVITY_TYPE.DEL_TELEGRAM_BOT]: {
+		botIds: string[]
+	}
+
+	[ACTIVITY_TYPE.CREATE_USER]: {
+		id: string
+		enabled: boolean
+		roleIds: string[]
+		username: string
+	}
+	[ACTIVITY_TYPE.UPDATE_USER]: {
+		id: string
+		enabled?: boolean
+		roleIds?: string[]
+		username?: string
+	}
+
+	[ACTIVITY_TYPE.CREATE_API_KEY]: {
+		id: string
+	}
+	[ACTIVITY_TYPE.UPDATE_API_KEY]: {
+		id: string
+	}
+	[ACTIVITY_TYPE.DEL_API_KEY]: {
+		apiKeyIds: string[]
+	}
+}
+
+export interface IUserMeta {
+	id: string
+	username: string
+	mfaTotpEnabled: boolean
+	mfaTelegramEnabled: boolean
+	telegramUsername: string | null
+	enabled: boolean
+	created: Date
+	modified: Date
+	permissions: string[]
+	sessionId: string
+	password: string
+	totpSecret?: string | null
 }

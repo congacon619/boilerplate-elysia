@@ -1,10 +1,8 @@
 import KeyvRedis from '@keyv/redis'
-import Keyv from 'keyv'
-import { CACHE_NS } from '../common'
-import { MFA_METHOD } from '../module/user/constant'
-import { IUserMeta } from '../module/user/type'
-import { env } from './env'
 import { ms } from 'itty-time'
+import Keyv from 'keyv'
+import { CACHE_NS, IUserMeta, MFA_METHOD } from '../common'
+import { env } from './env'
 
 const redis = new KeyvRedis({
 	url: env.REDIS_URI,
