@@ -1,8 +1,6 @@
 import os from 'node:os'
-import dayjs from 'dayjs'
-import { HEALTH_STATE } from '../../../common'
-import { db, env, tokenCache } from '../../../config'
-import { IHealthCheck } from '../type'
+import { HEALTH_STATE } from '../common'
+import { db, tokenCache } from '../config'
 
 export const miscService = {
 	async checkDiskHealth(thresholdPercent = 0.75) {
@@ -45,51 +43,6 @@ export const miscService = {
 			return { status: HEALTH_STATE.OK }
 		} catch (error) {
 			return { status: HEALTH_STATE.ERROR, error }
-		}
-	},
-
-	async healthcheck(): Promise<IHealthCheck> {
-		try {
-			const [disk, redis, prisma] = await Promise.all([
-				miscService.checkDiskHealth(),
-				miscService.checkRedisHealth(),
-				miscService.checkPrismaHealth(),
-			])
-			return {
-				status: HEALTH_STATE.OK,
-				details: { disk, redis, prisma },
-			}
-		} catch (error) {
-			return {
-				status: HEALTH_STATE.ERROR,
-				details: null,
-				error,
-			}
-		}
-	},
-
-	getTime(): {
-		t: number
-		time: string
-	} {
-		const timestamp = Date.now()
-		const formattedTime = dayjs().format('ddd, D MMM, H:m:s z')
-
-		return {
-			t: timestamp,
-			time: formattedTime,
-		}
-	},
-
-	getVersion(): {
-		commitHash: string
-		buildDate: number
-		buildNumber: string
-	} {
-		return {
-			commitHash: env.COMMIT_HASH,
-			buildDate: env.BUILD_DATE,
-			buildNumber: env.BUILD_NUMBER,
 		}
 	},
 }
