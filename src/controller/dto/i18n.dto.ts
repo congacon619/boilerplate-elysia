@@ -30,6 +30,6 @@ export const I18NImportDto = Type.Object({
 	KEY: Type.String(),
 	EN: Type.Optional(Type.String()),
 	ZH: Type.Optional(Type.String()),
-	KR: Type.Optional(Type.String()),
+	KO: Type.Optional(Type.String()),
 	VI: Type.Optional(Type.String()),
 })
