@@ -65,7 +65,7 @@ export const reqMeta = (app: Elysia) =>
 			timestamp,
 			language,
 			userAgent: headers.get('user-agent') ?? 'Unknown',
-			clientIp: ip ?? server?.requestIP(request)?.address ?? '', // todo: get real ip
+			clientIp: ip ?? server?.requestIP(request)?.address ?? '',
 		} satisfies IReqMeta
 	})
 

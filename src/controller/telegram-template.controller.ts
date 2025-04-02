@@ -128,28 +128,30 @@ export const telegramTemplateController = new Elysia({
 	)
 	.post(
 		ROUTER.TELEGRAM_TEMPLATE.SEND,
-		async ({ body }) => {
+		async ({
+			body: { telegramTemplateId, telegramChatIds, telegramBotId },
+		}) => {
 			const [template, chats] = await Promise.all([
-				db.telegramTemplate.findUnique({
-					where: { id: body.telegramTemplateId },
-				}),
-				db.telegramChat.findMany({
-					where: { id: { in: body.telegramChatIds } },
-				}),
+				db.telegramTemplate.findUnique({ where: { id: telegramTemplateId } }),
+				db.telegramChat.findMany({ where: { id: { in: telegramChatIds } } }),
 			])
 			if (!template || !chats.length) {
 				return castToRes(null)
 			}
 
-			await telegramService.jobSendMessage({
-				...template,
-				chatIds: chats.map(x => x.chatId),
-				botId: body.telegramBotId,
-				reply_markup: {
-					inline_keyboard:
-						template.buttons as unknown as InlineKeyboardButton[][],
+			await telegramService.sendMessage(
+				chats.map(x => x.chatId),
+				template.message ?? '',
+				{
+					videos: template.videos,
+					photos: template.photos,
+					reply_markup: {
+						inline_keyboard:
+							template.buttons as unknown as InlineKeyboardButton[][],
+					},
+					botToken: await telegramService.getBotToken(telegramBotId),
 				},
-			})
+			)
 			return castToRes(null)
 		},
 		{
@@ -168,8 +170,17 @@ export const telegramTemplateController = new Elysia({
 	)
 	.post(
 		ROUTER.TELEGRAM_TEMPLATE.MANUAL_SEND,
-		async ({ body }) => {
-			await telegramService.jobSendMessage(body)
+		async ({
+			body: { chatIds, message, buttons, videos, photos, telegramBotId },
+		}) => {
+			await telegramService.sendMessage(chatIds, message ?? '', {
+				photos,
+				videos,
+				reply_markup: {
+					inline_keyboard: buttons as unknown as InlineKeyboardButton[][],
+				},
+				botToken: await telegramService.getBotToken(telegramBotId),
+			})
 			return castToRes(null)
 		},
 		{

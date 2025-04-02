@@ -1,11 +1,6 @@
 import bearer from '@elysiajs/bearer'
 import { Elysia } from 'elysia'
-import {
-	IUserMeta,
-	UPermission,
-	UnauthorizedException,
-	userResSelect,
-} from '../common'
+import { IUserMeta, UPermission, UnAuthErr, userResSelect } from '../common'
 import { currentUserCache, db, logger } from '../config'
 import { tokenService, userUtilService } from './auth-util.service'
 import { ipWhitelistService } from './ip-whitelist.service'
@@ -27,7 +22,7 @@ export const authCheck = (
 		.resolve({ as: 'local' }, async ({ clientIp, bearer }) => {
 			await ipWhitelistService.preflight(clientIp)
 			if (!bearer) {
-				throw new UnauthorizedException('exception.invalid-token')
+				throw new UnAuthErr('exception.invalid-token')
 			}
 			const { data } = await tokenService.verifyAccessToken(bearer)
 			let currentUser: IUserMeta
@@ -45,7 +40,7 @@ export const authCheck = (
 				})
 
 				if (!user || !user.enabled) {
-					throw new UnauthorizedException('exception.expired-token')
+					throw new UnAuthErr('exception.expired-token')
 				}
 
 				currentUser = {
@@ -66,7 +61,7 @@ export const authCheck = (
 				await currentUserCache.set(data.sessionId, currentUser)
 			}
 			if (!currentUser) {
-				throw new UnauthorizedException('exception.user-not-found')
+				throw new UnAuthErr('exception.user-not-found')
 			}
 			return { currentUser }
 		})
@@ -89,6 +84,6 @@ export const permissionCheck =
 					? `User ${currentUser.username}@${clientIp} tried to access ${path} without sufficient permissions.`
 					: `Anonymous user @${clientIp} tried to access ${path} without sufficient permissions.`,
 			)
-			throw new UnauthorizedException('exception.permission-denied')
+			throw new UnAuthErr('exception.permission-denied')
 		}
 	}

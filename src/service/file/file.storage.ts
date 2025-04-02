@@ -2,7 +2,7 @@ import path from 'node:path'
 import { extension, lookup } from 'mime-types'
 import {
 	APP_ENV,
-	BadRequestException,
+	BadReqErr,
 	IDownloadRes,
 	IStorageBackend,
 	token16,
@@ -31,7 +31,7 @@ export class FileStorageBackend implements IStorageBackend {
 		const filePath = path.join(this.imageDir, fileName)
 		const file = Bun.file(filePath)
 		if (!(await file.exists())) {
-			throw new BadRequestException('exception.invalid-file')
+			throw new BadReqErr('exception.invalid-file')
 		}
 		const fileBlob = await file.arrayBuffer()
 		const mime = lookup(fileName) || 'application/octet-stream'

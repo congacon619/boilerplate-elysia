@@ -85,6 +85,7 @@ export const envSchema = t.Object({
 		minLength: 1,
 		pattern: '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$',
 	}),
+	TELEGRAM_BOT_TOKEN: t.Optional(t.String()),
 })
 
 const Compiler = TypeCompiler.Compile(envSchema)

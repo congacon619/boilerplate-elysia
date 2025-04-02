@@ -3,8 +3,8 @@ import { Value } from '@sinclair/typebox/value'
 import { Elysia, t } from 'elysia'
 import XLSX from 'xlsx'
 import {
-	AppException,
-	BadRequestException,
+	BadReqErr,
+	CoreErr,
 	DOC_DETAIL,
 	DOC_OPTIONS,
 	ErrorResDto,
@@ -68,7 +68,7 @@ export const i18nController = new Elysia({
 				select: { id: true },
 			})
 			if (exist) {
-				throw new AppException(
+				throw new CoreErr(
 					'exception.item-exists',
 					HTTP_STATUS.HTTP_409_CONFLICT,
 					{ args: { item: `I18N key ${body.key} ` } },
@@ -131,12 +131,12 @@ export const i18nController = new Elysia({
 			const workbook = XLSX.read(await file.arrayBuffer(), { type: 'buffer' })
 			const sheetName = workbook.SheetNames[0]
 			if (!sheetName) {
-				throw new AppException('exception.import-data-invalid')
+				throw new CoreErr('exception.import-data-invalid')
 			}
 			const worksheet = workbook.Sheets[sheetName]
 			const data: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
 			if (data.length <= 1) {
-				throw new AppException('exception.import-data-invalid')
+				throw new CoreErr('exception.import-data-invalid')
 			}
 
 			const headers = data[0]
@@ -152,7 +152,7 @@ export const i18nController = new Elysia({
 				}
 				const result = Value.Check(I18NImportDto, rowObject)
 				if (!result) {
-					throw new BadRequestException('exception.import-data-invalid')
+					throw new BadReqErr('exception.import-data-invalid')
 				}
 
 				validatedData.push(rowObject)
@@ -160,7 +160,7 @@ export const i18nController = new Elysia({
 			}
 
 			if (validatedData.length === 0) {
-				throw new AppException('exception.import-data-invalid')
+				throw new CoreErr('exception.import-data-invalid')
 			}
 
 			await db.$transaction([

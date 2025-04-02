@@ -1,12 +1,7 @@
 import path from 'node:path'
 import { S3Client } from 'bun'
 import { extension, lookup } from 'mime-types'
-import {
-	BadRequestException,
-	IDownloadRes,
-	IStorageBackend,
-	token16,
-} from '../../common'
+import { BadReqErr, IDownloadRes, IStorageBackend, token16 } from '../../common'
 import { env } from '../../config'
 
 export class S3StorageBackend implements IStorageBackend {
@@ -41,7 +36,7 @@ export class S3StorageBackend implements IStorageBackend {
 	async download(fileName: string): Promise<IDownloadRes> {
 		const s3file = this.s3.file(fileName)
 		if (!(await s3file.exists())) {
-			throw new BadRequestException('exception.file-not-found')
+			throw new BadReqErr('exception.file-not-found')
 		}
 		const fileBlob = await s3file.arrayBuffer()
 		const mime = lookup(fileName) || 'application/octet-stream'

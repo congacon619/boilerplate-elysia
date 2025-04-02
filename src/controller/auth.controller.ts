@@ -4,7 +4,7 @@ import { seconds } from 'itty-time'
 import { compact } from 'lodash'
 import {
 	ACTIVITY_TYPE,
-	BadRequestException,
+	BadReqErr,
 	DOC_DETAIL,
 	DOC_OPTIONS,
 	ErrorResDto,
@@ -12,11 +12,11 @@ import {
 	LOGIN_RES_TYPE,
 	LOGIN_WITH,
 	MFA_METHOD,
-	NotFoundException,
+	NotFoundErr,
 	PREFIX,
 	ROUTER,
 	ResWrapper,
-	UnauthorizedException,
+	UnAuthErr,
 	authErrors,
 	isExpired,
 	token12,
@@ -67,12 +67,12 @@ export const authController = new Elysia({
 				include: { roles: true },
 			})
 			if (!user) {
-				throw new NotFoundException('exception.user-not-found')
+				throw new NotFoundErr('exception.user-not-found')
 			}
 
 			const { enbAttempt, enbExpired } = await settingService.password()
 			if (enbAttempt && user.passwordAttempt >= env.PASSWORD_MAX_ATTEMPT) {
-				throw new BadRequestException('exception.password-max-attempt')
+				throw new BadReqErr('exception.password-max-attempt')
 			}
 
 			const match = await passwordService.comparePassword(
@@ -81,15 +81,15 @@ export const authController = new Elysia({
 			)
 			if (!match) {
 				await passwordService.increasePasswordAttempt(user.id)
-				throw new BadRequestException('exception.password-not-match')
+				throw new BadReqErr('exception.password-not-match')
 			}
 
 			if (!user.enabled) {
-				throw new BadRequestException('exception.user-not-active')
+				throw new BadReqErr('exception.user-not-active')
 			}
 
 			if (enbExpired && new Date() > new Date(user.passwordExpired)) {
-				throw new BadRequestException('exception.password-expired')
+				throw new BadReqErr('exception.password-expired')
 			}
 
 			if (user.mfaTelegramEnabled || user.mfaTotpEnabled) {
@@ -140,7 +140,7 @@ export const authController = new Elysia({
 		async ({ body: { token, mfaToken, otp }, clientIp, userAgent }) => {
 			const login = await loginCache.get(token)
 			if (!token || !login) {
-				throw new BadRequestException('exception.session-expired')
+				throw new BadReqErr('exception.session-expired')
 			}
 
 			const user = await db.user.findUnique({
@@ -148,7 +148,7 @@ export const authController = new Elysia({
 				include: { roles: true },
 			})
 			if (!user || !user.enabled) {
-				throw new BadRequestException('exception.user-not-active')
+				throw new BadReqErr('exception.user-not-active')
 			}
 			if (
 				!(await mfaUtilService.verifySession({
@@ -158,7 +158,7 @@ export const authController = new Elysia({
 					referenceToken: token,
 				}))
 			) {
-				throw new BadRequestException('exception.invalid-otp')
+				throw new BadReqErr('exception.invalid-otp')
 			}
 
 			return castToRes(
@@ -184,7 +184,7 @@ export const authController = new Elysia({
 				select: { id: true },
 			})
 			if (existingUser) {
-				throw new BadRequestException('exception.user-existed')
+				throw new BadReqErr('exception.user-existed')
 			}
 			await db.user.create({
 				data: {
@@ -252,7 +252,7 @@ export const authController = new Elysia({
 				isExpired(session.expired, seconds(env.EXPIRED_TOLERANCE)) ||
 				!session.createdBy.enabled
 			) {
-				throw new UnauthorizedException('exception.expired-token')
+				throw new UnAuthErr('exception.expired-token')
 			}
 
 			if (
@@ -359,17 +359,17 @@ export const authController = new Elysia({
 			})
 
 			if (!user) {
-				throw new NotFoundException('exception.user-not-found')
+				throw new NotFoundErr('exception.user-not-found')
 			}
 
 			if (
 				!(await passwordService.comparePassword(oldPassword, user.password))
 			) {
-				throw new BadRequestException('exception.password-not-match')
+				throw new BadReqErr('exception.password-not-match')
 			}
 
 			if (!method && (user.mfaTelegramEnabled || user.mfaTotpEnabled)) {
-				throw new BadRequestException('exception.mfa-required')
+				throw new BadReqErr('exception.mfa-required')
 			}
 
 			const token = token16()
@@ -409,10 +409,10 @@ export const authController = new Elysia({
 		}) => {
 			const cache = await changePasswordCache.get(token)
 			if (!cache) {
-				throw new UnauthorizedException('exception.session-expired')
+				throw new UnAuthErr('exception.session-expired')
 			}
 			if (cache.userId !== currentUser.id) {
-				throw new UnauthorizedException('exception.session-expired')
+				throw new UnAuthErr('exception.session-expired')
 			}
 
 			const user = await db.user.findUnique({
@@ -429,7 +429,7 @@ export const authController = new Elysia({
 			})
 
 			if (!user) {
-				throw new NotFoundException('exception.user-not-found')
+				throw new NotFoundErr('exception.user-not-found')
 			}
 
 			if (mfaToken && otp) {
@@ -440,10 +440,10 @@ export const authController = new Elysia({
 					referenceToken: token,
 				})
 				if (!isOtpValid) {
-					throw new BadRequestException('exception.invalid-otp')
+					throw new BadReqErr('exception.invalid-otp')
 				}
 			} else if (user.mfaTelegramEnabled || user.mfaTotpEnabled) {
-				throw new BadRequestException('exception.mfa-required')
+				throw new BadReqErr('exception.mfa-required')
 			}
 
 			await db.$transaction([

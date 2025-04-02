@@ -2,7 +2,7 @@ import { Elysia, t } from 'elysia'
 import { authenticator } from 'otplib'
 import {
 	ACTIVITY_TYPE,
-	BadRequestException,
+	BadReqErr,
 	DOC_DETAIL,
 	DOC_OPTIONS,
 	ErrorResDto,
@@ -42,14 +42,14 @@ export const mfaController = new Elysia({
 		async ({ body: { mfaToken, otp }, clientIp, userAgent, currentUser }) => {
 			const cachedData = await mfaSetupCache.get(mfaToken)
 			if (!cachedData) {
-				throw new BadRequestException('exception.session-expired')
+				throw new BadReqErr('exception.session-expired')
 			}
 
 			if (cachedData.method === MFA_METHOD.TELEGRAM) {
 				if (
 					!authenticator.verify({ secret: cachedData.totpSecret, token: otp })
 				) {
-					throw new BadRequestException('exception.invalid-otp')
+					throw new BadReqErr('exception.invalid-otp')
 				}
 
 				await db.user.update({
@@ -64,7 +64,7 @@ export const mfaController = new Elysia({
 				if (
 					!authenticator.verify({ secret: cachedData.totpSecret, token: otp })
 				) {
-					throw new BadRequestException('exception.invalid-otp')
+					throw new BadReqErr('exception.invalid-otp')
 				}
 
 				await db.user.update({
@@ -109,14 +109,14 @@ export const mfaController = new Elysia({
 			if (
 				!(await passwordService.comparePassword(password, currentUser.password))
 			) {
-				throw new BadRequestException('exception.password-not-match')
+				throw new BadReqErr('exception.password-not-match')
 			}
 			const mfaToken = token16()
 			const totpSecret = authenticator.generateSecret().toUpperCase()
 
 			if (method === MFA_METHOD.TELEGRAM && !currentUser.mfaTelegramEnabled) {
 				if (!telegramUsername) {
-					throw new BadRequestException('exception.validation-error')
+					throw new BadReqErr('exception.validation-error')
 				}
 
 				authenticator.options = { digits: 6, step: 300 }
@@ -152,7 +152,7 @@ export const mfaController = new Elysia({
 				})
 			}
 
-			throw new BadRequestException('exception.mfa-method-unavailable')
+			throw new BadReqErr('exception.mfa-method-unavailable')
 		},
 		{
 			body: MfaSetupDto,
@@ -210,7 +210,7 @@ export const mfaController = new Elysia({
 		}) => {
 			const cacheData = await resetMfaCache.get(token)
 			if (!cacheData) {
-				throw new BadRequestException('exception.session-expired')
+				throw new BadReqErr('exception.session-expired')
 			}
 
 			const isVerified = await mfaUtilService.verifySession({
@@ -220,7 +220,7 @@ export const mfaController = new Elysia({
 				user: currentUser,
 			})
 			if (!isVerified) {
-				throw new BadRequestException('exception.invalid-otp')
+				throw new BadReqErr('exception.invalid-otp')
 			}
 
 			await db.$transaction([

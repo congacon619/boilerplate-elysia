@@ -1,5 +1,5 @@
 import { authenticator, totp } from 'otplib'
-import { AppException, MFA_METHOD, token16 } from '../common'
+import { CoreErr, MFA_METHOD, token16 } from '../common'
 import { mfaCache, mfaSetupCache } from '../config'
 import { telegramService } from './telegram.service'
 
@@ -47,13 +47,13 @@ export const mfaUtilService = {
 				referenceToken,
 			})
 
-			await telegramService.sendMessage({
-				chatIds: [user.telegramUsername],
-				message: `Your OTP is: ${otp}`,
-			})
+			await telegramService.sendMessage(
+				user.telegramUsername,
+				`Your OTP is: ${otp}`,
+			)
 			return sessionId
 		}
-		throw new AppException('exception.mfa-broken')
+		throw new CoreErr('exception.mfa-broken')
 	},
 
 	async setupMfa(

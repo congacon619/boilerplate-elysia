@@ -1,5 +1,5 @@
 import { inRange, isIP, isPrivateIP, isRange } from 'range_check'
-import { PREFIX, UnauthorizedException, token12 } from '../common'
+import { PREFIX, UnAuthErr, token12 } from '../common'
 import { db, ipWhitelistCache, logger } from '../config'
 import { settingService } from './setting.service'
 
@@ -38,13 +38,13 @@ export const ipWhitelistService = {
 
 	async preflight(ip: string): Promise<void> {
 		if (isPrivateIP(ip) || !(await settingService.enbIpWhitelist())) return
-		if (!ip) throw new UnauthorizedException('exception.permission-denied')
+		if (!ip) throw new UnAuthErr('exception.permission-denied')
 		const whitelistIPs = await ipWhitelistService.getWhitelistIPs(ip)
 		if (!ipWhitelistService.canIPAccess(ip, whitelistIPs)) {
 			logger.info(
 				`IP ${ip} preflight failed, whitelist IPs: ${whitelistIPs.join(', ')}`,
 			)
-			throw new UnauthorizedException('exception.permission-denied')
+			throw new UnAuthErr('exception.permission-denied')
 		}
 	},
 }

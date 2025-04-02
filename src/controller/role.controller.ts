@@ -2,7 +2,7 @@ import { Prisma } from '@prisma/client'
 import { Elysia, t } from 'elysia'
 import {
 	ACTIVITY_TYPE,
-	AppException,
+	CoreErr,
 	DOC_DETAIL,
 	DOC_OPTIONS,
 	ErrorResDto,
@@ -84,7 +84,7 @@ export const roleController = new Elysia({
 				if (
 					[defaultRoles.administrator.id, defaultRoles.system.id].includes(id)
 				) {
-					throw new AppException('exception.permission-denied')
+					throw new CoreErr('exception.permission-denied')
 				}
 
 				await db.$transaction([
@@ -188,7 +188,7 @@ export const roleController = new Elysia({
 				where: { roleId: { in: ids } },
 			})
 			if (existUserRole) {
-				throw new AppException('exception.permission-denied')
+				throw new CoreErr('exception.permission-denied')
 			}
 
 			await db.$transaction([

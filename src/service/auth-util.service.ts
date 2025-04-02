@@ -5,7 +5,7 @@ import { JWTPayload } from 'jose'
 import { uniq } from 'lodash'
 import {
 	ACTIVITY_TYPE,
-	BadRequestException,
+	BadReqErr,
 	ITokenPayload,
 	LOGIN_RES_TYPE,
 	LOGIN_WITH,
@@ -120,15 +120,15 @@ export const tokenService = {
 	): Promise<JWTPayload & { data: ITokenPayload }> {
 		const res = await verifyJwt(token)
 		if (!res) {
-			throw new BadRequestException('exception.invalid-token')
+			throw new BadReqErr('exception.invalid-token')
 		}
 		if (!res.exp || isExpired(res.exp * 1000, seconds(env.EXPIRED_TOLERANCE))) {
-			throw new BadRequestException('exception.expired-token')
+			throw new BadReqErr('exception.expired-token')
 		}
 		const data = await aes256Decrypt<ITokenPayload>(res.data)
 		const cachedToken = await tokenCache.get(data.sessionId)
 		if (!cachedToken) {
-			throw new BadRequestException('exception.expired-token')
+			throw new BadReqErr('exception.expired-token')
 		}
 		return { ...res, data }
 	},

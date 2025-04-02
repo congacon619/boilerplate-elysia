@@ -165,3 +165,15 @@ export interface IDownloadRes {
 		ext: string
 	}
 }
+
+export type ITeleOptions = {
+	emoji?: 'check' | 'block' | 'refresh' | 'sos' | (string & {})
+	reply_markup?:
+		| InlineKeyboardMarkup
+		| ReplyKeyboardMarkup
+		| ReplyKeyboardRemove
+		| ForceReply
+	photos?: string[]
+	videos?: string[]
+	botToken?: string
+}

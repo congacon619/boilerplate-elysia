@@ -6,12 +6,12 @@ import {
 	DOC_OPTIONS,
 	ErrorResDto,
 	IdDto,
-	NotFoundException,
+	NotFoundErr,
 	PREFIX,
 	PaginationReqDto,
 	ROUTER,
 	ResWrapper,
-	UnauthorizedException,
+	UnAuthErr,
 	authErrors,
 	token12,
 	token16,
@@ -158,7 +158,7 @@ export const apiKeyController = new Elysia({
 				select: { userId: true, key: true },
 			})
 			if (!apiKey) {
-				throw new NotFoundException('exception.api-key-not-found')
+				throw new NotFoundErr('exception.api-key-not-found')
 			}
 			apiKeyService.validatePermission(apiKey, currentUser)
 			const secret = token32().toUpperCase()
@@ -199,13 +199,13 @@ export const apiKeyController = new Elysia({
 				select: { userId: true },
 			})
 			if (!apiKey) {
-				throw new NotFoundException('exception.api-key-not-found')
+				throw new NotFoundErr('exception.api-key-not-found')
 			}
 			if (
 				apiKey.userId !== currentUser.id &&
 				!currentUser.permissions.includes('API_KEY.DELETE_ALL')
 			) {
-				throw new UnauthorizedException('exception.forbidden')
+				throw new UnAuthErr('exception.forbidden')
 			}
 			await db.$transaction([
 				db.apiKey.delete({ where: { id } }),

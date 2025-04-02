@@ -2,11 +2,11 @@ import { Prisma } from '@prisma/client'
 import { Elysia, t } from 'elysia'
 import {
 	ACTIVITY_TYPE,
-	AppException,
+	CoreErr,
 	DOC_DETAIL,
 	DOC_OPTIONS,
 	HTTP_STATUS,
-	NotFoundException,
+	NotFoundErr,
 	PREFIX,
 	ROUTER,
 	ResWrapper,
@@ -90,7 +90,7 @@ export const userController = new Elysia({
 				select: { id: true },
 			})
 			if (exist) {
-				throw new AppException(
+				throw new CoreErr(
 					'exception.item-exists',
 					HTTP_STATUS.HTTP_409_CONFLICT,
 					{ args: { item: `Username ${username} ` } },
@@ -103,7 +103,7 @@ export const userController = new Elysia({
 					select: { id: true },
 				})
 				if (!existUser) {
-					throw new NotFoundException('exception.item-not-found', {
+					throw new NotFoundErr('exception.item-not-found', {
 						args: { item: `User with id ${id}` },
 					})
 				}
@@ -149,7 +149,7 @@ export const userController = new Elysia({
 				userEmitter.emit('userUpdated', { id })
 			} else {
 				if (!password) {
-					throw new AppException('exception.validation-error')
+					throw new CoreErr('exception.validation-error')
 				}
 				await db.$transaction(async tx => {
 					const newUser = await tx.user.create({

@@ -1,12 +1,12 @@
 import { Elysia, t } from 'elysia'
 import {
 	ACTIVITY_TYPE,
-	BadRequestException,
+	BadReqErr,
 	DOC_DETAIL,
 	DOC_OPTIONS,
 	ErrorResDto,
 	IdDto,
-	NotFoundException,
+	NotFoundErr,
 	ROUTER,
 	ResWrapper,
 	aes256Decrypt,
@@ -67,12 +67,12 @@ export const settingController = new Elysia({
 				select: { value: true, type: true },
 			})
 			if (!setting) {
-				throw new NotFoundException('exception.item-not-found', {
+				throw new NotFoundErr('exception.item-not-found', {
 					args: { item: `Setting with id ${id}` },
 				})
 			}
 			if (!settingService.checkValue(value, setting.type)) {
-				throw new BadRequestException('exception.bad-request')
+				throw new BadReqErr('exception.bad-request')
 			}
 			const newValue = encrypted ? await aes256Encrypt(value) : value
 			const updated = await db.$transaction(async tx => {

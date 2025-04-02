@@ -6,10 +6,10 @@ import {
 	DOC_OPTIONS,
 	ErrorResDto,
 	IdDto,
-	NotFoundException,
+	NotFoundErr,
 	ROUTER,
 	ResWrapper,
-	UnauthorizedException,
+	UnAuthErr,
 	authErrors,
 } from '../common'
 import { castToRes, db, reqMeta } from '../config'
@@ -100,7 +100,7 @@ export const sessionController = new Elysia({
 			})
 
 			if (!session) {
-				throw new NotFoundException('exception.item-not-found', {
+				throw new NotFoundErr('exception.item-not-found', {
 					args: { item: 'Session' },
 				})
 			}
@@ -109,7 +109,7 @@ export const sessionController = new Elysia({
 				!currentUser.permissions.includes('SESSION.REVOKE_ALL') &&
 				session.createdById !== currentUser.id
 			) {
-				throw new UnauthorizedException('exception.permission-denied')
+				throw new UnAuthErr('exception.permission-denied')
 			}
 
 			await Promise.all([
