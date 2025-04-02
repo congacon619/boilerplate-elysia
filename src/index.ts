@@ -8,34 +8,31 @@ import { rateLimit } from 'elysia-rate-limit'
 import { elysiaXSS } from 'elysia-xss'
 import { elysiaHelmet } from 'elysiajs-helmet'
 import { db, env, httpError, logger, swaggerConfig } from './config'
-import { activityController } from './module/activity/controller'
-import { apiKeyController } from './module/api-key/controller'
-import { captchaController } from './module/captcha/controller'
-import { fileController } from './module/file/controller'
-import { i18nController } from './module/i18n/controller'
-import { ipWhitelistController } from './module/ip-whitelist/controller'
-import { miscController } from './module/misc/controller'
-import { permissionController } from './module/role/controller'
-import { roleController } from './module/role/controller/role.controller'
-import { sessionController } from './module/session/controller'
-import { settingController } from './module/setting/controller'
-import { startupService } from './module/startup'
 import {
+	activityController,
+	apiKeyController,
+	authController,
+	captchaController,
+	fileController,
+	i18nController,
+	ipWhitelistController,
+	mfaController,
+	miscController,
+	permissionController,
+	roleController,
+	sessionController,
+	settingController,
 	telegramBotController,
 	telegramChatController,
 	telegramTemplateController,
-} from './module/telegram/controller'
-import {
-	authController,
-	mfaController,
 	userController,
-} from './module/user/controller'
+} from './controller'
+import { startupService } from './service'
 
 try {
 	await db.$connect()
 	logger.info('DB Connected successfully!')
-	await startupService.initRoleAndUser()
-	await startupService.initSettings()
+	await startupService.seed()
 
 	const app = new Elysia()
 		.use(rateLimit())

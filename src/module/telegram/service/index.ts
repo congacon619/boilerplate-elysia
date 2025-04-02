@@ -1,5 +1,0 @@
-export * from './telegram-bot.service'
-export * from './telegram-template.service'
-export * from './telegram-chat.service'
-export * from './telegram.service'
-export * from './telegram.worker'

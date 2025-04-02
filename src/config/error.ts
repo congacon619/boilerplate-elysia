@@ -1,6 +1,6 @@
 import Elysia from 'elysia'
 import {
-	AppException,
+	CoreErr,
 	DEFAULT_LANGUAGE,
 	HTTP_STATUS,
 	I18nPath,
@@ -28,7 +28,7 @@ export const httpError = () => (app: Elysia) =>
 				errors: detail?.errors,
 			} satisfies IErrorRes
 		}
-		if (error instanceof AppException) {
+		if (error instanceof CoreErr) {
 			return handleError(error.code, error.status, RES_CODE.ISE, error.detail)
 		}
 		switch (code) {

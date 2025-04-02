@@ -6,7 +6,8 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["metrics"]
+  binaryTargets   = ["native", "linux-musl-openssl-3.0.x"]
+  previewFeatures = ["relationJoins", "nativeDistinct"]
 }
 
 datasource db {
@@ -36,54 +37,77 @@ enum SETTING_DATA_TYPE {
 model User {
   id                 String            @id
   username           String            @unique
-  email              String?           @unique
   password           String
-  avatar             String?
-  mobileNumber       String?           @unique @map("mobile_number")
   passwordExpired    DateTime          @map("password_expired")
   passwordCreated    DateTime          @map("password_created")
   passwordAttempt    Int               @default(0) @map("password_attempt")
   signUpFrom         USER_SIGN_UP_FROM @default(LOCAL) @map("sign_up_from")
   created            DateTime          @default(now())
   modified           DateTime          @updatedAt
-  protected          Boolean           @default(false)
   mfaTelegramEnabled Boolean           @default(false) @map("mfa_telegram_enabled")
   mfaTotpEnabled     Boolean           @default(false) @map("mfa_totp_enabled")
   telegramUsername   String?           @map("telegram_username")
   totpSecret         String?           @map("totp_secret")
   enabled            Boolean           @default(true)
 
-  roleUsers  RoleUser[]
   sessions   Session[]
   activities Activity[]
   apiKeys    ApiKey[]
+  roles      RolePlayer[]
 
   @@map("users")
 }
 
 model Role {
   id          String   @id
-  name        String   @unique
+  title       String   @unique
   description String?
   enabled     Boolean  @default(true)
-  permissions String[]
-  protected   Boolean  @default(false)
+  modified    DateTime @updatedAt()
+  created     DateTime @default(now())
 
-  roleUsers RoleUser[]
+  players     RolePlayer[]
+  permissions RolePermission[]
 
   @@map("roles")
 }
 
-model RoleUser {
-  id     String @id
-  roleId String @map("role_id")
-  userId String @map("user_id")
+model Permission {
+  id          String  @id
+  title       String  @unique()
+  description String?
 
-  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roles RolePermission[]
 
-  @@unique([roleId, userId])
-  @@map("roles_users")
+  @@map("permissions")
+}
+
+model RolePermission {
+  id           String   @id
+  roleId       String   @map("role_id")
+  permissionId String   @map("permission_id")
+  modified     DateTime @updatedAt()
+  created      DateTime @default(now())
+
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model RolePlayer {
+  id       String   @id
+  playerId String   @map("player_id")
+  roleId   String   @map("role_id")
+  modified DateTime @updatedAt()
+  created  DateTime @default(now())
+
+  role   Role @relation(fields: [roleId], references: [id])
+  player User @relation(fields: [playerId], references: [id])
+
+  @@unique([roleId, playerId])
+  @@map("roles_players")
 }
 
 model Setting {
@@ -127,18 +151,13 @@ model ApiKey {
 
 model Session {
   id          String   @id
-  identifier  String?
-  language    String?
-  timezone    Int?
-  device      String?
-  location    Json?    @map("last_location")
+  device      String
   ip          String
   createdById String   @map("created_by_id")
   expired     DateTime
   revoked     Boolean  @default(false)
   modified    DateTime @updatedAt()
   created     DateTime @default(now())
-  userAgent   Json     @map("user_agent")
   token       String   @unique()
 
   createdBy  User       @relation(fields: [createdById], references: [id])
@@ -152,8 +171,8 @@ model Activity {
   id          String   @id
   type        String
   description String?
-  device      String?
-  ip          String?
+  device      String
+  ip          String
   sessionId   String?  @map("session_id")
   reference   Json?
   createdBy   User     @relation(fields: [createdById], references: [id])

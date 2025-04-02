@@ -1,3 +1,6 @@
+import { SETTING_DATA_TYPE } from '@prisma/client'
+import dayjs from 'dayjs' // region app
+
 // region app
 export enum LANG {
 	VI = 'vi',
@@ -25,12 +28,8 @@ export enum LOG_LEVEL {
 
 export enum SETTING {
 	MAINTENANCE_END_DATE = 'MAINTENANCE_END_DATE',
-
 	ENB_PASSWORD_ATTEMPT = 'ENB_PASSWORD_ATTEMPT',
 	ENB_PASSWORD_EXPIRED = 'ENB_PASSWORD_EXPIRED',
-
-	ENB_JWT_PAYLOAD_ENCRYPT = 'ENB_JWT_PAYLOAD_ENCRYPT',
-
 	ENB_MFA_REQUIRED = 'ENB_MFA_REQUIRED',
 	ENB_IP_WHITELIST = 'ENB_IP_WHITELIST',
 	ENB_ONLY_ONE_SESSION = 'ENB_ONLY_ONE_SESSION',
@@ -39,8 +38,6 @@ export enum SETTING {
 // region regex
 export const REGEX_TIME =
 	/^\d+\s*(seconds?|minutes?|hours?|days?|weeks?|months?|years?)$/i
-export const PASSWORD_REGEX =
-	/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/
 
 // region request
 export enum HTTP_METHOD {
@@ -56,73 +53,18 @@ export const REGEX_HTTP_METHOD = `^(${Object.values(HTTP_METHOD).join('|')})(,($
 
 // region db
 export enum PREFIX {
-	SESSION = 'session',
-	USER = 'user',
-	ROLE_USER = 'role_user',
-	ROLE = 'role',
+	SESSION = 'sess',
+	USER = 'usr',
+	ROLE = 'rl',
 	I18N = 'i18n',
-	API_KEY = 'api_key',
-	ACTIVITY = 'activity',
-	IP_WHITELIST = 'ip_whitelist',
-	SETTING = 'setting',
-	TELEGRAM_BOT = 'tele_bot',
-	TELEGRAM_CHAT = 'tele_chat',
-	TELEGRAM_TEMPLATE = 'tele_template',
-}
-
-// region role permissions
-export enum ROLE_NAME {
-	SYSTEM = 'SYSTEM',
-	USER = 'USER',
-}
-
-export enum PERMISSION {
-	ACTIVITY_VIEW = 'ACTIVITY.VIEW',
-	ACTIVITY_VIEW_ALL = 'ACTIVITY.VIEW_ALL',
-
-	SESSION_VIEW = 'SESSION.VIEW',
-	SESSION_VIEW_ALL = 'SESSION.VIEW_ALL',
-	SESSION_REVOKE = 'SESSION.REVOKE',
-	SESSION_REVOKE_ALL = 'SESSION.REVOKE_ALL',
-
-	SETTING_VIEW = 'SETTING.VIEW',
-	SETTING_UPDATE = 'SETTING.UPDATE',
-
-	I18N_VIEW = 'I18N.VIEW',
-	I18N_UPDATE = 'I18N.UPDATE',
-	I18N_DELETE = 'I18N.DELETE',
-
-	IP_WHITELIST_VIEW = 'IPWHITELIST.VIEW',
-	IP_WHITELIST_CREATE = 'IPWHITELIST.CREATE',
-	IP_WHITELIST_DELETE = 'IPWHITELIST.DELETE',
-
-	USER_VIEW = 'USER.VIEW',
-	USER_UPDATE = 'USER.UPDATE',
-	USER_RESET_MFA = 'USER.RESET_MFA',
-
-	ROLE_VIEW = 'ROLE.VIEW',
-	ROLE_UPDATE = 'ROLE.UPDATE',
-	ROLE_DELETE = 'ROLE.DELETE',
-
-	FILE_UPLOAD = 'FILE.UPLOAD',
-
-	TELEGRAM_BOT_VIEW = 'TELEGRAM_BOT.VIEW',
-	TELEGRAM_BOT_UPDATE = 'TELEGRAM_BOT.UPDATE',
-	TELEGRAM_BOT_DELETE = 'TELEGRAM_BOT.DELETE',
-
-	TELEGRAM_CHAT_VIEW = 'TELEGRAM_CHAT.VIEW',
-	TELEGRAM_CHAT_UPDATE = 'TELEGRAM_CHAT.UPDATE',
-	TELEGRAM_CHAT_DELETE = 'TELEGRAM_CHAT.DELETE',
-
-	TELEGRAM_TEMPLATE_VIEW = 'TELEGRAM_TEMPLATE.VIEW',
-	TELEGRAM_TEMPLATE_UPDATE = 'TELEGRAM_TEMPLATE.UPDATE',
-	TELEGRAM_TEMPLATE_DELETE = 'TELEGRAM_TEMPLATE.DELETE',
-	TELEGRAM_TEMPLATE_SEND = 'TELEGRAM_TEMPLATE.SEND',
-
-	API_KEY_VIEW = 'API_KEY.VIEW',
-	API_KEY_VIEW_ALL = 'API_KEY.VIEW_ALL',
-	API_KEY_UPDATE = 'API_KEY.UPDATE',
-	API_KEY_UPDATE_ALL = 'API_KEY.UPDATE_ALL',
+	API_KEY = 'key',
+	ACTIVITY = 'act',
+	IP_WHITELIST = 'ipw',
+	SETTING = 'set',
+	TELEGRAM_BOT = 'tbot',
+	TELEGRAM_CHAT = 'tchat',
+	TELEGRAM_TEMPLATE = 'ttpl',
+	PERMISSION = 'perm',
 }
 
 // region queue
@@ -301,6 +243,7 @@ export const ROUTER = {
 	API_KEY: {
 		ROOT: '/api-keys',
 		RESET: '/reset/:id',
+		DEL: '/del',
 	},
 	CAPTCHA: {
 		ROOT: '/captcha',
@@ -402,6 +345,10 @@ export const DOC_DETAIL = {
 	API_KEY_RESET: {
 		description: 'ApiKey reset',
 		summary: 'ApiKey reset',
+	},
+	API_KEY_DEL: {
+		description: 'ApiKey delete',
+		summary: 'ApiKey delete',
 	},
 
 	SETTING_GET_ALL: {
@@ -548,86 +495,19 @@ export enum RES_CODE {
 }
 
 export enum HTTP_STATUS {
-	// Informational Responses
-	HTTP_100_CONTINUE = 100,
-	HTTP_101_SWITCHING_PROTOCOLS = 101,
-	HTTP_102_PROCESSING = 102,
-	HTTP_103_EARLY_HINTS = 103,
-
-	// Successful Responses
-	HTTP_200_OK = 200,
-	HTTP_201_CREATED = 201,
-	HTTP_202_ACCEPTED = 202,
-	HTTP_203_NON_AUTHORITATIVE_INFORMATION = 203,
-	HTTP_204_NO_CONTENT = 204,
-	HTTP_205_RESET_CONTENT = 205,
-	HTTP_206_PARTIAL_CONTENT = 206,
-	HTTP_207_MULTI_STATUS = 207,
-	HTTP_208_ALREADY_REPORTED = 208,
-	HTTP_226_IM_USED = 226,
-
-	// Redirection Messages
-	HTTP_300_MULTIPLE_CHOICES = 300,
-	HTTP_301_MOVED_PERMANENTLY = 301,
-	HTTP_302_FOUND = 302,
-	HTTP_303_SEE_OTHER = 303,
-	HTTP_304_NOT_MODIFIED = 304,
-	HTTP_305_USE_PROXY = 305,
-	HTTP_306_RESERVED = 306,
-	HTTP_307_TEMPORARY_REDIRECT = 307,
-	HTTP_308_PERMANENT_REDIRECT = 308,
-
-	// Client Error Responses
 	HTTP_400_BAD_REQUEST = 400,
 	HTTP_401_UNAUTHORIZED = 401,
-	HTTP_402_PAYMENT_REQUIRED = 402,
-	HTTP_403_FORBIDDEN = 403,
 	HTTP_404_NOT_FOUND = 404,
-	HTTP_405_METHOD_NOT_ALLOWED = 405,
-	HTTP_406_NOT_ACCEPTABLE = 406,
-	HTTP_407_PROXY_AUTHENTICATION_REQUIRED = 407,
-	HTTP_408_REQUEST_TIMEOUT = 408,
 	HTTP_409_CONFLICT = 409,
-	HTTP_410_GONE = 410,
-	HTTP_411_LENGTH_REQUIRED = 411,
-	HTTP_412_PRECONDITION_FAILED = 412,
-	HTTP_413_REQUEST_ENTITY_TOO_LARGE = 413,
-	HTTP_414_REQUEST_URI_TOO_LONG = 414,
-	HTTP_415_UNSUPPORTED_MEDIA_TYPE = 415,
-	HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE = 416,
-	HTTP_417_EXPECTATION_FAILED = 417,
-	HTTP_418_IM_A_TEAPOT = 418,
-	HTTP_421_MISDIRECTED_REQUEST = 421,
-	HTTP_422_UNPROCESSABLE_ENTITY = 422,
-	HTTP_423_LOCKED = 423,
-	HTTP_424_FAILED_DEPENDENCY = 424,
-	HTTP_425_TOO_EARLY = 425,
-	HTTP_426_UPGRADE_REQUIRED = 426,
-	HTTP_428_PRECONDITION_REQUIRED = 428,
-	HTTP_429_TOO_MANY_REQUESTS = 429,
-	HTTP_431_REQUEST_HEADER_FIELDS_TOO_LARGE = 431,
-	HTTP_451_UNAVAILABLE_FOR_LEGAL_REASONS = 451,
-
-	// Server Error Responses
 	HTTP_500_INTERNAL_SERVER_ERROR = 500,
-	HTTP_501_NOT_IMPLEMENTED = 501,
 	HTTP_502_BAD_GATEWAY = 502,
 	HTTP_503_SERVICE_UNAVAILABLE = 503,
-	HTTP_504_GATEWAY_TIMEOUT = 504,
-	HTTP_505_HTTP_VERSION_NOT_SUPPORTED = 505,
-	HTTP_506_VARIANT_ALSO_NEGOTIATES = 506,
-	HTTP_507_INSUFFICIENT_STORAGE = 507,
-	HTTP_508_LOOP_DETECTED = 508,
-	HTTP_509_BANDWIDTH_LIMIT_EXCEEDED = 509,
-	HTTP_510_NOT_EXTENDED = 510,
-	HTTP_511_NETWORK_AUTHENTICATION_REQUIRED = 511,
 }
 
 // region activity
 export enum ACTIVITY_TYPE {
 	LOGIN = 'login',
 	LOGOUT = 'logout',
-	REGISTER = 'register',
 	CHANGE_PASSWORD = 'change-password',
 	SETUP_MFA = 'setup-mfa',
 
@@ -650,19 +530,133 @@ export enum ACTIVITY_TYPE {
 	UPDATE_TELEGRAM_BOT = 'update-telegram-bot',
 	DEL_TELEGRAM_BOT = 'del-telegram-bot',
 
-	CREATE_PROXY = 'create-proxy',
-	UPDATE_PROXY = 'update-proxy',
-	DEL_PROXY = 'del-proxy',
-
-	CREATE_GATE = 'create-gate',
-	UPDATE_GATE = 'update-gate',
-	DEL_GATE = 'del-gate',
-
 	CREATE_API_KEY = 'create-api-key',
 	UPDATE_API_KEY = 'update-api-key',
+	DEL_API_KEY = 'del-api-key',
 }
 
 export enum HEALTH_STATE {
 	ERROR = 'error',
 	OK = 'ok',
+}
+
+export const SYS_USER_ID = 'usr_xs6ua3wp0rtm'
+export const SYS_USERNAME = 'system'
+export const ADMIN_USER_ID = 'usr_a8bpd742rslg'
+export const ADMIN_USERNAME = 'admin'
+
+export const defaultRoles: Record<
+	string,
+	{ id: string; title: string; description: string }
+> = {
+	system: {
+		id: 'rl_m8jgrcy4y0yf',
+		title: 'System',
+		description: 'System role',
+	},
+	administrator: {
+		id: 'rl_x4tu1hzoh13g',
+		title: 'Administrator',
+		description: 'Administrator role',
+	},
+	user: { id: 'rl_sabb8hc2pqmd', title: 'User', description: 'User role' },
+}
+
+export const defaultSettings: Record<
+	SETTING,
+	{ value: string; type: SETTING_DATA_TYPE }
+> = {
+	[SETTING.ENB_IP_WHITELIST]: {
+		type: SETTING_DATA_TYPE.BOOLEAN,
+		value: 'true',
+	},
+	[SETTING.MAINTENANCE_END_DATE]: {
+		type: SETTING_DATA_TYPE.DATE,
+		value: dayjs(0).toJSON(),
+	},
+	[SETTING.ENB_PASSWORD_ATTEMPT]: {
+		type: SETTING_DATA_TYPE.BOOLEAN,
+		value: 'false',
+	},
+	[SETTING.ENB_PASSWORD_EXPIRED]: {
+		type: SETTING_DATA_TYPE.BOOLEAN,
+		value: 'false',
+	},
+	[SETTING.ENB_MFA_REQUIRED]: {
+		type: SETTING_DATA_TYPE.BOOLEAN,
+		value: 'false',
+	},
+	[SETTING.ENB_ONLY_ONE_SESSION]: {
+		type: SETTING_DATA_TYPE.BOOLEAN,
+		value: 'false',
+	},
+}
+
+export const PERMISSIONS = {
+	ACTIVITY: {
+		VIEW: { roles: [defaultRoles.administrator.id, defaultRoles.user.id] },
+		VIEW_ALL: { roles: [defaultRoles.administrator.id] },
+	},
+	FILE: {
+		UPLOAD: { roles: [defaultRoles.administrator.id] },
+	},
+	SESSION: {
+		VIEW: { roles: [defaultRoles.administrator.id, defaultRoles.user.id] },
+		VIEW_ALL: { roles: [defaultRoles.administrator.id] },
+		REVOKE: { roles: [defaultRoles.administrator.id, defaultRoles.user.id] },
+		REVOKE_ALL: { roles: [defaultRoles.administrator.id] },
+	},
+	SETTING: {
+		VIEW: { roles: [defaultRoles.administrator.id, defaultRoles.user.id] },
+		UPDATE: { roles: [defaultRoles.administrator.id] },
+	},
+	I18N: {
+		VIEW: { roles: [defaultRoles.administrator.id] },
+		UPDATE: { roles: [defaultRoles.administrator.id] },
+		DELETE: { roles: [defaultRoles.administrator.id] },
+	},
+	IPWHITELIST: {
+		VIEW: { roles: [defaultRoles.administrator.id] },
+		CREATE: { roles: [defaultRoles.administrator.id] },
+		DELETE: { roles: [defaultRoles.administrator.id] },
+	},
+	USER: {
+		VIEW: { roles: [defaultRoles.administrator.id] },
+		UPDATE: { roles: [defaultRoles.administrator.id] },
+		RESET_MFA: { roles: [defaultRoles.administrator.id] },
+	},
+	ROLE: {
+		VIEW: { roles: [defaultRoles.administrator.id] },
+		UPDATE: { roles: [defaultRoles.administrator.id] },
+		DELETE: { roles: [defaultRoles.administrator.id] },
+	},
+	TELE_BOT: {
+		VIEW: { roles: [defaultRoles.administrator.id] },
+		UPDATE: { roles: [defaultRoles.administrator.id] },
+		DELETE: { roles: [defaultRoles.administrator.id] },
+	},
+	TELE_CHAT: {
+		VIEW: { roles: [defaultRoles.administrator.id] },
+		UPDATE: { roles: [defaultRoles.administrator.id] },
+		DELETE: { roles: [defaultRoles.administrator.id] },
+	},
+	TELE_TEMPLATE: {
+		VIEW: { roles: [defaultRoles.administrator.id] },
+		UPDATE: { roles: [defaultRoles.administrator.id] },
+		DELETE: { roles: [defaultRoles.administrator.id] },
+		SEND: { roles: [defaultRoles.administrator.id] },
+	},
+	API_KEY: {
+		VIEW: { roles: [defaultRoles.administrator.id, defaultRoles.user.id] },
+		VIEW_ALL: { roles: [defaultRoles.administrator.id] },
+		UPDATE: { roles: [defaultRoles.administrator.id, defaultRoles.user.id] },
+		UPDATE_ALL: { roles: [defaultRoles.administrator.id] },
+		DELETE: { roles: [defaultRoles.administrator.id, defaultRoles.user.id] },
+		DELETE_ALL: { roles: [defaultRoles.administrator.id] },
+	},
+}
+
+export enum TF_TYPE {
+	HOUR = 'HOUR',
+	DAY = 'DAY',
 }

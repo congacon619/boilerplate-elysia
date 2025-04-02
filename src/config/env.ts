@@ -48,6 +48,7 @@ export const envSchema = t.Object({
 
 	SYSTEM_USERNAME: t.String(),
 	SYSTEM_PASSWORD: t.String(),
+	ADMIN_PASSWORD: t.String(),
 
 	SALT_LENGTH: t.Integer({ minimum: 8, maximum: 20, default: 10 }),
 	PASSWORD_MAX_ATTEMPT: t.Integer({ minimum: 1, maximum: 100, default: 5 }),
@@ -77,13 +78,14 @@ export const envSchema = t.Object({
 
 	BULL_BOARD_EP: t.String({ default: 'queues' }),
 
-	LOG_LEVEL: t.String({ default: LOG_LEVEL.INFO }),
+	LOG_LEVEL: t.Enum(LOG_LEVEL, { default: LOG_LEVEL.INFO }),
 
 	RESEND_API_KEY: t.String({ minLength: 1 }),
 	SEND_FROM_EMAIL: t.String({
 		minLength: 1,
 		pattern: '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$',
 	}),
+	TELEGRAM_BOT_TOKEN: t.Optional(t.String()),
 })
 
 const Compiler = TypeCompiler.Compile(envSchema)

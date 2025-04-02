@@ -1,5 +1,4 @@
 import { Elysia } from 'elysia'
-import { UAParser } from 'ua-parser-js'
 import { DEFAULT_LANGUAGE, IPHeaders, IReqMeta, LANG, token12 } from '../common'
 
 export const headersToCheck: IPHeaders[] = [
@@ -52,7 +51,6 @@ export const reqMeta = (app: Elysia) =>
 		const language = Object.values(LANG).includes(requestLanguage as LANG)
 			? requestLanguage
 			: DEFAULT_LANGUAGE
-		const ua = new UAParser(headers.get('user-agent') ?? '').getResult()
 
 		if (!headers.has('x-request-id')) set.headers['x-request-id'] = requestId
 		if (!headers.has('x-timezone')) set.headers['x-timezone'] = timezone
@@ -62,15 +60,13 @@ export const reqMeta = (app: Elysia) =>
 			set.headers['accept-language'] = language
 		const ip = getIP(headers)
 		return {
-			metadata: {
-				id: requestId,
-				timezone,
-				timestamp,
-				language,
-				ua,
-				ip: ip ?? server?.requestIP(request)?.address ?? '',
-			} satisfies IReqMeta,
-		}
+			id: requestId,
+			timezone,
+			timestamp,
+			language,
+			userAgent: headers.get('user-agent') ?? 'Unknown',
+			clientIp: ip ?? server?.requestIP(request)?.address ?? '',
+		} satisfies IReqMeta
 	})
 
 export const nocache = (app: Elysia) => {
