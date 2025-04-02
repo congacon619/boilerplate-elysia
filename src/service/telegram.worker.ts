@@ -6,7 +6,11 @@ import { telegramService } from './telegram.service'
 export const teleWorker = new Worker<ITelegramMessage, void>(
 	QUEUE.TELEGRAM_QUEUE,
 	async (job: Job<ITelegramMessage>) =>
-		await telegramService.sendMessage(job.data),
+		await telegramService.sendMessage(
+			job.data.chatIds,
+			job.data.message ?? '',
+			{ ...job.data },
+		),
 	{
 		connection: {
 			url: env.REDIS_URI,
